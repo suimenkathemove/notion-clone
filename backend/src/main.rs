@@ -4,7 +4,7 @@ use std::net::SocketAddr;
 #[tokio::main]
 async fn main() {
     let app = Router::new().route("/", get(root));
-    let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
+    let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await
