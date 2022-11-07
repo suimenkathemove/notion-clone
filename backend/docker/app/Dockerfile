@@ -1,8 +1,7 @@
 FROM rust:1.65.0
 
-WORKDIR /usr/src/backend
+WORKDIR /app
+
 COPY . .
 
-RUN cargo install --path .
-
-CMD ["backend"]
+RUN cargo install cargo-watch

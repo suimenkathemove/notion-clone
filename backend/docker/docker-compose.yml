@@ -7,3 +7,18 @@ services:
       dockerfile: docker/app/Dockerfile
     ports:
       - 8080:8080
+    volumes:
+      - type: bind
+        source: ..
+        target: /app
+      - type: volume
+        source: app-cargo
+        target: /usr/local/cargo/registry
+      - type: volume
+        source: app-target
+        target: /app/target
+    command: sh -c "cargo watch -x run"
+
+volumes:
+  app-cargo:
+  app-target:
