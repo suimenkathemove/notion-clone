@@ -1,5 +1,5 @@
 {
-  "dockerComposeFile": "../docker-compose.yml",
-  "service": "backend-app",
-  "workspaceFolder": "/usr/src/backend"
+  "dockerComposeFile": "../backend/docker/docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/app"
 }
