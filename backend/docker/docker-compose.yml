@@ -2,6 +2,7 @@ version: '3.9'
 
 services:
   app:
+    container_name: app
     build:
       context: ..
       dockerfile: docker/app/Dockerfile
@@ -19,6 +20,7 @@ services:
         target: /app/target
     command: sh -c "cargo watch -x run"
   db:
+    container_name: db
     build:
       context: ..
       dockerfile: docker/db/Dockerfile
