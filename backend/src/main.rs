@@ -5,8 +5,13 @@ use crate::graphql::{
     QueryRoot,
 };
 use async_graphql::{EmptyMutation, EmptySubscription, Schema};
-use axum::{routing::get, Extension, Router};
+use axum::{
+    http::{header::CONTENT_TYPE, HeaderValue},
+    routing::get,
+    Extension, Router,
+};
 use std::net::SocketAddr;
+use tower_http::cors::{Any, CorsLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[tokio::main]
@@ -22,7 +27,13 @@ async fn main() {
 
     let app = Router::new()
         .route("/", get(graphql_playground).post(graphql_handler))
-        .layer(Extension(schema));
+        .layer(Extension(schema))
+        .layer(
+            CorsLayer::new()
+                .allow_origin("http://localhost:3000".parse::<HeaderValue>().unwrap())
+                .allow_methods(Any)
+                .allow_headers(vec![CONTENT_TYPE]),
+        );
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
     tracing::debug!("listening on {}", addr);
