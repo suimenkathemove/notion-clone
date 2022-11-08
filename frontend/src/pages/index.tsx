@@ -1,4 +1,4 @@
-import { NextPage } from "next/types";
+import { NextPage } from "next";
 
 const Home: NextPage = () => {
   return <div />;
