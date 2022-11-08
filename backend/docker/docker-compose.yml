@@ -18,7 +18,21 @@ services:
         source: app-target
         target: /app/target
     command: sh -c "cargo watch -x run"
+  db:
+    build:
+      context: ..
+      dockerfile: docker/db/Dockerfile
+      target: database
+    ports:
+      - 5432:5432
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: slack-clone
+    restart: always
 
 volumes:
   app-cargo:
   app-target:
+  pgdata:
