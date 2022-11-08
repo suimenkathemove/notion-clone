@@ -19,6 +19,8 @@ services:
         source: app-target
         target: /app/target
     command: sh -c "cargo watch -x run"
+    depends_on:
+      - db
   db:
     container_name: db
     build:
