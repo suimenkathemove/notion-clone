@@ -18,3 +18,7 @@ migrate-run:
 .PHONY: run
 run: migrate-run
 	cd docker && docker compose up --build
+
+.PHONY: down
+down:
+	cd docker && docker compose down
