@@ -15,8 +15,8 @@ migrate-run:
 	sh -c "sqlx db create" \
 	sh -c "sqlx migrate run"
 
-.PHONY: run
-run: migrate-run
+.PHONY: up
+up: migrate-run
 	cd docker && docker compose up --build
 
 .PHONY: down
