@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "pwa-chrome",
+      "request": "launch",
+      "name": "Debug in Storybook",
+      "url": "http://localhost:6006",
+      "webRoot": "${workspaceFolder}/frontend"
+    },
+    {
+      "name": "Next.js: debug client-side",
+      "type": "pwa-chrome",
+      "request": "launch",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}/frontend"
+    }
+  ]
+}
