@@ -32,8 +32,9 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     environment:
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: slack-clone
+      POSTGRES_DB: slack_clone
     restart: always
 
 volumes:
