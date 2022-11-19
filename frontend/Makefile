@@ -2,6 +2,6 @@ ifndef VERBOSE
 .SILENT:
 endif
 
-.PHONY: run
-run:
+.PHONY: up
+up:
 	docker compose up --build
