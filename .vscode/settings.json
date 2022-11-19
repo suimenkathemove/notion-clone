@@ -4,6 +4,12 @@
   "files.insertFinalNewline": true,
   "files.trimTrailingWhitespace": true,
   "scss.validate": false,
+  "terminal.integrated.profiles.osx": {
+    "dev": {
+      "path": "${workspaceFolder}/dev.sh"
+    }
+  },
+  "terminal.integrated.defaultProfile.osx": "dev",
   "typescript.tsdk": "./node_modules/typescript/lib",
   "[javascript][javascriptreact][typescript][typescriptreact]": {
     "editor.codeActionsOnSave": {
