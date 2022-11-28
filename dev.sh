@@ -2,9 +2,9 @@
 
 PROJECT_NAME="slack-clone"
 
-DEV_DIR="${HOME}/development/suimenkathemove"
+DEV_DIR_PATH="${HOME}/development/suimenkathemove"
 
-cd "$DEV_DIR/$PROJECT_NAME" || exit
+cd "$DEV_DIR_PATH/$PROJECT_NAME" || exit
 
 if tmux has-session -t "$PROJECT_NAME"; then
   tmux attach-session -t "$PROJECT_NAME"
