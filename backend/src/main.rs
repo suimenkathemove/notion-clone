@@ -1,4 +1,5 @@
 mod graphql;
+mod repositories;
 
 use crate::graphql::{
     handlers::{graphql_handler::graphql_handler, graphql_playground::graphql_playground},
