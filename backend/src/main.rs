@@ -1,9 +1,13 @@
 mod graphql;
+mod models;
 mod repositories;
 
-use crate::graphql::{
-    handlers::{graphql_handler::graphql_handler, graphql_playground::graphql_playground},
-    QueryRoot,
+use crate::{
+    graphql::{
+        handlers::{graphql_handler::graphql_handler, graphql_playground::graphql_playground},
+        QueryRoot,
+    },
+    repositories::postgres::connect_pool,
 };
 use async_graphql::{EmptyMutation, EmptySubscription, Schema};
 use axum::{
@@ -11,6 +15,7 @@ use axum::{
     routing::get,
     Extension, Router,
 };
+use dotenv::dotenv;
 use std::net::SocketAddr;
 use tower_http::cors::{Any, CorsLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -24,7 +29,16 @@ async fn main() {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
-    let schema = Schema::build(QueryRoot, EmptyMutation, EmptySubscription).finish();
+    dotenv().ok();
+
+    let pool = {
+        let database_url = std::env::var("DATABASE_URL").unwrap();
+        connect_pool(&database_url).await
+    };
+
+    let schema = Schema::build(QueryRoot, EmptyMutation, EmptySubscription)
+        .data(pool)
+        .finish();
 
     let app = Router::new()
         .route("/", get(graphql_playground).post(graphql_handler))
