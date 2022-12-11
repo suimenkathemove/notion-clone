@@ -4,5 +4,5 @@ use uuid::Uuid;
 
 #[derive(FromRow, SimpleObject)]
 pub struct Channel {
-    pub id: Uuid,
+    id: Uuid,
 }
