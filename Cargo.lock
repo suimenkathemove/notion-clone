@@ -872,6 +872,9 @@ dependencies = [
 [[package]]
 name = "models"
 version = "0.1.0"
+dependencies = [
+ "uuid",
+]
 
 [[package]]
 name = "multer"
