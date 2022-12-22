@@ -11,6 +11,7 @@ async-graphql-axum = "4.0.16"
 async-trait = "0.1.59"
 axum = "0.5.17"
 dotenv = "0.15.0"
+models = { path = "../models" }
 sqlx = { version = "0.6.2", features = [
     "runtime-tokio-rustls",
     "postgres",

@@ -1,5 +1,4 @@
 mod graphql;
-mod models;
 mod repositories;
 
 use crate::{

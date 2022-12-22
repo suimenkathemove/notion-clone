@@ -235,6 +235,7 @@ dependencies = [
  "async-trait",
  "axum",
  "dotenv",
+ "models",
  "sqlx",
  "tokio",
  "tower-http",
