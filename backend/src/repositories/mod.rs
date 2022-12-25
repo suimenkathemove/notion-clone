@@ -1,2 +1,2 @@
 pub mod interfaces;
-pub mod postgres;
+pub mod sqlx;

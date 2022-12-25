@@ -3,7 +3,7 @@ pub mod handlers;
 
 use self::channel::Channel;
 use crate::repositories::{
-    interfaces::channel::IChannelRepository, postgres::channel::ChannelRepository,
+    interfaces::channel::IChannelRepository, sqlx::channel::ChannelRepository,
 };
 use async_graphql::{Context, EmptyMutation, EmptySubscription, Object, Schema};
 use sqlx::PgPool;

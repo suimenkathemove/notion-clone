@@ -6,7 +6,7 @@ use crate::{
         handlers::{graphql_handler::graphql_handler, graphql_playground::graphql_playground},
         QueryRoot,
     },
-    repositories::postgres::connect_pool,
+    repositories::sqlx::connect_pool,
 };
 use async_graphql::{EmptyMutation, EmptySubscription, Schema};
 use axum::{
