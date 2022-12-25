@@ -8,6 +8,6 @@ pub struct Channel {
 
 impl From<models::channel::Channel> for Channel {
     fn from(channel: models::channel::Channel) -> Self {
-        Self { id: channel.id }
+        Self { id: channel.id.0 }
     }
 }

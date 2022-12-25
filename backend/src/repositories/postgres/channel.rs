@@ -4,13 +4,23 @@ use sqlx::{query_as, FromRow, PgPool};
 use uuid::Uuid;
 
 #[derive(FromRow)]
+pub struct ChannelId(pub Uuid);
+
+impl Into<models::channel::channel_id::ChannelId> for ChannelId {
+    fn into(self) -> models::channel::channel_id::ChannelId {
+        models::channel::channel_id::ChannelId(self.0)
+    }
+}
+
+#[derive(FromRow)]
 pub struct Channel {
-    pub id: Uuid,
+    #[sqlx(flatten)]
+    pub id: ChannelId,
 }
 
 impl Into<models::channel::Channel> for Channel {
     fn into(self) -> models::channel::Channel {
-        models::channel::Channel { id: self.id }
+        models::channel::Channel { id: self.id.into() }
     }
 }
 
