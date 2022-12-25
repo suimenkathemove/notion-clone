@@ -1,4 +1,4 @@
-use super::super::MySchema;
+use crate::graphql::MySchema;
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::extract::Extension;
 
