@@ -12,8 +12,7 @@ migrate-add:
 .PHONY: migrate-run
 migrate-run:
 	cd docker && docker compose run --rm app \
-	sh -c "sqlx db create" \
-	sh -c "sqlx migrate run"
+	sh -c "sqlx db setup"
 
 .PHONY: up
 up: migrate-run
@@ -22,3 +21,8 @@ up: migrate-run
 .PHONY: down
 down:
 	cd docker && docker compose down
+
+.PHONY: db-drop
+db-drop: down
+	cd docker && docker compose run --rm app \
+	sh -c "sqlx db drop"
