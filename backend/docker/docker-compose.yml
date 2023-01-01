@@ -2,10 +2,11 @@ version: '3.9'
 
 services:
   app:
-    container_name: app
     build:
       context: ..
       dockerfile: docker/app/Dockerfile
+    image: slack-clone-app
+    container_name: slack-clone-app
     ports:
       - 8080:8080
     volumes:
@@ -23,11 +24,12 @@ services:
     depends_on:
       - db
   db:
-    container_name: db
     build:
       context: ..
       dockerfile: docker/db/Dockerfile
       target: database
+    image: slack-clone-db
+    container_name: slack-clone-db
     ports:
       - 5432:5432
     volumes:
