@@ -3,6 +3,8 @@ version: '3.9'
 services:
   frontend:
     build: .
+    image: slack-clone-frontend
+    container_name: slack-clone-frontend
     volumes:
       - ./src:/frontend/src
       - ./public:/frontend/public
