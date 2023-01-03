@@ -12,3 +12,7 @@ aws:
 .PHONY: create-network
 create-network:
 	make aws AWS_COMMAND="cloudformation create-stack --stack-name slack-clone-network --template-body file:///templates/network.yml"
+
+.PHONY: delete-network
+delete-network:
+	make aws AWS_COMMAND="cloudformation delete-stack --stack-name slack-clone-network"
