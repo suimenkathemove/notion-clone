@@ -19,8 +19,12 @@
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
     "typeRoots": ["./node_modules/@types"],
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["*"]
+    },
     "skipLibCheck": true
   },
-  "include": ["bin/**/*.ts", "lib/**/*.ts", "test/**/*.ts"],
+  "include": ["**/*.ts"],
   "exclude": ["node_modules", "cdk.out"]
 }
