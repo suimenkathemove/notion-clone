@@ -18,3 +18,9 @@ export const subnetIds = {
     c: "slackCloneSubnetPrivateDb1C",
   },
 } as const satisfies Record<SubnetType, Record<AvailabilityZoneType, string>>;
+
+export const routeTableIds = {
+  ingress: "slackCloneRouteIngress",
+  app: "slackCloneRouteApp",
+  db: "slackCloneRouteDb",
+} as const satisfies Record<SubnetType, string>;
