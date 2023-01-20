@@ -25,7 +25,6 @@ export class SlackCloneStack extends cdk.Stack {
           availabilityZone: availabilityZones.a,
           cidrBlock: cidrBlocks.slackCloneSubnetPublicIngress1A,
         });
-
         new cdk.aws_ec2.CfnSubnet(this, subnetIds.ingress.c, {
           vpcId,
           availabilityZone: availabilityZones.c,
@@ -40,7 +39,6 @@ export class SlackCloneStack extends cdk.Stack {
           availabilityZone: availabilityZones.a,
           cidrBlock: cidrBlocks.slackCloneSubnetPrivateApp1A,
         });
-
         new cdk.aws_ec2.CfnSubnet(this, subnetIds.app.c, {
           vpcId,
           availabilityZone: availabilityZones.c,
@@ -55,7 +53,6 @@ export class SlackCloneStack extends cdk.Stack {
           availabilityZone: availabilityZones.a,
           cidrBlock: cidrBlocks.slackCloneSubnetPrivateDb1A,
         });
-
         new cdk.aws_ec2.CfnSubnet(this, subnetIds.db.c, {
           vpcId,
           availabilityZone: availabilityZones.c,
