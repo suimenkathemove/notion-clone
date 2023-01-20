@@ -3,11 +3,8 @@ import { Construct } from "constructs";
 
 import { availabilityZones } from "@/constants/availability-zones";
 import { cidrBlocks } from "@/constants/cidr-blocks";
-import {
-  routeTableIds,
-  subnetIds,
-  subnetRouteTableAssociationIds,
-} from "@/constants/ids";
+import { routeTableIds, subnetRouteTableAssociationIds } from "@/constants/ids";
+import { subnetIds } from "@/constants/subnets";
 import { vpcId } from "@/constants/vpc";
 
 export class SlackCloneStack extends cdk.Stack {
