@@ -1,4 +1,5 @@
-import { subnetIds, vpcId } from "./ids";
+import { subnetIds } from "./subnets";
+import { vpcId } from "./vpc";
 
 import { Cidr } from "@/types";
 
