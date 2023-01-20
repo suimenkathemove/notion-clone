@@ -68,6 +68,25 @@ export class SlackCloneStack extends cdk.Stack {
           availabilityZone: availabilityZones.c,
           cidrBlock: cidrBlocks.slackCloneSubnetPrivateApp1C,
         });
+
+        new cdk.aws_ec2.CfnRouteTable(this, routeTableIds.app, { vpcId });
+
+        new cdk.aws_ec2.CfnSubnetRouteTableAssociation(
+          this,
+          subnetRouteTableAssociationIds.app.a,
+          {
+            routeTableId: routeTableIds.app,
+            subnetId: subnetIds.app.a,
+          },
+        );
+        new cdk.aws_ec2.CfnSubnetRouteTableAssociation(
+          this,
+          subnetRouteTableAssociationIds.app.c,
+          {
+            routeTableId: routeTableIds.app,
+            subnetId: subnetIds.app.c,
+          },
+        );
       }
 
       // db
@@ -82,6 +101,25 @@ export class SlackCloneStack extends cdk.Stack {
           availabilityZone: availabilityZones.c,
           cidrBlock: cidrBlocks.slackCloneSubnetPrivateDb1C,
         });
+
+        new cdk.aws_ec2.CfnRouteTable(this, routeTableIds.db, { vpcId });
+
+        new cdk.aws_ec2.CfnSubnetRouteTableAssociation(
+          this,
+          subnetRouteTableAssociationIds.db.a,
+          {
+            routeTableId: routeTableIds.db,
+            subnetId: subnetIds.db.a,
+          },
+        );
+        new cdk.aws_ec2.CfnSubnetRouteTableAssociation(
+          this,
+          subnetRouteTableAssociationIds.db.c,
+          {
+            routeTableId: routeTableIds.db,
+            subnetId: subnetIds.db.c,
+          },
+        );
       }
     }
   }
