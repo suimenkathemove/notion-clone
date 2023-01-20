@@ -3,7 +3,12 @@ import { Construct } from "constructs";
 
 import { availabilityZones } from "@/constants/availability-zones";
 import { cidrBlocks } from "@/constants/cidr-blocks";
-import { subnetIds, vpcId } from "@/constants/ids";
+import {
+  routeTableIds,
+  subnetIds,
+  subnetRouteTableAssociationIds,
+  vpcId,
+} from "@/constants/ids";
 
 export class SlackCloneStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -30,6 +35,25 @@ export class SlackCloneStack extends cdk.Stack {
           availabilityZone: availabilityZones.c,
           cidrBlock: cidrBlocks.slackCloneSubnetPublicIngress1C,
         });
+
+        new cdk.aws_ec2.CfnRouteTable(this, routeTableIds.ingress, { vpcId });
+
+        new cdk.aws_ec2.CfnSubnetRouteTableAssociation(
+          this,
+          subnetRouteTableAssociationIds.ingress.a,
+          {
+            routeTableId: routeTableIds.ingress,
+            subnetId: subnetIds.ingress.a,
+          },
+        );
+        new cdk.aws_ec2.CfnSubnetRouteTableAssociation(
+          this,
+          subnetRouteTableAssociationIds.ingress.c,
+          {
+            routeTableId: routeTableIds.ingress,
+            subnetId: subnetIds.ingress.c,
+          },
+        );
       }
 
       // app
