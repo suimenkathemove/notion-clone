@@ -3,7 +3,10 @@ import { Construct } from "constructs";
 
 import { availabilityZones } from "@/constants/availability-zones";
 import { cidrBlocks } from "@/constants/cidr-blocks";
-import { routeTableIds, subnetRouteTableAssociationIds } from "@/constants/ids";
+import {
+  routeTableIds,
+  subnetRouteTableAssociationIds,
+} from "@/constants/route-tables";
 import { subnetIds } from "@/constants/subnets";
 import { vpcId } from "@/constants/vpc";
 
