@@ -32,6 +32,36 @@ export class SlackCloneStack extends cdk.Stack {
           cidrBlock: cidrBlocks.slackCloneSubnetPublicIngress1C,
         });
       }
+
+      // app
+      {
+        new cdk.aws_ec2.CfnSubnet(this, subnetIds.app.a, {
+          vpcId,
+          availabilityZone: availabilityZones.a,
+          cidrBlock: cidrBlocks.slackCloneSubnetPrivateApp1A,
+        });
+
+        new cdk.aws_ec2.CfnSubnet(this, subnetIds.app.c, {
+          vpcId,
+          availabilityZone: availabilityZones.c,
+          cidrBlock: cidrBlocks.slackCloneSubnetPrivateApp1C,
+        });
+      }
+
+      // db
+      {
+        new cdk.aws_ec2.CfnSubnet(this, subnetIds.db.a, {
+          vpcId,
+          availabilityZone: availabilityZones.a,
+          cidrBlock: cidrBlocks.slackCloneSubnetPrivateDb1A,
+        });
+
+        new cdk.aws_ec2.CfnSubnet(this, subnetIds.db.c, {
+          vpcId,
+          availabilityZone: availabilityZones.c,
+          cidrBlock: cidrBlocks.slackCloneSubnetPrivateDb1C,
+        });
+      }
     }
   }
 }
