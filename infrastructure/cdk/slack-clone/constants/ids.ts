@@ -1,7 +1,5 @@
 import { AvailabilityZoneType } from "./availability-zones";
 
-export const vpcId = "slackCloneVpc";
-
 export type SubnetType = "ingress" | "app" | "db";
 
 export const subnetIds = {

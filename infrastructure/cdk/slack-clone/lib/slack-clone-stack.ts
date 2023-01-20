@@ -7,8 +7,8 @@ import {
   routeTableIds,
   subnetIds,
   subnetRouteTableAssociationIds,
-  vpcId,
 } from "@/constants/ids";
+import { vpcId } from "@/constants/vpc";
 
 export class SlackCloneStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
