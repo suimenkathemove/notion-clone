@@ -1,4 +1,8 @@
+import { AvailabilityZoneType } from "./availability-zones";
+
 export const vpcId = "slackCloneVpc";
+
+export type SubnetType = "ingress" | "app" | "db";
 
 export const subnetIds = {
   ingress: {
@@ -13,4 +17,4 @@ export const subnetIds = {
     a: "slackCloneSubnetPrivateDb1A",
     c: "slackCloneSubnetPrivateDb1C",
   },
-} as const satisfies Record<string, Record<"a" | "c", string>>;
+} as const satisfies Record<SubnetType, Record<AvailabilityZoneType, string>>;
