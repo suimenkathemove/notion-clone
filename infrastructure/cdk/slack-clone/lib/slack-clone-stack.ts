@@ -1,15 +1,15 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 
-import { Cidr } from "@/types";
+import { cidrBlocks } from "@/constants/cidr-blocks";
+import { vpcId } from "@/constants/ids";
 
 export class SlackCloneStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const cidrBlock: Cidr = "10.0.0.0/16";
-    new cdk.aws_ec2.CfnVPC(this, "slackCloneVpc", {
-      cidrBlock,
+    new cdk.aws_ec2.CfnVPC(this, vpcId, {
+      cidrBlock: cidrBlocks.slackCloneVpc,
       enableDnsHostnames: true,
       enableDnsSupport: true,
     });
