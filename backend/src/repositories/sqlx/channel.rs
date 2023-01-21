@@ -6,9 +6,9 @@ use uuid::Uuid;
 #[derive(FromRow)]
 pub struct ChannelId(pub Uuid);
 
-impl Into<models::channel::channel_id::ChannelId> for ChannelId {
-    fn into(self) -> models::channel::channel_id::ChannelId {
-        models::channel::channel_id::ChannelId(self.0)
+impl Into<models::channel::ChannelId> for ChannelId {
+    fn into(self) -> models::channel::ChannelId {
+        models::channel::ChannelId(self.0)
     }
 }
 
