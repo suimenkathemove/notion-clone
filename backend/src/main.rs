@@ -41,7 +41,7 @@ async fn main() {
     let channel_repository = ChannelRepository::new(Arc::new(Mutex::new(pool)));
     let channel_use_case = ChannelUseCase::new(Arc::new(Mutex::new(channel_repository)));
 
-    let schema = Schema::build(QueryRoot, EmptyMutation, EmptySubscription)
+    let schema = Schema::build(QueryRoot::default(), EmptyMutation, EmptySubscription)
         .data(channel_use_case)
         .finish();
 

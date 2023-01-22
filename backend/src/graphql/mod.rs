@@ -1,27 +1,11 @@
 mod channel;
 pub mod handlers;
+mod health_check;
 
-use self::channel::Channel;
-use crate::use_cases::channel::ChannelUseCase;
-use async_graphql::{Context, EmptyMutation, EmptySubscription, Object, Schema};
+use self::{channel::ChannelQuery, health_check::HealthCheckQuery};
+use async_graphql::{EmptyMutation, EmptySubscription, MergedObject, Schema};
 
 pub type MySchema = Schema<QueryRoot, EmptyMutation, EmptySubscription>;
 
-pub struct QueryRoot;
-
-#[Object]
-impl QueryRoot {
-    async fn health_check(&self) -> &str {
-        "OK"
-    }
-
-    async fn get_channel_list(&self, ctx: &Context<'_>) -> Vec<Channel> {
-        let channel_use_case = ctx.data_unchecked::<ChannelUseCase>();
-        channel_use_case
-            .list()
-            .await
-            .into_iter()
-            .map(|c| c.into())
-            .collect()
-    }
-}
+#[derive(Default, MergedObject)]
+pub struct QueryRoot(HealthCheckQuery, ChannelQuery);
