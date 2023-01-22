@@ -1,9 +1,12 @@
 use crate::repositories::interfaces::channel::IChannelRepository;
 use async_trait::async_trait;
 use sqlx::{query_as, FromRow, PgPool};
+use std::sync::Arc;
+use tokio::sync::Mutex;
 use uuid::Uuid;
 
-#[derive(FromRow)]
+#[derive(sqlx::Type)]
+#[sqlx(transparent)]
 pub struct ChannelId(pub Uuid);
 
 impl Into<models::channel::ChannelId> for ChannelId {
@@ -12,7 +15,8 @@ impl Into<models::channel::ChannelId> for ChannelId {
     }
 }
 
-#[derive(FromRow)]
+#[derive(sqlx::Type)]
+#[sqlx(transparent)]
 pub struct ChannelName(pub String);
 
 impl Into<models::channel::ChannelName> for ChannelName {
@@ -23,9 +27,7 @@ impl Into<models::channel::ChannelName> for ChannelName {
 
 #[derive(FromRow)]
 pub struct Channel {
-    #[sqlx(flatten)]
     pub id: ChannelId,
-    #[sqlx(flatten)]
     pub name: ChannelName,
 }
 
@@ -38,21 +40,22 @@ impl Into<models::channel::Channel> for Channel {
     }
 }
 
-pub struct ChannelRepository<'a> {
-    pool: &'a PgPool,
+pub struct ChannelRepository {
+    pool: Arc<Mutex<PgPool>>,
 }
 
-impl<'a> ChannelRepository<'a> {
-    pub fn new(pool: &'a PgPool) -> Self {
+impl ChannelRepository {
+    pub fn new(pool: Arc<Mutex<PgPool>>) -> Self {
         Self { pool }
     }
 }
 
 #[async_trait]
-impl<'a> IChannelRepository for ChannelRepository<'a> {
+impl IChannelRepository for ChannelRepository {
     async fn list(&self) -> Vec<models::channel::Channel> {
+        let pool = &*self.pool.lock().await;
         query_as::<_, Channel>("SELECT * FROM channels")
-            .fetch_all(self.pool)
+            .fetch_all(pool)
             .await
             .unwrap()
             .into_iter()

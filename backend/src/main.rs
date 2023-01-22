@@ -1,12 +1,14 @@
 mod graphql;
 mod repositories;
+mod use_cases;
 
 use crate::{
     graphql::{
         handlers::{graphql_handler::graphql_handler, graphql_playground::graphql_playground},
         QueryRoot,
     },
-    repositories::sqlx::connect_pool,
+    repositories::sqlx::{channel::ChannelRepository, connect_pool},
+    use_cases::channel::ChannelUseCase,
 };
 use async_graphql::{EmptyMutation, EmptySubscription, Schema};
 use axum::{
@@ -15,7 +17,8 @@ use axum::{
     Extension, Router,
 };
 use dotenv::dotenv;
-use std::net::SocketAddr;
+use std::{net::SocketAddr, sync::Arc};
+use tokio::sync::Mutex;
 use tower_http::cors::{Any, CorsLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -35,8 +38,11 @@ async fn main() {
         connect_pool(&database_url).await
     };
 
+    let channel_repository = ChannelRepository::new(Arc::new(Mutex::new(pool)));
+    let channel_use_case = ChannelUseCase::new(Arc::new(Mutex::new(channel_repository)));
+
     let schema = Schema::build(QueryRoot, EmptyMutation, EmptySubscription)
-        .data(pool)
+        .data(channel_use_case)
         .finish();
 
     let app = Router::new()

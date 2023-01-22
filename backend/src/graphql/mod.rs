@@ -2,11 +2,8 @@ mod channel;
 pub mod handlers;
 
 use self::channel::Channel;
-use crate::repositories::{
-    interfaces::channel::IChannelRepository, sqlx::channel::ChannelRepository,
-};
+use crate::use_cases::channel::ChannelUseCase;
 use async_graphql::{Context, EmptyMutation, EmptySubscription, Object, Schema};
-use sqlx::PgPool;
 
 pub type MySchema = Schema<QueryRoot, EmptyMutation, EmptySubscription>;
 
@@ -19,9 +16,8 @@ impl QueryRoot {
     }
 
     async fn get_channel_list(&self, ctx: &Context<'_>) -> Vec<Channel> {
-        let pool = ctx.data_unchecked::<PgPool>();
-        let channel_repository = ChannelRepository::new(&pool);
-        channel_repository
+        let channel_use_case = ctx.data_unchecked::<ChannelUseCase>();
+        channel_use_case
             .list()
             .await
             .into_iter()
