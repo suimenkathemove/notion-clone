@@ -13,14 +13,28 @@ impl Into<models::channel::ChannelId> for ChannelId {
 }
 
 #[derive(FromRow)]
+pub struct ChannelName(pub String);
+
+impl Into<models::channel::ChannelName> for ChannelName {
+    fn into(self) -> models::channel::ChannelName {
+        models::channel::ChannelName(self.0)
+    }
+}
+
+#[derive(FromRow)]
 pub struct Channel {
     #[sqlx(flatten)]
     pub id: ChannelId,
+    #[sqlx(flatten)]
+    pub name: ChannelName,
 }
 
 impl Into<models::channel::Channel> for Channel {
     fn into(self) -> models::channel::Channel {
-        models::channel::Channel { id: self.id.into() }
+        models::channel::Channel {
+            id: self.id.into(),
+            name: self.name.into(),
+        }
     }
 }
 

@@ -5,3 +5,9 @@ macro_rules! define_id {
         pub struct $name(pub Uuid);
     };
 }
+
+macro_rules! define_name {
+    ($name: ident) => {
+        pub struct $name(pub String);
+    };
+}
