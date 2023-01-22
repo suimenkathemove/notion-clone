@@ -17,8 +17,8 @@ use axum::{
     Extension, Router,
 };
 use dotenv::dotenv;
+use repositories::interfaces::channel::IChannelRepository;
 use std::{net::SocketAddr, sync::Arc};
-use tokio::sync::Mutex;
 use tower_http::cors::{Any, CorsLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -35,11 +35,14 @@ async fn main() {
 
     let pool = {
         let database_url = std::env::var("DATABASE_URL").unwrap();
-        connect_pool(&database_url).await
+        let pool = connect_pool(&database_url).await;
+        Arc::new(pool)
     };
 
-    let channel_repository = ChannelRepository::new(Arc::new(Mutex::new(pool)));
-    let channel_use_case = ChannelUseCase::new(Arc::new(Mutex::new(channel_repository)));
+    let channel_repository: Arc<dyn IChannelRepository> =
+        Arc::new(ChannelRepository::new(Arc::clone(&pool)));
+
+    let channel_use_case = ChannelUseCase::new(Arc::clone(&channel_repository));
 
     let schema = Schema::build(QueryRoot::default(), EmptyMutation, EmptySubscription)
         .data(channel_use_case)
