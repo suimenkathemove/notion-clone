@@ -1,31 +1,41 @@
 use super::thread::Thread;
 use crate::use_cases::{channel::ChannelUseCase, thread::ThreadUseCase};
-use async_graphql::{Context, Object};
-use std::str::FromStr;
+use async_graphql::{scalar, Context, Object};
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-pub struct Channel(models::channel::Channel);
+define_id!(ChannelId, models::channel::ChannelId);
+
+define_name!(ChannelName, models::channel::ChannelName);
+
+pub struct Channel {
+    pub id: ChannelId,
+    pub name: ChannelName,
+}
 
 impl From<models::channel::Channel> for Channel {
     fn from(channel: models::channel::Channel) -> Self {
-        Self(channel)
+        Self {
+            id: channel.id.into(),
+            name: channel.name.into(),
+        }
     }
 }
 
 #[Object]
 impl Channel {
-    async fn id(&self) -> Uuid {
-        self.0.id.0
+    async fn id(&self) -> ChannelId {
+        self.id
     }
 
-    async fn name(&self) -> &str {
-        &self.0.name.0
+    async fn name(&self) -> ChannelName {
+        self.name.to_owned()
     }
 
     async fn threads(&self, ctx: &Context<'_>) -> Vec<Thread> {
         let thread_use_case = ctx.data_unchecked::<ThreadUseCase>();
         thread_use_case
-            .list(&self.0.id)
+            .list(&self.id.into())
             .await
             .into_iter()
             .map(|t| t.into())
@@ -54,9 +64,8 @@ pub struct ChannelMutation;
 
 #[Object]
 impl ChannelMutation {
-    async fn create_channel(&self, ctx: &Context<'_>, channel_name: String) -> Channel {
+    async fn create_channel(&self, ctx: &Context<'_>, channel_name: ChannelName) -> Channel {
         let channel_use_case = ctx.data_unchecked::<ChannelUseCase>();
-        let channel_name = models::channel::ChannelName::from_str(&channel_name).unwrap();
-        channel_use_case.create(channel_name).await.into()
+        channel_use_case.create(channel_name.into()).await.into()
     }
 }

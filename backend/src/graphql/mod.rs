@@ -1,3 +1,6 @@
+#[macro_use]
+mod macros;
+
 mod channel;
 pub mod handlers;
 mod health_check;
