@@ -54,9 +54,9 @@ pub struct ChannelMutation;
 
 #[Object]
 impl ChannelMutation {
-    async fn create_channel(&self, ctx: &Context<'_>, name: String) -> Channel {
+    async fn create_channel(&self, ctx: &Context<'_>, channel_name: String) -> Channel {
         let channel_use_case = ctx.data_unchecked::<ChannelUseCase>();
-        let channel_name = models::channel::ChannelName::from_str(&name).unwrap();
+        let channel_name = models::channel::ChannelName::from_str(&channel_name).unwrap();
         channel_use_case.create(channel_name).await.into()
     }
 }

@@ -61,9 +61,9 @@ impl IChannelRepository for ChannelRepository {
             .collect()
     }
 
-    async fn create(&self, name: models::channel::ChannelName) -> models::channel::Channel {
+    async fn create(&self, channel_name: models::channel::ChannelName) -> models::channel::Channel {
         query_as::<_, Channel>("INSERT INTO channels (name) VALUES ($1) RETURNING *")
-            .bind(name.0)
+            .bind(channel_name.0)
             .fetch_one(&*self.pool)
             .await
             .unwrap()
