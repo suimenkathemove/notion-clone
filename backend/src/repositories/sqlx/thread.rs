@@ -4,15 +4,7 @@ use sqlx::{query_as, FromRow, PgPool};
 use std::sync::Arc;
 use uuid::Uuid;
 
-#[derive(sqlx::Type)]
-#[sqlx(transparent)]
-pub struct ThreadId(pub Uuid);
-
-impl Into<models::thread::ThreadId> for ThreadId {
-    fn into(self) -> models::thread::ThreadId {
-        models::thread::ThreadId(self.0)
-    }
-}
+define_id!(ThreadId, models::thread::ThreadId);
 
 #[derive(FromRow)]
 pub struct Thread {
