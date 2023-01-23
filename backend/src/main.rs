@@ -7,8 +7,11 @@ use crate::{
         handlers::{graphql_handler::graphql_handler, graphql_playground::graphql_playground},
         MutationRoot, QueryRoot,
     },
-    repositories::sqlx::{channel::ChannelRepository, connect_pool, thread::ThreadRepository},
-    use_cases::{channel::ChannelUseCase, thread::ThreadUseCase},
+    repositories::sqlx::{
+        channel::ChannelRepository, connect_pool, message::MessageRepository,
+        thread::ThreadRepository,
+    },
+    use_cases::{channel::ChannelUseCase, message::MessageUseCase, thread::ThreadUseCase},
 };
 use async_graphql::{EmptySubscription, Schema};
 use axum::{
@@ -17,7 +20,9 @@ use axum::{
     Extension, Router,
 };
 use dotenv::dotenv;
-use repositories::interfaces::{channel::IChannelRepository, thread::IThreadRepository};
+use repositories::interfaces::{
+    channel::IChannelRepository, message::IMessageRepository, thread::IThreadRepository,
+};
 use std::{net::SocketAddr, sync::Arc};
 use tower_http::cors::{Any, CorsLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -43,9 +48,12 @@ async fn main() {
         Arc::new(ChannelRepository::new(Arc::clone(&pool)));
     let thread_repository: Arc<dyn IThreadRepository> =
         Arc::new(ThreadRepository::new(Arc::clone(&pool)));
+    let message_repository: Arc<dyn IMessageRepository> =
+        Arc::new(MessageRepository::new(Arc::clone(&pool)));
 
     let channel_use_case = ChannelUseCase::new(Arc::clone(&channel_repository));
     let thread_use_case = ThreadUseCase::new(Arc::clone(&thread_repository));
+    let message_use_case = MessageUseCase::new(Arc::clone(&message_repository));
 
     let schema = Schema::build(
         QueryRoot::default(),
@@ -54,6 +62,7 @@ async fn main() {
     )
     .data(channel_use_case)
     .data(thread_use_case)
+    .data(message_use_case)
     .finish();
 
     let app = Router::new()
