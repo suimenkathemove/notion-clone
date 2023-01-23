@@ -1,4 +1,5 @@
 pub mod channel;
+pub mod thread;
 
 use sqlx::{postgres::PgPoolOptions, PgPool};
 

@@ -14,7 +14,8 @@ CREATE TABLE channels (
 );
 
 CREATE TABLE threads (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4()
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    channel_id UUID NOT NULL REFERENCES channels(id) ON DELETE CASCADE
 );
 
 CREATE TABLE messages (

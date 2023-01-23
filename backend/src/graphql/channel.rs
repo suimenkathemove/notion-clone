@@ -1,19 +1,34 @@
-use crate::use_cases::channel::ChannelUseCase;
-use async_graphql::{Context, Object, SimpleObject};
+use super::thread::Thread;
+use crate::use_cases::{channel::ChannelUseCase, thread::ThreadUseCase};
+use async_graphql::{Context, Object};
 use uuid::Uuid;
 
-#[derive(SimpleObject)]
-pub struct Channel {
-    pub id: Uuid,
-    pub name: String,
-}
+pub struct Channel(models::channel::Channel);
 
 impl From<models::channel::Channel> for Channel {
     fn from(channel: models::channel::Channel) -> Self {
-        Self {
-            id: channel.id.0,
-            name: channel.name.0,
-        }
+        Self(channel)
+    }
+}
+
+#[Object]
+impl Channel {
+    async fn id(&self) -> Uuid {
+        self.0.id.0
+    }
+
+    async fn name(&self) -> &str {
+        &self.0.name.0
+    }
+
+    async fn threads(&self, ctx: &Context<'_>) -> Vec<Thread> {
+        let thread_use_case = ctx.data_unchecked::<ThreadUseCase>();
+        thread_use_case
+            .list(&self.0.id)
+            .await
+            .into_iter()
+            .map(|t| t.into())
+            .collect()
     }
 }
 
