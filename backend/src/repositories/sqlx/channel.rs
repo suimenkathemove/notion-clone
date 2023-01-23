@@ -4,15 +4,7 @@ use sqlx::{query_as, FromRow, PgPool};
 use std::sync::Arc;
 use uuid::Uuid;
 
-#[derive(sqlx::Type)]
-#[sqlx(transparent)]
-pub struct ChannelId(pub Uuid);
-
-impl Into<models::channel::ChannelId> for ChannelId {
-    fn into(self) -> models::channel::ChannelId {
-        models::channel::ChannelId(self.0)
-    }
-}
+define_id!(ChannelId, models::channel::ChannelId);
 
 #[derive(sqlx::Type)]
 #[sqlx(transparent)]
