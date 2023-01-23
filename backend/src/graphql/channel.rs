@@ -1,6 +1,7 @@
 use super::thread::Thread;
 use crate::use_cases::{channel::ChannelUseCase, thread::ThreadUseCase};
 use async_graphql::{Context, Object};
+use std::str::FromStr;
 use uuid::Uuid;
 
 pub struct Channel(models::channel::Channel);
@@ -45,5 +46,17 @@ impl ChannelQuery {
             .into_iter()
             .map(|c| c.into())
             .collect()
+    }
+}
+
+#[derive(Default)]
+pub struct ChannelMutation;
+
+#[Object]
+impl ChannelMutation {
+    async fn create_channel(&self, ctx: &Context<'_>, name: String) -> Channel {
+        let channel_use_case = ctx.data_unchecked::<ChannelUseCase>();
+        let channel_name = models::channel::ChannelName::from_str(&name).unwrap();
+        channel_use_case.create(channel_name).await.into()
     }
 }

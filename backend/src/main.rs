@@ -5,12 +5,12 @@ mod use_cases;
 use crate::{
     graphql::{
         handlers::{graphql_handler::graphql_handler, graphql_playground::graphql_playground},
-        QueryRoot,
+        MutationRoot, QueryRoot,
     },
     repositories::sqlx::{channel::ChannelRepository, connect_pool, thread::ThreadRepository},
     use_cases::{channel::ChannelUseCase, thread::ThreadUseCase},
 };
-use async_graphql::{EmptyMutation, EmptySubscription, Schema};
+use async_graphql::{EmptySubscription, Schema};
 use axum::{
     http::{header::CONTENT_TYPE, HeaderValue},
     routing::get,
@@ -47,10 +47,14 @@ async fn main() {
     let channel_use_case = ChannelUseCase::new(Arc::clone(&channel_repository));
     let thread_use_case = ThreadUseCase::new(Arc::clone(&thread_repository));
 
-    let schema = Schema::build(QueryRoot::default(), EmptyMutation, EmptySubscription)
-        .data(channel_use_case)
-        .data(thread_use_case)
-        .finish();
+    let schema = Schema::build(
+        QueryRoot::default(),
+        MutationRoot::default(),
+        EmptySubscription,
+    )
+    .data(channel_use_case)
+    .data(thread_use_case)
+    .finish();
 
     let app = Router::new()
         .route("/", get(graphql_playground).post(graphql_handler))

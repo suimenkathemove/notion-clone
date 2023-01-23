@@ -18,4 +18,8 @@ impl ChannelUseCase {
             .map(|c| c.into())
             .collect()
     }
+
+    pub async fn create(&self, name: models::channel::ChannelName) -> models::channel::Channel {
+        self.channel_repository.create(name).await
+    }
 }
