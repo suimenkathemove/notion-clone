@@ -11,3 +11,17 @@ macro_rules! define_id {
         }
     };
 }
+
+macro_rules! define_name {
+    ($struct_name: ident, $name: path) => {
+        #[derive(sqlx::Type)]
+        #[sqlx(transparent)]
+        pub struct $struct_name(pub String);
+
+        impl Into<$name> for $struct_name {
+            fn into(self) -> $name {
+                $name(self.0)
+            }
+        }
+    };
+}

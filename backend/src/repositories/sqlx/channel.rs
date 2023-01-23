@@ -6,15 +6,7 @@ use uuid::Uuid;
 
 define_id!(ChannelId, models::channel::ChannelId);
 
-#[derive(sqlx::Type)]
-#[sqlx(transparent)]
-pub struct ChannelName(pub String);
-
-impl Into<models::channel::ChannelName> for ChannelName {
-    fn into(self) -> models::channel::ChannelName {
-        models::channel::ChannelName(self.0)
-    }
-}
+define_name!(ChannelName, models::channel::ChannelName);
 
 #[derive(FromRow)]
 pub struct Channel {
