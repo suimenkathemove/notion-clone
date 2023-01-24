@@ -7,7 +7,7 @@ use crate::{
         handlers::{graphql_handler::graphql_handler, graphql_playground::graphql_playground},
         MutationRoot, QueryRoot,
     },
-    repositories::sqlx::{
+    repositories::postgres::{
         channel::ChannelRepository, connect_pool, message::MessageRepository,
         thread::ThreadRepository,
     },
