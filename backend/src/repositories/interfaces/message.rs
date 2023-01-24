@@ -6,4 +6,10 @@ pub trait IMessageRepository: Send + Sync {
         &self,
         thread_id: &models::thread::ThreadId,
     ) -> Vec<models::message::Message>;
+
+    async fn create(
+        &self,
+        thread_id: &models::thread::ThreadId,
+        message_text: String,
+    ) -> models::message::Message;
 }

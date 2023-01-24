@@ -46,4 +46,18 @@ impl IMessageRepository for MessageRepository {
             .map(|m| m.into())
             .collect()
     }
+
+    async fn create(
+        &self,
+        thread_id: &models::thread::ThreadId,
+        message_text: String,
+    ) -> models::message::Message {
+        query_as::<_, Message>("INSERT INTO messages (thread_id, text) VALUES ($1, $2) RETURNING *")
+            .bind(thread_id.0)
+            .bind(message_text)
+            .fetch_one(&*self.pool)
+            .await
+            .unwrap()
+            .into()
+    }
 }

@@ -53,7 +53,10 @@ async fn main() {
 
     let channel_use_case = ChannelUseCase::new(Arc::clone(&channel_repository));
     let thread_use_case = ThreadUseCase::new(Arc::clone(&thread_repository));
-    let message_use_case = MessageUseCase::new(Arc::clone(&message_repository));
+    let message_use_case = MessageUseCase::new(
+        Arc::clone(&thread_repository),
+        Arc::clone(&message_repository),
+    );
 
     let schema = Schema::build(
         QueryRoot::default(),

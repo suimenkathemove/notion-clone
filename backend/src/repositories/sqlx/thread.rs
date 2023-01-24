@@ -39,4 +39,13 @@ impl IThreadRepository for ThreadRepository {
             .map(|t| t.into())
             .collect()
     }
+
+    async fn create(&self, channel_id: &models::channel::ChannelId) -> models::thread::Thread {
+        query_as::<_, Thread>("INSERT INTO threads (channel_id) VALUES ($1) RETURNING *")
+            .bind(channel_id.0)
+            .fetch_one(&*self.pool)
+            .await
+            .unwrap()
+            .into()
+    }
 }

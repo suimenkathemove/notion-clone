@@ -10,6 +10,7 @@ mod thread;
 use self::{
     channel::{ChannelMutation, ChannelQuery},
     health_check::HealthCheckQuery,
+    message::MessageMutation,
     thread::ThreadQuery,
 };
 use async_graphql::{EmptySubscription, MergedObject, Schema};
@@ -20,4 +21,4 @@ pub type MySchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 pub struct QueryRoot(HealthCheckQuery, ChannelQuery, ThreadQuery);
 
 #[derive(Default, MergedObject)]
-pub struct MutationRoot(ChannelMutation);
+pub struct MutationRoot(ChannelMutation, MessageMutation);
