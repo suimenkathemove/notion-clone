@@ -39,4 +39,14 @@ impl MessageUseCase {
             .create(&thread.id, message_text)
             .await
     }
+
+    pub async fn add_message_to_thread(
+        &self,
+        thread_id: &models::thread::ThreadId,
+        message_text: String,
+    ) -> models::message::Message {
+        self.message_repository
+            .create(thread_id, message_text)
+            .await
+    }
 }

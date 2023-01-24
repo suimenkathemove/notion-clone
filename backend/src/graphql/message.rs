@@ -1,4 +1,4 @@
-use super::channel::ChannelId;
+use super::{channel::ChannelId, thread::ThreadId};
 use crate::use_cases::message::MessageUseCase;
 use async_graphql::{scalar, Context, Object};
 use serde::{Deserialize, Serialize};
@@ -45,6 +45,19 @@ impl MessageMutation {
         let message_use_case = ctx.data_unchecked::<MessageUseCase>();
         message_use_case
             .add_message(&channel_id.into(), message_text)
+            .await
+            .into()
+    }
+
+    async fn add_message_to_thread(
+        &self,
+        ctx: &Context<'_>,
+        thread_id: ThreadId,
+        message_text: String,
+    ) -> Message {
+        let message_use_case = ctx.data_unchecked::<MessageUseCase>();
+        message_use_case
+            .add_message_to_thread(&thread_id.into(), message_text)
             .await
             .into()
     }
