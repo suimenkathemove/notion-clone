@@ -20,5 +20,6 @@ CREATE TABLE threads (
 
 CREATE TABLE messages (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    thread_id UUID NOT NULL REFERENCES threads(id) ON DELETE CASCADE
+    thread_id UUID NOT NULL REFERENCES threads(id) ON DELETE CASCADE,
+    text TEXT NOT NULL
 );
