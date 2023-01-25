@@ -1,5 +1,11 @@
 {
   "name": "slack-clone-graphql-codegen",
   "version": "0.1.0",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "graphql": "^16.6.0"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^2.16.4"
+  }
 }
