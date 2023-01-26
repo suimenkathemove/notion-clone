@@ -12,6 +12,7 @@
     "@graphql-codegen/cli": "^2.16.4",
     "@suimenkathemove/eslint-config": "^0.1.4",
     "@suimenkathemove/prettier-config": "^0.1.1",
-    "@suimenkathemove/tsconfig": "^0.1.12"
+    "@suimenkathemove/tsconfig": "^0.1.12",
+    "ts-node": "^10.9.1"
   }
 }
