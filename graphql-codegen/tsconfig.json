@@ -1,0 +1,9 @@
+{
+  "extends": "@suimenkathemove/tsconfig",
+  "compilerOptions": {
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["*"]
+    }
+  }
+}
