@@ -3,13 +3,15 @@
   "version": "0.1.0",
   "license": "MIT",
   "scripts": {
-    "postinstall": "typesync"
+    "postinstall": "typesync",
+    "codegen": "graphql-codegen --config codegen.ts"
   },
   "dependencies": {
     "graphql": "^16.6.0"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "^2.16.4",
+    "@graphql-codegen/cli": "2.16.4",
+    "@graphql-codegen/client-preset": "1.2.6",
     "@suimenkathemove/eslint-config": "^0.1.4",
     "@suimenkathemove/prettier-config": "^0.1.1",
     "@suimenkathemove/tsconfig": "^0.1.12",
