@@ -6,10 +6,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-async-graphql = { version = "4.0.16", features = ["uuid"] }
-async-graphql-axum = "4.0.16"
-async-trait = "0.1.59"
-axum = "0.5.17"
+async-graphql = { version = "5.0.5", features = ["uuid"] }
+async-graphql-axum = "5.0.5"
+async-trait = "0.1.63"
+axum = "0.6.4"
 dotenv = "0.15.0"
 models = { path = "../models" }
 serde = "1.0.152"
@@ -18,8 +18,8 @@ sqlx = { version = "0.6.2", features = [
     "postgres",
     "uuid",
 ] }
-tokio = { version = "1.21.2", features = ["macros", "rt-multi-thread"] }
-tower-http = { version = "0.3.4", features = ["cors"] }
+tokio = { version = "1.24.2", features = ["macros", "rt-multi-thread"] }
+tower-http = { version = "0.3.5", features = ["cors"] }
 tracing = "0.1.37"
 tracing-subscriber = { version = "0.3.16", features = ["env-filter"] }
 uuid = { version = "1.2.2", features = ["serde", "v4"] }
