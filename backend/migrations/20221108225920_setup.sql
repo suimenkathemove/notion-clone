@@ -10,7 +10,11 @@ CREATE TABLE workspaces (
 
 CREATE TABLE channels (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    name VARCHAR(80) NOT NULL
+    name VARCHAR(80) NOT NULL,
+    description TEXT NOT NULL,
+    private BOOLEAN NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE threads (
