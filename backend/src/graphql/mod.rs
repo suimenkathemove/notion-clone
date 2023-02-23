@@ -6,6 +6,7 @@ pub mod handlers;
 mod health_check;
 mod message;
 mod thread;
+mod utils;
 
 use self::{
     channel::{ChannelMutation, ChannelQuery},

@@ -21,8 +21,12 @@ impl ChannelUseCase {
 
     pub async fn create(
         &self,
-        channel_name: models::channel::ChannelName,
+        name: models::channel::ChannelName,
+        description: String,
+        private: bool,
     ) -> models::channel::Channel {
-        self.channel_repository.create(channel_name).await
+        self.channel_repository
+            .create(name, description, private)
+            .await
     }
 }

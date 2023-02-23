@@ -4,6 +4,7 @@ mod macros;
 pub mod channel;
 pub mod message;
 pub mod thread;
+mod utils;
 
 use sqlx::{postgres::PgPoolOptions, PgPool};
 

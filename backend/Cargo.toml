@@ -10,6 +10,7 @@ async-graphql = { version = "5.0.5", features = ["uuid"] }
 async-graphql-axum = "5.0.5"
 async-trait = "0.1.63"
 axum = "0.6.4"
+chrono = { version = "0.4.23", features = ["serde"] }
 dotenv = "0.15.0"
 models = { path = "../models" }
 serde = "1.0.152"
@@ -17,6 +18,7 @@ sqlx = { version = "0.6.2", features = [
     "runtime-tokio-rustls",
     "postgres",
     "uuid",
+    "chrono",
 ] }
 tokio = { version = "1.24.2", features = ["macros", "rt-multi-thread"] }
 tower-http = { version = "0.3.5", features = ["cors"] }

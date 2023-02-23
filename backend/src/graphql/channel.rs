@@ -1,4 +1,4 @@
-use super::thread::Thread;
+use super::{thread::Thread, utils::DateTimeUtc};
 use crate::use_cases::{channel::ChannelUseCase, thread::ThreadUseCase};
 use async_graphql::{scalar, Context, Object};
 use serde::{Deserialize, Serialize};
@@ -11,6 +11,10 @@ define_name!(ChannelName, models::channel::ChannelName);
 pub struct Channel {
     pub id: ChannelId,
     pub name: ChannelName,
+    pub description: String,
+    pub private: bool,
+    pub created_at: DateTimeUtc,
+    pub updated_at: DateTimeUtc,
 }
 
 impl From<models::channel::Channel> for Channel {
@@ -18,6 +22,10 @@ impl From<models::channel::Channel> for Channel {
         Self {
             id: channel.id.into(),
             name: channel.name.into(),
+            description: channel.description,
+            private: channel.private,
+            created_at: channel.created_at.into(),
+            updated_at: channel.updated_at.into(),
         }
     }
 }
@@ -30,6 +38,22 @@ impl Channel {
 
     async fn name(&self) -> ChannelName {
         self.name.to_owned()
+    }
+
+    async fn description(&self) -> String {
+        self.description.to_owned()
+    }
+
+    async fn private(&self) -> bool {
+        self.private
+    }
+
+    async fn created_at(&self) -> &DateTimeUtc {
+        &self.created_at
+    }
+
+    async fn updated_at(&self) -> &DateTimeUtc {
+        &self.updated_at
     }
 
     async fn threads(&self, ctx: &Context<'_>) -> Vec<Thread> {
@@ -64,8 +88,17 @@ pub struct ChannelMutation;
 
 #[Object]
 impl ChannelMutation {
-    async fn create_channel(&self, ctx: &Context<'_>, channel_name: ChannelName) -> Channel {
+    async fn create_channel(
+        &self,
+        ctx: &Context<'_>,
+        name: ChannelName,
+        description: String,
+        private: bool,
+    ) -> Channel {
         let channel_use_case = ctx.data_unchecked::<ChannelUseCase>();
-        channel_use_case.create(channel_name.into()).await.into()
+        channel_use_case
+            .create(name.into(), description, private)
+            .await
+            .into()
     }
 }

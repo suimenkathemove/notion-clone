@@ -1,3 +1,4 @@
+use super::utils::DateTimeUtc;
 use crate::repositories::interfaces::channel::IChannelRepository;
 use async_trait::async_trait;
 use sqlx::{query_as, FromRow, PgPool};
@@ -12,6 +13,10 @@ define_name!(ChannelName, models::channel::ChannelName);
 pub struct Channel {
     pub id: ChannelId,
     pub name: ChannelName,
+    pub description: String,
+    pub private: bool,
+    pub created_at: DateTimeUtc,
+    pub updated_at: DateTimeUtc,
 }
 
 impl Into<models::channel::Channel> for Channel {
@@ -19,6 +24,10 @@ impl Into<models::channel::Channel> for Channel {
         models::channel::Channel {
             id: self.id.into(),
             name: self.name.into(),
+            description: self.description,
+            private: self.private,
+            created_at: self.created_at.into(),
+            updated_at: self.updated_at.into(),
         }
     }
 }
@@ -45,12 +54,21 @@ impl IChannelRepository for ChannelRepository {
             .collect()
     }
 
-    async fn create(&self, channel_name: models::channel::ChannelName) -> models::channel::Channel {
-        query_as::<_, Channel>("INSERT INTO channels (name) VALUES ($1) RETURNING *")
-            .bind(channel_name.0)
-            .fetch_one(&*self.pool)
-            .await
-            .unwrap()
-            .into()
+    async fn create(
+        &self,
+        name: models::channel::ChannelName,
+        description: String,
+        private: bool,
+    ) -> models::channel::Channel {
+        query_as::<_, Channel>(
+            "INSERT INTO channels (name, description, private) VALUES ($1, $2, $3) RETURNING *",
+        )
+        .bind(name.0)
+        .bind(description)
+        .bind(private)
+        .fetch_one(&*self.pool)
+        .await
+        .unwrap()
+        .into()
     }
 }
