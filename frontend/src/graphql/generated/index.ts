@@ -65,9 +65,15 @@ export type MutationRootCreateChannelArgs = {
 
 export type QueryRoot = {
   __typename?: 'QueryRoot';
+  getChannel: Channel;
   healthCheck: Scalars['String'];
   listChannel: Array<Channel>;
   listThreadByChannelId: Array<Thread>;
+};
+
+
+export type QueryRootGetChannelArgs = {
+  id: Scalars['ChannelId'];
 };
 
 
@@ -81,6 +87,13 @@ export type Thread = {
   messages: Array<Message>;
 };
 
+export type GetChannelQueryVariables = Exact<{
+  id: Scalars['ChannelId'];
+}>;
+
+
+export type GetChannelQuery = { __typename?: 'QueryRoot', getChannel: { __typename?: 'Channel', id: any, name: any, threads: Array<{ __typename?: 'Thread', id: any, messages: Array<{ __typename?: 'Message', id: any, text: string }> }> } };
+
 export type ListChannelQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -92,6 +105,49 @@ export type HealthCheckQueryVariables = Exact<{ [key: string]: never; }>;
 export type HealthCheckQuery = { __typename?: 'QueryRoot', healthCheck: string };
 
 
+export const GetChannelDocument = gql`
+    query getChannel($id: ChannelId!) {
+  getChannel(id: $id) {
+    id
+    name
+    threads {
+      id
+      messages {
+        id
+        text
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetChannelQuery__
+ *
+ * To run a query within a React component, call `useGetChannelQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetChannelQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetChannelQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetChannelQuery(baseOptions: Apollo.QueryHookOptions<GetChannelQuery, GetChannelQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetChannelQuery, GetChannelQueryVariables>(GetChannelDocument, options);
+      }
+export function useGetChannelLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetChannelQuery, GetChannelQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetChannelQuery, GetChannelQueryVariables>(GetChannelDocument, options);
+        }
+export type GetChannelQueryHookResult = ReturnType<typeof useGetChannelQuery>;
+export type GetChannelLazyQueryHookResult = ReturnType<typeof useGetChannelLazyQuery>;
+export type GetChannelQueryResult = Apollo.QueryResult<GetChannelQuery, GetChannelQueryVariables>;
 export const ListChannelDocument = gql`
     query listChannel {
   listChannel {
