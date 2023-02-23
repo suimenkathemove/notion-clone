@@ -19,6 +19,10 @@ impl ChannelUseCase {
             .collect()
     }
 
+    pub async fn get(&self, id: models::channel::ChannelId) -> models::channel::Channel {
+        self.channel_repository.get(id).await.into()
+    }
+
     pub async fn create(
         &self,
         name: models::channel::ChannelName,

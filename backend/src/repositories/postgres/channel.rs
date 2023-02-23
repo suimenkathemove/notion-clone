@@ -54,6 +54,15 @@ impl IChannelRepository for ChannelRepository {
             .collect()
     }
 
+    async fn get(&self, id: models::channel::ChannelId) -> models::channel::Channel {
+        query_as::<_, Channel>("SELECT * FROM channels WHERE id = $1")
+            .bind(id.0)
+            .fetch_one(&*self.pool)
+            .await
+            .unwrap()
+            .into()
+    }
+
     async fn create(
         &self,
         name: models::channel::ChannelName,

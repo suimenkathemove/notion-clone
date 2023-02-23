@@ -81,6 +81,11 @@ impl ChannelQuery {
             .map(|c| c.into())
             .collect()
     }
+
+    async fn get_channel(&self, ctx: &Context<'_>, #[graphql()] id: ChannelId) -> Channel {
+        let channel_use_case = ctx.data_unchecked::<ChannelUseCase>();
+        channel_use_case.get(id.into()).await.into()
+    }
 }
 
 #[derive(Default)]
