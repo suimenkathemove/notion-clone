@@ -15,15 +15,20 @@ export type Scalars = {
   Float: number;
   ChannelId: any;
   ChannelName: any;
+  DateTimeUtc: any;
   MessageId: any;
   ThreadId: any;
 };
 
 export type Channel = {
   __typename?: 'Channel';
+  createdAt: Scalars['DateTimeUtc'];
+  description: Scalars['String'];
   id: Scalars['ChannelId'];
   name: Scalars['ChannelName'];
+  private: Scalars['Boolean'];
   threads: Array<Thread>;
+  updatedAt: Scalars['DateTimeUtc'];
 };
 
 export type Message = {
@@ -53,18 +58,20 @@ export type MutationRootAddMessageToThreadArgs = {
 
 
 export type MutationRootCreateChannelArgs = {
-  channelName: Scalars['ChannelName'];
+  description: Scalars['String'];
+  name: Scalars['ChannelName'];
+  private: Scalars['Boolean'];
 };
 
 export type QueryRoot = {
   __typename?: 'QueryRoot';
-  getChannelList: Array<Channel>;
-  getThreadListByChannelId: Array<Thread>;
   healthCheck: Scalars['String'];
+  listChannel: Array<Channel>;
+  listThreadByChannelId: Array<Thread>;
 };
 
 
-export type QueryRootGetThreadListByChannelIdArgs = {
+export type QueryRootListThreadByChannelIdArgs = {
   channelId: Scalars['ChannelId'];
 };
 
@@ -74,12 +81,52 @@ export type Thread = {
   messages: Array<Message>;
 };
 
+export type ListChannelQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListChannelQuery = { __typename?: 'QueryRoot', listChannel: Array<{ __typename?: 'Channel', id: any, name: any }> };
+
 export type HealthCheckQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type HealthCheckQuery = { __typename?: 'QueryRoot', healthCheck: string };
 
 
+export const ListChannelDocument = gql`
+    query listChannel {
+  listChannel {
+    id
+    name
+  }
+}
+    `;
+
+/**
+ * __useListChannelQuery__
+ *
+ * To run a query within a React component, call `useListChannelQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListChannelQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListChannelQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListChannelQuery(baseOptions?: Apollo.QueryHookOptions<ListChannelQuery, ListChannelQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListChannelQuery, ListChannelQueryVariables>(ListChannelDocument, options);
+      }
+export function useListChannelLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListChannelQuery, ListChannelQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListChannelQuery, ListChannelQueryVariables>(ListChannelDocument, options);
+        }
+export type ListChannelQueryHookResult = ReturnType<typeof useListChannelQuery>;
+export type ListChannelLazyQueryHookResult = ReturnType<typeof useListChannelLazyQuery>;
+export type ListChannelQueryResult = Apollo.QueryResult<ListChannelQuery, ListChannelQueryVariables>;
 export const HealthCheckDocument = gql`
     query healthCheck {
   healthCheck
