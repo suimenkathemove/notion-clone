@@ -40,7 +40,7 @@ pub struct ThreadQuery;
 
 #[Object]
 impl ThreadQuery {
-    async fn get_thread_list_by_channel_id(
+    async fn list_thread_by_channel_id(
         &self,
         ctx: &Context<'_>,
         channel_id: ChannelId,

@@ -72,7 +72,7 @@ pub struct ChannelQuery;
 
 #[Object]
 impl ChannelQuery {
-    async fn get_channel_list(&self, ctx: &Context<'_>) -> Vec<Channel> {
+    async fn list_channel(&self, ctx: &Context<'_>) -> Vec<Channel> {
         let channel_use_case = ctx.data_unchecked::<ChannelUseCase>();
         channel_use_case
             .list()
