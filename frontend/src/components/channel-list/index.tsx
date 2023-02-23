@@ -3,7 +3,7 @@ import { memo } from "react";
 import { Channel } from "@/graphql/generated";
 
 export type ChannelListProps = {
-  channels: Omit<Channel, "threads">[];
+  channels: Pick<Channel, "id" | "name">[];
 };
 
 export const ChannelList = memo<ChannelListProps>((props) => {
