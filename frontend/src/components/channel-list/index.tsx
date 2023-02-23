@@ -1,5 +1,6 @@
-import { Channel } from "graphql-generated";
 import { memo } from "react";
+
+import { Channel } from "@/graphql/generated";
 
 export type ChannelListProps = {
   channels: Omit<Channel, "threads">[];

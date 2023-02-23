@@ -12,6 +12,9 @@
   "devDependencies": {
     "@graphql-codegen/cli": "2.16.4",
     "@graphql-codegen/client-preset": "1.2.6",
+    "@graphql-codegen/typescript": "^3.0.1",
+    "@graphql-codegen/typescript-operations": "^3.0.1",
+    "@graphql-codegen/typescript-react-apollo": "^3.3.7",
     "@suimenkathemove/eslint-config": "^0.1.4",
     "@suimenkathemove/prettier-config": "^0.1.1",
     "@suimenkathemove/tsconfig": "^0.1.12",
