@@ -34,6 +34,18 @@ export const addMessage = gql`
   }
 `;
 
+export const getThread = gql`
+  query getThread($threadId: ThreadId!) {
+    getThread(threadId: $threadId) {
+      id
+      messages {
+        id
+        text
+      }
+    }
+  }
+`;
+
 export const reply = gql`
   mutation reply($threadId: ThreadId!, $messageText: String!) {
     reply(threadId: $threadId, messageText: $messageText) {

@@ -53,4 +53,9 @@ impl ThreadQuery {
             .map(|t| t.into())
             .collect()
     }
+
+    async fn get_thread(&self, ctx: &Context<'_>, thread_id: ThreadId) -> Thread {
+        let thread_use_case = ctx.data_unchecked::<ThreadUseCase>();
+        thread_use_case.get(&thread_id.into()).await.into()
+    }
 }

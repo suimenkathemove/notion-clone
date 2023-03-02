@@ -21,4 +21,8 @@ impl ThreadUseCase {
             .map(|t| t.into())
             .collect()
     }
+
+    pub async fn get(&self, thread_id: &models::thread::ThreadId) -> models::thread::Thread {
+        self.thread_repository.get(thread_id).await
+    }
 }

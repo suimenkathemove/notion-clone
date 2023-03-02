@@ -66,6 +66,7 @@ export type MutationRootReplyArgs = {
 export type QueryRoot = {
   __typename?: 'QueryRoot';
   getChannel: Channel;
+  getThread: Thread;
   healthCheck: Scalars['String'];
   listChannel: Array<Channel>;
   listThreadByChannelId: Array<Thread>;
@@ -74,6 +75,11 @@ export type QueryRoot = {
 
 export type QueryRootGetChannelArgs = {
   id: Scalars['ChannelId'];
+};
+
+
+export type QueryRootGetThreadArgs = {
+  threadId: Scalars['ThreadId'];
 };
 
 
@@ -106,6 +112,13 @@ export type AddMessageMutationVariables = Exact<{
 
 
 export type AddMessageMutation = { __typename?: 'MutationRoot', addMessage: { __typename?: 'Message', id: any, text: string } };
+
+export type GetThreadQueryVariables = Exact<{
+  threadId: Scalars['ThreadId'];
+}>;
+
+
+export type GetThreadQuery = { __typename?: 'QueryRoot', getThread: { __typename?: 'Thread', id: any, messages: Array<{ __typename?: 'Message', id: any, text: string }> } };
 
 export type ReplyMutationVariables = Exact<{
   threadId: Scalars['ThreadId'];
@@ -234,6 +247,45 @@ export function useAddMessageMutation(baseOptions?: Apollo.MutationHookOptions<A
 export type AddMessageMutationHookResult = ReturnType<typeof useAddMessageMutation>;
 export type AddMessageMutationResult = Apollo.MutationResult<AddMessageMutation>;
 export type AddMessageMutationOptions = Apollo.BaseMutationOptions<AddMessageMutation, AddMessageMutationVariables>;
+export const GetThreadDocument = gql`
+    query getThread($threadId: ThreadId!) {
+  getThread(threadId: $threadId) {
+    id
+    messages {
+      id
+      text
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetThreadQuery__
+ *
+ * To run a query within a React component, call `useGetThreadQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetThreadQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetThreadQuery({
+ *   variables: {
+ *      threadId: // value for 'threadId'
+ *   },
+ * });
+ */
+export function useGetThreadQuery(baseOptions: Apollo.QueryHookOptions<GetThreadQuery, GetThreadQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetThreadQuery, GetThreadQueryVariables>(GetThreadDocument, options);
+      }
+export function useGetThreadLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetThreadQuery, GetThreadQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetThreadQuery, GetThreadQueryVariables>(GetThreadDocument, options);
+        }
+export type GetThreadQueryHookResult = ReturnType<typeof useGetThreadQuery>;
+export type GetThreadLazyQueryHookResult = ReturnType<typeof useGetThreadLazyQuery>;
+export type GetThreadQueryResult = Apollo.QueryResult<GetThreadQuery, GetThreadQueryVariables>;
 export const ReplyDocument = gql`
     mutation reply($threadId: ThreadId!, $messageText: String!) {
   reply(threadId: $threadId, messageText: $messageText) {

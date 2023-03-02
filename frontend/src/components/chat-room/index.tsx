@@ -17,6 +17,9 @@ export type ChatRoomProps = {
       }[]
     | undefined;
   addMessage: (text: string) => Promise<void>;
+  threadShow: { id: string; messages: { id: string; text: string }[] } | null;
+  onOpenThread: (threadId: string) => Promise<void>;
+  onCloseThread: () => void;
   reply: (threadId: string, messageText: string) => Promise<void>;
 };
 
@@ -41,18 +44,32 @@ export const ChatRoom: React.FC<ChatRoomProps> = (props) => {
     setReplyValue(e.target.value);
   }, []);
 
-  const onReply = useCallback(async () => {
-    await props.reply("TODO", replyValue);
+  const onReply = useCallback(
+    async (threadId: string) => {
+      await props.reply(threadId, replyValue);
 
-    setReplyValue("");
-  }, [props, replyValue]);
+      setReplyValue("");
+    },
+    [props, replyValue],
+  );
 
   return (
     <Container>
       <div>
         <ul>
           {props.threads != null &&
-            props.threads.map((t) => <li key={t.id}>{t.firstMessage.text}</li>)}
+            props.threads.map((t) => (
+              <li key={t.id}>
+                <span>{t.firstMessage.text}</span>
+                <button
+                  onClick={() => {
+                    props.onOpenThread(t.id);
+                  }}
+                >
+                  replies
+                </button>
+              </li>
+            ))}
         </ul>
         <div>
           <input
@@ -63,14 +80,35 @@ export const ChatRoom: React.FC<ChatRoomProps> = (props) => {
           <button onClick={onSubmit}>{">"}</button>
         </div>
       </div>
-      <div>
-        <input
-          value={replyValue}
-          onChange={onChangeReply}
-          style={{ border: "1px solid black" }}
-        />
-        <button onClick={onReply}>{">"}</button>
-      </div>
+      {props.threadShow != null && (
+        <div style={{ position: "relative" }}>
+          <ul>
+            {props.threadShow.messages.map((m) => (
+              <li key={m.id}>{m.text}</li>
+            ))}
+          </ul>
+          <button
+            onClick={props.onCloseThread}
+            style={{ position: "absolute", top: 0, right: 0 }}
+          >
+            x
+          </button>
+          <div>
+            <input
+              value={replyValue}
+              onChange={onChangeReply}
+              style={{ border: "1px solid black" }}
+            />
+            <button
+              onClick={() => {
+                onReply(props.threadShow!.id);
+              }}
+            >
+              {">"}
+            </button>
+          </div>
+        </div>
+      )}
     </Container>
   );
 };
