@@ -10,6 +10,7 @@ export default {
 export const defaultProps: ChatRoomProps = {
   threads: [],
   addMessage: async () => {},
+  reply: async () => {},
 };
 
 export const Default: StoryObj = {
