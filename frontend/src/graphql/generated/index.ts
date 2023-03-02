@@ -107,6 +107,14 @@ export type AddMessageMutationVariables = Exact<{
 
 export type AddMessageMutation = { __typename?: 'MutationRoot', addMessage: { __typename?: 'Message', id: any, text: string } };
 
+export type ReplyMutationVariables = Exact<{
+  threadId: Scalars['ThreadId'];
+  messageText: Scalars['String'];
+}>;
+
+
+export type ReplyMutation = { __typename?: 'MutationRoot', addMessageToThread: { __typename?: 'Message', id: any, text: string } };
+
 export type HealthCheckQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -226,6 +234,41 @@ export function useAddMessageMutation(baseOptions?: Apollo.MutationHookOptions<A
 export type AddMessageMutationHookResult = ReturnType<typeof useAddMessageMutation>;
 export type AddMessageMutationResult = Apollo.MutationResult<AddMessageMutation>;
 export type AddMessageMutationOptions = Apollo.BaseMutationOptions<AddMessageMutation, AddMessageMutationVariables>;
+export const ReplyDocument = gql`
+    mutation reply($threadId: ThreadId!, $messageText: String!) {
+  addMessageToThread(threadId: $threadId, messageText: $messageText) {
+    id
+    text
+  }
+}
+    `;
+export type ReplyMutationFn = Apollo.MutationFunction<ReplyMutation, ReplyMutationVariables>;
+
+/**
+ * __useReplyMutation__
+ *
+ * To run a mutation, you first call `useReplyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useReplyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [replyMutation, { data, loading, error }] = useReplyMutation({
+ *   variables: {
+ *      threadId: // value for 'threadId'
+ *      messageText: // value for 'messageText'
+ *   },
+ * });
+ */
+export function useReplyMutation(baseOptions?: Apollo.MutationHookOptions<ReplyMutation, ReplyMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ReplyMutation, ReplyMutationVariables>(ReplyDocument, options);
+      }
+export type ReplyMutationHookResult = ReturnType<typeof useReplyMutation>;
+export type ReplyMutationResult = Apollo.MutationResult<ReplyMutation>;
+export type ReplyMutationOptions = Apollo.BaseMutationOptions<ReplyMutation, ReplyMutationVariables>;
 export const HealthCheckDocument = gql`
     query healthCheck {
   healthCheck

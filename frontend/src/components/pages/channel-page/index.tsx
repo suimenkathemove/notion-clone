@@ -8,6 +8,7 @@ import {
   useAddMessageMutation,
   useGetChannelQuery,
   useListChannelQuery,
+  useReplyMutation,
 } from "@/graphql/generated";
 
 export const ChannelPage: NextPage = () => {
@@ -29,6 +30,17 @@ export const ChannelPage: NextPage = () => {
     [addMessageMutation, channelId],
   );
 
+  const [replyMutation] = useReplyMutation();
+  const reply = useCallback(
+    async (threadId: string, messageText: string) => {
+      await replyMutation({
+        variables: { threadId, messageText },
+        refetchQueries: "active",
+      });
+    },
+    [replyMutation],
+  );
+
   return (
     <ChannelPagePresenter
       channels={listChannelResult.data?.listChannel}
@@ -39,6 +51,7 @@ export const ChannelPage: NextPage = () => {
           reply: null,
         })),
         addMessage,
+        reply,
       }}
     />
   );
