@@ -49,15 +49,10 @@ impl MessageMutation {
             .into()
     }
 
-    async fn add_message_to_thread(
-        &self,
-        ctx: &Context<'_>,
-        thread_id: ThreadId,
-        message_text: String,
-    ) -> Message {
+    async fn reply(&self, ctx: &Context<'_>, thread_id: ThreadId, message_text: String) -> Message {
         let message_use_case = ctx.data_unchecked::<MessageUseCase>();
         message_use_case
-            .add_message_to_thread(&thread_id.into(), message_text)
+            .reply(&thread_id.into(), message_text)
             .await
             .into()
     }

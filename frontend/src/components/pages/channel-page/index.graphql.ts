@@ -36,7 +36,7 @@ export const addMessage = gql`
 
 export const reply = gql`
   mutation reply($threadId: ThreadId!, $messageText: String!) {
-    addMessageToThread(threadId: $threadId, messageText: $messageText) {
+    reply(threadId: $threadId, messageText: $messageText) {
       id
       text
     }

@@ -40,8 +40,8 @@ export type Message = {
 export type MutationRoot = {
   __typename?: 'MutationRoot';
   addMessage: Message;
-  addMessageToThread: Message;
   createChannel: Channel;
+  reply: Message;
 };
 
 
@@ -51,16 +51,16 @@ export type MutationRootAddMessageArgs = {
 };
 
 
-export type MutationRootAddMessageToThreadArgs = {
-  messageText: Scalars['String'];
-  threadId: Scalars['ThreadId'];
-};
-
-
 export type MutationRootCreateChannelArgs = {
   description: Scalars['String'];
   name: Scalars['ChannelName'];
   private: Scalars['Boolean'];
+};
+
+
+export type MutationRootReplyArgs = {
+  messageText: Scalars['String'];
+  threadId: Scalars['ThreadId'];
 };
 
 export type QueryRoot = {
@@ -113,7 +113,7 @@ export type ReplyMutationVariables = Exact<{
 }>;
 
 
-export type ReplyMutation = { __typename?: 'MutationRoot', addMessageToThread: { __typename?: 'Message', id: any, text: string } };
+export type ReplyMutation = { __typename?: 'MutationRoot', reply: { __typename?: 'Message', id: any, text: string } };
 
 export type HealthCheckQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -236,7 +236,7 @@ export type AddMessageMutationResult = Apollo.MutationResult<AddMessageMutation>
 export type AddMessageMutationOptions = Apollo.BaseMutationOptions<AddMessageMutation, AddMessageMutationVariables>;
 export const ReplyDocument = gql`
     mutation reply($threadId: ThreadId!, $messageText: String!) {
-  addMessageToThread(threadId: $threadId, messageText: $messageText) {
+  reply(threadId: $threadId, messageText: $messageText) {
     id
     text
   }

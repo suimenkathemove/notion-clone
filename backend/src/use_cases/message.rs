@@ -40,7 +40,7 @@ impl MessageUseCase {
             .await
     }
 
-    pub async fn add_message_to_thread(
+    pub async fn reply(
         &self,
         thread_id: &models::thread::ThreadId,
         message_text: String,
