@@ -1,4 +1,4 @@
-use super::{channel::ChannelId, thread::ThreadId};
+use super::{channel::ChannelId, thread::ThreadId, utils::DateTimeUtc};
 use crate::use_cases::message::MessageUseCase;
 use async_graphql::{scalar, Context, Object};
 use serde::{Deserialize, Serialize};
@@ -9,6 +9,8 @@ define_id!(MessageId, models::message::MessageId);
 pub struct Message {
     pub id: MessageId,
     pub text: String,
+    pub created_at: DateTimeUtc,
+    pub updated_at: DateTimeUtc,
 }
 
 impl From<models::message::Message> for Message {
@@ -16,6 +18,8 @@ impl From<models::message::Message> for Message {
         Self {
             id: message.id.into(),
             text: message.text,
+            created_at: message.created_at.into(),
+            updated_at: message.updated_at.into(),
         }
     }
 }
@@ -28,6 +32,14 @@ impl Message {
 
     async fn text(&self) -> String {
         self.text.to_owned()
+    }
+
+    async fn created_at(&self) -> &DateTimeUtc {
+        &self.created_at
+    }
+
+    async fn updated_at(&self) -> &DateTimeUtc {
+        &self.updated_at
     }
 }
 

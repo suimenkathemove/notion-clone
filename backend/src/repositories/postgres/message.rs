@@ -1,3 +1,4 @@
+use super::utils::DateTimeUtc;
 use crate::repositories::interfaces::message::IMessageRepository;
 use async_trait::async_trait;
 use sqlx::{query_as, FromRow, PgPool};
@@ -10,6 +11,8 @@ define_id!(MessageId, models::message::MessageId);
 pub struct Message {
     pub id: MessageId,
     pub text: String,
+    pub created_at: DateTimeUtc,
+    pub updated_at: DateTimeUtc,
 }
 
 impl Into<models::message::Message> for Message {
@@ -17,6 +20,8 @@ impl Into<models::message::Message> for Message {
         models::message::Message {
             id: self.id.into(),
             text: self.text,
+            created_at: self.created_at.into(),
+            updated_at: self.updated_at.into(),
         }
     }
 }

@@ -1,3 +1,4 @@
+use super::utils::DateTimeUtc;
 use crate::repositories::interfaces::thread::IThreadRepository;
 use async_trait::async_trait;
 use sqlx::{query_as, FromRow, PgPool};
@@ -9,11 +10,17 @@ define_id!(ThreadId, models::thread::ThreadId);
 #[derive(FromRow)]
 pub struct Thread {
     pub id: ThreadId,
+    pub created_at: DateTimeUtc,
+    pub updated_at: DateTimeUtc,
 }
 
 impl Into<models::thread::Thread> for Thread {
     fn into(self) -> models::thread::Thread {
-        models::thread::Thread { id: self.id.into() }
+        models::thread::Thread {
+            id: self.id.into(),
+            created_at: self.created_at.into(),
+            updated_at: self.updated_at.into(),
+        }
     }
 }
 

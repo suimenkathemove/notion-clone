@@ -1,4 +1,4 @@
-use super::{channel::ChannelId, message::Message};
+use super::{channel::ChannelId, message::Message, utils::DateTimeUtc};
 use crate::use_cases::{message::MessageUseCase, thread::ThreadUseCase};
 use async_graphql::{scalar, Context, Object};
 use serde::{Deserialize, Serialize};
@@ -8,12 +8,16 @@ define_id!(ThreadId, models::thread::ThreadId);
 
 pub struct Thread {
     pub id: ThreadId,
+    pub created_at: DateTimeUtc,
+    pub updated_at: DateTimeUtc,
 }
 
 impl From<models::thread::Thread> for Thread {
     fn from(thread: models::thread::Thread) -> Self {
         Self {
             id: thread.id.into(),
+            created_at: thread.created_at.into(),
+            updated_at: thread.updated_at.into(),
         }
     }
 }
@@ -22,6 +26,14 @@ impl From<models::thread::Thread> for Thread {
 impl Thread {
     async fn id(&self) -> ThreadId {
         self.id
+    }
+
+    async fn created_at(&self) -> &DateTimeUtc {
+        &self.created_at
+    }
+
+    async fn updated_at(&self) -> &DateTimeUtc {
+        &self.updated_at
     }
 
     async fn messages(&self, ctx: &Context<'_>) -> Vec<Message> {
