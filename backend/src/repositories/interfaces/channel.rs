@@ -12,4 +12,6 @@ pub trait IChannelRepository: Send + Sync {
         description: String,
         private: bool,
     ) -> models::channel::Channel;
+
+    async fn delete(&self, id: models::channel::ChannelId);
 }

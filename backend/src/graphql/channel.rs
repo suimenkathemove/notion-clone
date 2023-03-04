@@ -1,6 +1,6 @@
 use super::{thread::Thread, utils::DateTimeUtc};
 use crate::use_cases::{channel::ChannelUseCase, thread::ThreadUseCase};
-use async_graphql::{scalar, Context, Object};
+use async_graphql::{scalar, Context, Object, SimpleObject};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -88,6 +88,11 @@ impl ChannelQuery {
     }
 }
 
+#[derive(SimpleObject)]
+struct DeleteOutput {
+    id: ChannelId,
+}
+
 #[derive(Default)]
 pub struct ChannelMutation;
 
@@ -105,5 +110,11 @@ impl ChannelMutation {
             .create(name.into(), description, private)
             .await
             .into()
+    }
+
+    async fn delete_channel(&self, ctx: &Context<'_>, id: ChannelId) -> DeleteOutput {
+        let channel_use_case = ctx.data_unchecked::<ChannelUseCase>();
+        channel_use_case.delete(id.into()).await;
+        DeleteOutput { id }
     }
 }

@@ -33,4 +33,8 @@ impl ChannelUseCase {
             .create(name, description, private)
             .await
     }
+
+    pub async fn delete(&self, id: models::channel::ChannelId) {
+        self.channel_repository.delete(id).await;
+    }
 }
