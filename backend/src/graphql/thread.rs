@@ -1,6 +1,6 @@
 use super::{channel::ChannelId, message::Message, utils::DateTimeUtc};
 use crate::use_cases::{message::MessageUseCase, thread::ThreadUseCase};
-use async_graphql::{scalar, Context, Object};
+use async_graphql::{scalar, Context, Object, SimpleObject};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -47,6 +47,11 @@ impl Thread {
     }
 }
 
+#[derive(SimpleObject)]
+struct DeleteOutput {
+    id: ThreadId,
+}
+
 #[derive(Default)]
 pub struct ThreadQuery;
 
@@ -69,5 +74,11 @@ impl ThreadQuery {
     async fn get_thread(&self, ctx: &Context<'_>, thread_id: ThreadId) -> Thread {
         let thread_use_case = ctx.data_unchecked::<ThreadUseCase>();
         thread_use_case.get(&thread_id.into()).await.into()
+    }
+
+    async fn delete_thread(&self, ctx: &Context<'_>, id: ThreadId) -> DeleteOutput {
+        let thread_use_case = ctx.data_unchecked::<ThreadUseCase>();
+        thread_use_case.delete(&id.into()).await;
+        DeleteOutput { id }
     }
 }

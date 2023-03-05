@@ -25,4 +25,8 @@ impl ThreadUseCase {
     pub async fn get(&self, thread_id: &models::thread::ThreadId) -> models::thread::Thread {
         self.thread_repository.get(thread_id).await
     }
+
+    pub async fn delete(&self, id: &models::thread::ThreadId) {
+        self.thread_repository.delete(id).await;
+    }
 }

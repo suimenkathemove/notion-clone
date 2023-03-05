@@ -7,4 +7,6 @@ pub trait IThreadRepository: Send + Sync {
     async fn get(&self, thread_id: &models::thread::ThreadId) -> models::thread::Thread;
 
     async fn create(&self, channel_id: &models::channel::ChannelId) -> models::thread::Thread;
+
+    async fn delete(&self, id: &models::thread::ThreadId);
 }
