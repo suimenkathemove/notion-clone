@@ -12,4 +12,6 @@ pub trait IMessageRepository: Send + Sync {
         thread_id: &models::thread::ThreadId,
         message_text: String,
     ) -> models::message::Message;
+
+    async fn delete(&self, id: &models::message::MessageId);
 }

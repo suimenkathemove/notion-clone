@@ -48,7 +48,7 @@ impl Thread {
 }
 
 #[derive(SimpleObject)]
-struct DeleteOutput {
+struct DeleteThreadOutput {
     id: ThreadId,
 }
 
@@ -76,9 +76,9 @@ impl ThreadQuery {
         thread_use_case.get(&thread_id.into()).await.into()
     }
 
-    async fn delete_thread(&self, ctx: &Context<'_>, id: ThreadId) -> DeleteOutput {
+    async fn delete_thread(&self, ctx: &Context<'_>, id: ThreadId) -> DeleteThreadOutput {
         let thread_use_case = ctx.data_unchecked::<ThreadUseCase>();
         thread_use_case.delete(&id.into()).await;
-        DeleteOutput { id }
+        DeleteThreadOutput { id }
     }
 }

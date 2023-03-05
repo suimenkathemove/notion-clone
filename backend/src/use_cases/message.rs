@@ -49,4 +49,8 @@ impl MessageUseCase {
             .create(thread_id, message_text)
             .await
     }
+
+    pub async fn delete(&self, id: &models::message::MessageId) {
+        self.message_repository.delete(id).await;
+    }
 }

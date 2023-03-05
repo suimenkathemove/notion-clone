@@ -1,7 +1,7 @@
 use super::utils::DateTimeUtc;
 use crate::repositories::interfaces::message::IMessageRepository;
 use async_trait::async_trait;
-use sqlx::{query_as, FromRow, PgPool};
+use sqlx::{query, query_as, FromRow, PgPool};
 use std::sync::Arc;
 use uuid::Uuid;
 
@@ -64,5 +64,13 @@ impl IMessageRepository for MessageRepository {
             .await
             .unwrap()
             .into()
+    }
+
+    async fn delete(&self, id: &models::message::MessageId) {
+        query("DELETE FROM messages WHERE id = $1")
+            .bind(id.0)
+            .execute(&*self.pool)
+            .await
+            .unwrap();
     }
 }

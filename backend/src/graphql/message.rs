@@ -1,6 +1,6 @@
 use super::{channel::ChannelId, thread::ThreadId, utils::DateTimeUtc};
 use crate::use_cases::message::MessageUseCase;
-use async_graphql::{scalar, Context, Object};
+use async_graphql::{scalar, Context, Object, SimpleObject};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -43,6 +43,11 @@ impl Message {
     }
 }
 
+#[derive(SimpleObject)]
+struct DeleteMessageOutput {
+    id: MessageId,
+}
+
 #[derive(Default)]
 pub struct MessageMutation;
 
@@ -67,5 +72,11 @@ impl MessageMutation {
             .reply(&thread_id.into(), message_text)
             .await
             .into()
+    }
+
+    async fn delete_message(&self, ctx: &Context<'_>, id: MessageId) -> DeleteMessageOutput {
+        let message_use_case = ctx.data_unchecked::<MessageUseCase>();
+        message_use_case.delete(&id.into()).await;
+        DeleteMessageOutput { id }
     }
 }

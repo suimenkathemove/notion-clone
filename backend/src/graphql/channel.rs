@@ -89,7 +89,7 @@ impl ChannelQuery {
 }
 
 #[derive(SimpleObject)]
-struct DeleteOutput {
+struct DeleteChannelOutput {
     id: ChannelId,
 }
 
@@ -112,9 +112,9 @@ impl ChannelMutation {
             .into()
     }
 
-    async fn delete_channel(&self, ctx: &Context<'_>, id: ChannelId) -> DeleteOutput {
+    async fn delete_channel(&self, ctx: &Context<'_>, id: ChannelId) -> DeleteChannelOutput {
         let channel_use_case = ctx.data_unchecked::<ChannelUseCase>();
         channel_use_case.delete(id.into()).await;
-        DeleteOutput { id }
+        DeleteChannelOutput { id }
     }
 }
