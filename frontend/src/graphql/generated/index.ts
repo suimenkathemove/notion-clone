@@ -31,23 +31,42 @@ export type Channel = {
   updatedAt: Scalars['DateTimeUtc'];
 };
 
+export type DeleteChannelOutput = {
+  __typename?: 'DeleteChannelOutput';
+  id: Scalars['ChannelId'];
+};
+
+export type DeleteMessageOutput = {
+  __typename?: 'DeleteMessageOutput';
+  id: Scalars['MessageId'];
+};
+
+export type DeleteThreadOutput = {
+  __typename?: 'DeleteThreadOutput';
+  id: Scalars['ThreadId'];
+};
+
 export type Message = {
   __typename?: 'Message';
+  createdAt: Scalars['DateTimeUtc'];
   id: Scalars['MessageId'];
   text: Scalars['String'];
+  updatedAt: Scalars['DateTimeUtc'];
 };
 
 export type MutationRoot = {
   __typename?: 'MutationRoot';
   addMessage: Message;
   createChannel: Channel;
+  deleteChannel: DeleteChannelOutput;
+  deleteMessage: DeleteMessageOutput;
   reply: Message;
 };
 
 
 export type MutationRootAddMessageArgs = {
   channelId: Scalars['ChannelId'];
-  messageText: Scalars['String'];
+  text: Scalars['String'];
 };
 
 
@@ -58,18 +77,34 @@ export type MutationRootCreateChannelArgs = {
 };
 
 
+export type MutationRootDeleteChannelArgs = {
+  id: Scalars['ChannelId'];
+};
+
+
+export type MutationRootDeleteMessageArgs = {
+  id: Scalars['MessageId'];
+};
+
+
 export type MutationRootReplyArgs = {
-  messageText: Scalars['String'];
+  text: Scalars['String'];
   threadId: Scalars['ThreadId'];
 };
 
 export type QueryRoot = {
   __typename?: 'QueryRoot';
+  deleteThread: DeleteThreadOutput;
   getChannel: Channel;
   getThread: Thread;
   healthCheck: Scalars['String'];
   listChannel: Array<Channel>;
   listThreadByChannelId: Array<Thread>;
+};
+
+
+export type QueryRootDeleteThreadArgs = {
+  id: Scalars['ThreadId'];
 };
 
 
@@ -79,7 +114,7 @@ export type QueryRootGetChannelArgs = {
 
 
 export type QueryRootGetThreadArgs = {
-  threadId: Scalars['ThreadId'];
+  id: Scalars['ThreadId'];
 };
 
 
@@ -89,8 +124,10 @@ export type QueryRootListThreadByChannelIdArgs = {
 
 export type Thread = {
   __typename?: 'Thread';
+  createdAt: Scalars['DateTimeUtc'];
   id: Scalars['ThreadId'];
   messages: Array<Message>;
+  updatedAt: Scalars['DateTimeUtc'];
 };
 
 export type ListChannelQueryVariables = Exact<{ [key: string]: never; }>;
@@ -107,14 +144,14 @@ export type GetChannelQuery = { __typename?: 'QueryRoot', getChannel: { __typena
 
 export type AddMessageMutationVariables = Exact<{
   channelId: Scalars['ChannelId'];
-  messageText: Scalars['String'];
+  text: Scalars['String'];
 }>;
 
 
 export type AddMessageMutation = { __typename?: 'MutationRoot', addMessage: { __typename?: 'Message', id: any, text: string } };
 
 export type GetThreadQueryVariables = Exact<{
-  threadId: Scalars['ThreadId'];
+  id: Scalars['ThreadId'];
 }>;
 
 
@@ -122,7 +159,7 @@ export type GetThreadQuery = { __typename?: 'QueryRoot', getThread: { __typename
 
 export type ReplyMutationVariables = Exact<{
   threadId: Scalars['ThreadId'];
-  messageText: Scalars['String'];
+  text: Scalars['String'];
 }>;
 
 
@@ -213,8 +250,8 @@ export type GetChannelQueryHookResult = ReturnType<typeof useGetChannelQuery>;
 export type GetChannelLazyQueryHookResult = ReturnType<typeof useGetChannelLazyQuery>;
 export type GetChannelQueryResult = Apollo.QueryResult<GetChannelQuery, GetChannelQueryVariables>;
 export const AddMessageDocument = gql`
-    mutation addMessage($channelId: ChannelId!, $messageText: String!) {
-  addMessage(channelId: $channelId, messageText: $messageText) {
+    mutation addMessage($channelId: ChannelId!, $text: String!) {
+  addMessage(channelId: $channelId, text: $text) {
     id
     text
   }
@@ -236,7 +273,7 @@ export type AddMessageMutationFn = Apollo.MutationFunction<AddMessageMutation, A
  * const [addMessageMutation, { data, loading, error }] = useAddMessageMutation({
  *   variables: {
  *      channelId: // value for 'channelId'
- *      messageText: // value for 'messageText'
+ *      text: // value for 'text'
  *   },
  * });
  */
@@ -248,8 +285,8 @@ export type AddMessageMutationHookResult = ReturnType<typeof useAddMessageMutati
 export type AddMessageMutationResult = Apollo.MutationResult<AddMessageMutation>;
 export type AddMessageMutationOptions = Apollo.BaseMutationOptions<AddMessageMutation, AddMessageMutationVariables>;
 export const GetThreadDocument = gql`
-    query getThread($threadId: ThreadId!) {
-  getThread(threadId: $threadId) {
+    query getThread($id: ThreadId!) {
+  getThread(id: $id) {
     id
     messages {
       id
@@ -271,7 +308,7 @@ export const GetThreadDocument = gql`
  * @example
  * const { data, loading, error } = useGetThreadQuery({
  *   variables: {
- *      threadId: // value for 'threadId'
+ *      id: // value for 'id'
  *   },
  * });
  */
@@ -287,8 +324,8 @@ export type GetThreadQueryHookResult = ReturnType<typeof useGetThreadQuery>;
 export type GetThreadLazyQueryHookResult = ReturnType<typeof useGetThreadLazyQuery>;
 export type GetThreadQueryResult = Apollo.QueryResult<GetThreadQuery, GetThreadQueryVariables>;
 export const ReplyDocument = gql`
-    mutation reply($threadId: ThreadId!, $messageText: String!) {
-  reply(threadId: $threadId, messageText: $messageText) {
+    mutation reply($threadId: ThreadId!, $text: String!) {
+  reply(threadId: $threadId, text: $text) {
     id
     text
   }
@@ -310,7 +347,7 @@ export type ReplyMutationFn = Apollo.MutationFunction<ReplyMutation, ReplyMutati
  * const [replyMutation, { data, loading, error }] = useReplyMutation({
  *   variables: {
  *      threadId: // value for 'threadId'
- *      messageText: // value for 'messageText'
+ *      text: // value for 'text'
  *   },
  * });
  */

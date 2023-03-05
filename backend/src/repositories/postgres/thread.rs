@@ -36,7 +36,10 @@ impl ThreadRepository {
 
 #[async_trait]
 impl IThreadRepository for ThreadRepository {
-    async fn list(&self, channel_id: &models::channel::ChannelId) -> Vec<models::thread::Thread> {
+    async fn list_by_channel_id(
+        &self,
+        channel_id: &models::channel::ChannelId,
+    ) -> Vec<models::thread::Thread> {
         query_as::<_, Thread>("SELECT * FROM threads WHERE channel_id = $1")
             .bind(channel_id.0)
             .fetch_all(&*self.pool)
@@ -47,9 +50,9 @@ impl IThreadRepository for ThreadRepository {
             .collect()
     }
 
-    async fn get(&self, thread_id: &models::thread::ThreadId) -> models::thread::Thread {
+    async fn get(&self, id: &models::thread::ThreadId) -> models::thread::Thread {
         query_as::<_, Thread>("SELECT * FROM threads WHERE id = $1")
-            .bind(thread_id.0)
+            .bind(id.0)
             .fetch_one(&*self.pool)
             .await
             .unwrap()

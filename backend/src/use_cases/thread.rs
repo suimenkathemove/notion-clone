@@ -10,20 +10,20 @@ impl ThreadUseCase {
         Self { thread_repository }
     }
 
-    pub async fn list(
+    pub async fn list_by_channel_id(
         &self,
         channel_id: &models::channel::ChannelId,
     ) -> Vec<models::thread::Thread> {
         self.thread_repository
-            .list(channel_id)
+            .list_by_channel_id(channel_id)
             .await
             .into_iter()
             .map(|t| t.into())
             .collect()
     }
 
-    pub async fn get(&self, thread_id: &models::thread::ThreadId) -> models::thread::Thread {
-        self.thread_repository.get(thread_id).await
+    pub async fn get(&self, id: &models::thread::ThreadId) -> models::thread::Thread {
+        self.thread_repository.get(id).await
     }
 
     pub async fn delete(&self, id: &models::thread::ThreadId) {

@@ -19,7 +19,7 @@ impl ChannelUseCase {
             .collect()
     }
 
-    pub async fn get(&self, id: models::channel::ChannelId) -> models::channel::Channel {
+    pub async fn get(&self, id: &models::channel::ChannelId) -> models::channel::Channel {
         self.channel_repository.get(id).await.into()
     }
 
@@ -34,7 +34,7 @@ impl ChannelUseCase {
             .await
     }
 
-    pub async fn delete(&self, id: models::channel::ChannelId) {
+    pub async fn delete(&self, id: &models::channel::ChannelId) {
         self.channel_repository.delete(id).await;
     }
 }

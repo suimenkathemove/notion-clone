@@ -59,7 +59,7 @@ impl Channel {
     async fn threads(&self, ctx: &Context<'_>) -> Vec<Thread> {
         let thread_use_case = ctx.data_unchecked::<ThreadUseCase>();
         thread_use_case
-            .list(&self.id.into())
+            .list_by_channel_id(&self.id.into())
             .await
             .into_iter()
             .map(|t| t.into())
@@ -82,9 +82,9 @@ impl ChannelQuery {
             .collect()
     }
 
-    async fn get_channel(&self, ctx: &Context<'_>, #[graphql()] id: ChannelId) -> Channel {
+    async fn get_channel(&self, ctx: &Context<'_>, id: ChannelId) -> Channel {
         let channel_use_case = ctx.data_unchecked::<ChannelUseCase>();
-        channel_use_case.get(id.into()).await.into()
+        channel_use_case.get(&id.into()).await.into()
     }
 }
 
@@ -114,7 +114,7 @@ impl ChannelMutation {
 
     async fn delete_channel(&self, ctx: &Context<'_>, id: ChannelId) -> DeleteChannelOutput {
         let channel_use_case = ctx.data_unchecked::<ChannelUseCase>();
-        channel_use_case.delete(id.into()).await;
+        channel_use_case.delete(&id.into()).await;
         DeleteChannelOutput { id }
     }
 }

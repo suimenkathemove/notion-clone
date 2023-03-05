@@ -53,25 +53,17 @@ pub struct MessageMutation;
 
 #[Object]
 impl MessageMutation {
-    async fn add_message(
-        &self,
-        ctx: &Context<'_>,
-        channel_id: ChannelId,
-        message_text: String,
-    ) -> Message {
+    async fn add_message(&self, ctx: &Context<'_>, channel_id: ChannelId, text: String) -> Message {
         let message_use_case = ctx.data_unchecked::<MessageUseCase>();
         message_use_case
-            .add_message(&channel_id.into(), message_text)
+            .add_message(&channel_id.into(), text)
             .await
             .into()
     }
 
-    async fn reply(&self, ctx: &Context<'_>, thread_id: ThreadId, message_text: String) -> Message {
+    async fn reply(&self, ctx: &Context<'_>, thread_id: ThreadId, text: String) -> Message {
         let message_use_case = ctx.data_unchecked::<MessageUseCase>();
-        message_use_case
-            .reply(&thread_id.into(), message_text)
-            .await
-            .into()
+        message_use_case.reply(&thread_id.into(), text).await.into()
     }
 
     async fn delete_message(&self, ctx: &Context<'_>, id: MessageId) -> DeleteMessageOutput {

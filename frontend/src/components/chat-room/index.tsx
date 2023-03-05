@@ -18,9 +18,9 @@ export type ChatRoomProps = {
     | undefined;
   addMessage: (text: string) => Promise<void>;
   threadShow: { id: string; messages: { id: string; text: string }[] } | null;
-  onOpenThread: (threadId: string) => Promise<void>;
+  onOpenThread: (id: string) => Promise<void>;
   onCloseThread: () => void;
-  reply: (threadId: string, messageText: string) => Promise<void>;
+  reply: (threadId: string, text: string) => Promise<void>;
 };
 
 export const ChatRoom: React.FC<ChatRoomProps> = (props) => {

@@ -64,16 +64,16 @@ impl ThreadQuery {
     ) -> Vec<Thread> {
         let thread_use_case = ctx.data_unchecked::<ThreadUseCase>();
         thread_use_case
-            .list(&channel_id.into())
+            .list_by_channel_id(&channel_id.into())
             .await
             .into_iter()
             .map(|t| t.into())
             .collect()
     }
 
-    async fn get_thread(&self, ctx: &Context<'_>, thread_id: ThreadId) -> Thread {
+    async fn get_thread(&self, ctx: &Context<'_>, id: ThreadId) -> Thread {
         let thread_use_case = ctx.data_unchecked::<ThreadUseCase>();
-        thread_use_case.get(&thread_id.into()).await.into()
+        thread_use_case.get(&id.into()).await.into()
     }
 
     async fn delete_thread(&self, ctx: &Context<'_>, id: ThreadId) -> DeleteThreadOutput {

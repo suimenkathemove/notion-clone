@@ -23,7 +23,7 @@ export const ChannelPage: NextPage = () => {
   const [addMessageMutation] = useAddMessageMutation();
   const addMessage = useCallback(
     async (text: string) => {
-      await addMessageMutation({ variables: { channelId, messageText: text } });
+      await addMessageMutation({ variables: { channelId, text } });
     },
     [addMessageMutation, channelId],
   );
@@ -34,8 +34,8 @@ export const ChannelPage: NextPage = () => {
     );
   const [getThreadQuery] = useGetThreadLazyQuery();
   const onOpenThread = useCallback(
-    async (threadId: string) => {
-      const getThreadResult = await getThreadQuery({ variables: { threadId } });
+    async (id: string) => {
+      const getThreadResult = await getThreadQuery({ variables: { id } });
       if (getThreadResult.data != null) {
         setThreadShow(getThreadResult.data.getThread);
       }
@@ -48,10 +48,12 @@ export const ChannelPage: NextPage = () => {
 
   const [replyMutation] = useReplyMutation();
   const reply = useCallback(
-    async (threadId: string, messageText: string) => {
-      await replyMutation({ variables: { threadId, messageText } });
+    async (threadId: string, text: string) => {
+      await replyMutation({ variables: { threadId, text } });
 
-      const getThreadResult = await getThreadQuery({ variables: { threadId } });
+      const getThreadResult = await getThreadQuery({
+        variables: { id: threadId },
+      });
       if (getThreadResult.data != null) {
         setThreadShow(getThreadResult.data.getThread);
       }

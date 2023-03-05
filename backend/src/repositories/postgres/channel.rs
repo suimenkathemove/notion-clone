@@ -54,7 +54,7 @@ impl IChannelRepository for ChannelRepository {
             .collect()
     }
 
-    async fn get(&self, id: models::channel::ChannelId) -> models::channel::Channel {
+    async fn get(&self, id: &models::channel::ChannelId) -> models::channel::Channel {
         query_as::<_, Channel>("SELECT * FROM channels WHERE id = $1")
             .bind(id.0)
             .fetch_one(&*self.pool)
@@ -81,7 +81,7 @@ impl IChannelRepository for ChannelRepository {
         .into()
     }
 
-    async fn delete(&self, id: models::channel::ChannelId) {
+    async fn delete(&self, id: &models::channel::ChannelId) {
         query("DELETE FROM channels WHERE id = $1")
             .bind(id.0)
             .execute(&*self.pool)

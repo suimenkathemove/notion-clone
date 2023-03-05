@@ -10,7 +10,7 @@ pub trait IMessageRepository: Send + Sync {
     async fn create(
         &self,
         thread_id: &models::thread::ThreadId,
-        message_text: String,
+        text: String,
     ) -> models::message::Message;
 
     async fn delete(&self, id: &models::message::MessageId);

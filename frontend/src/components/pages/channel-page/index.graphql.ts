@@ -26,8 +26,8 @@ export const getChannel = gql`
 `;
 
 export const addMessage = gql`
-  mutation addMessage($channelId: ChannelId!, $messageText: String!) {
-    addMessage(channelId: $channelId, messageText: $messageText) {
+  mutation addMessage($channelId: ChannelId!, $text: String!) {
+    addMessage(channelId: $channelId, text: $text) {
       id
       text
     }
@@ -35,8 +35,8 @@ export const addMessage = gql`
 `;
 
 export const getThread = gql`
-  query getThread($threadId: ThreadId!) {
-    getThread(threadId: $threadId) {
+  query getThread($id: ThreadId!) {
+    getThread(id: $id) {
       id
       messages {
         id
@@ -47,8 +47,8 @@ export const getThread = gql`
 `;
 
 export const reply = gql`
-  mutation reply($threadId: ThreadId!, $messageText: String!) {
-    reply(threadId: $threadId, messageText: $messageText) {
+  mutation reply($threadId: ThreadId!, $text: String!) {
+    reply(threadId: $threadId, text: $text) {
       id
       text
     }
