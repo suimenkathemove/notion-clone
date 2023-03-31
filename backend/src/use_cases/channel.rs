@@ -11,12 +11,7 @@ impl ChannelUseCase {
     }
 
     pub async fn list(&self) -> Vec<models::channel::Channel> {
-        self.channel_repository
-            .list()
-            .await
-            .into_iter()
-            .map(|c| c.into())
-            .collect()
+        self.channel_repository.list().await
     }
 
     pub async fn get(&self, id: &models::channel::ChannelId) -> models::channel::Channel {

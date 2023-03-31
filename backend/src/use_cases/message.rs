@@ -21,12 +21,7 @@ impl MessageUseCase {
         &self,
         thread_id: &models::thread::ThreadId,
     ) -> Vec<models::message::Message> {
-        self.message_repository
-            .list_by_thread_id(thread_id)
-            .await
-            .into_iter()
-            .map(|m| m.into())
-            .collect()
+        self.message_repository.list_by_thread_id(thread_id).await
     }
 
     pub async fn add_message(
