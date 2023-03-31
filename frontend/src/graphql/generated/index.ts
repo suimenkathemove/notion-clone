@@ -17,6 +17,7 @@ export type Scalars = {
   ChannelName: any;
   DateTimeUtc: any;
   MessageId: any;
+  PageId: any;
   ThreadId: any;
 };
 
@@ -58,6 +59,7 @@ export type MutationRoot = {
   __typename?: 'MutationRoot';
   addMessage: Message;
   createChannel: Channel;
+  createPage: Page;
   deleteChannel: DeleteChannelOutput;
   deleteMessage: DeleteMessageOutput;
   reply: Message;
@@ -77,6 +79,12 @@ export type MutationRootCreateChannelArgs = {
 };
 
 
+export type MutationRootCreatePageArgs = {
+  text: Scalars['String'];
+  title: Scalars['String'];
+};
+
+
 export type MutationRootDeleteChannelArgs = {
   id: Scalars['ChannelId'];
 };
@@ -92,13 +100,24 @@ export type MutationRootReplyArgs = {
   threadId: Scalars['ThreadId'];
 };
 
+export type Page = {
+  __typename?: 'Page';
+  createdAt: Scalars['DateTimeUtc'];
+  id: Scalars['PageId'];
+  text: Scalars['String'];
+  title: Scalars['String'];
+  updatedAt: Scalars['DateTimeUtc'];
+};
+
 export type QueryRoot = {
   __typename?: 'QueryRoot';
   deleteThread: DeleteThreadOutput;
   getChannel: Channel;
   getThread: Thread;
   healthCheck: Scalars['String'];
+  helloWorld: Scalars['String'];
   listChannel: Array<Channel>;
+  listPage: Array<Page>;
   listThreadByChannelId: Array<Thread>;
 };
 
@@ -129,6 +148,11 @@ export type Thread = {
   messages: Array<Message>;
   updatedAt: Scalars['DateTimeUtc'];
 };
+
+export type ListPageQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListPageQuery = { __typename?: 'QueryRoot', listPage: Array<{ __typename?: 'Page', id: any, title: string, text: string }> };
 
 export type ListChannelQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -171,6 +195,42 @@ export type HealthCheckQueryVariables = Exact<{ [key: string]: never; }>;
 export type HealthCheckQuery = { __typename?: 'QueryRoot', healthCheck: string };
 
 
+export const ListPageDocument = gql`
+    query listPage {
+  listPage {
+    id
+    title
+    text
+  }
+}
+    `;
+
+/**
+ * __useListPageQuery__
+ *
+ * To run a query within a React component, call `useListPageQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListPageQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListPageQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListPageQuery(baseOptions?: Apollo.QueryHookOptions<ListPageQuery, ListPageQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListPageQuery, ListPageQueryVariables>(ListPageDocument, options);
+      }
+export function useListPageLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListPageQuery, ListPageQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListPageQuery, ListPageQueryVariables>(ListPageDocument, options);
+        }
+export type ListPageQueryHookResult = ReturnType<typeof useListPageQuery>;
+export type ListPageLazyQueryHookResult = ReturnType<typeof useListPageLazyQuery>;
+export type ListPageQueryResult = Apollo.QueryResult<ListPageQuery, ListPageQueryVariables>;
 export const ListChannelDocument = gql`
     query listChannel {
   listChannel {
