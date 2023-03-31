@@ -7,11 +7,20 @@ use crate::{
         handlers::{graphql_handler::graphql_handler, graphql_playground::graphql_playground},
         MutationRoot, QueryRoot,
     },
-    repositories::postgres::{
-        channel::ChannelRepository, connect_pool, message::MessageRepository,
-        thread::ThreadRepository,
+    repositories::{
+        interfaces::{
+            channel::IChannelRepository, message::IMessageRepository,
+            notion::page::IPageRepository, thread::IThreadRepository,
+        },
+        postgres::{
+            channel::ChannelRepository, connect_pool, message::MessageRepository,
+            notion::page::PageRepository, thread::ThreadRepository,
+        },
     },
-    use_cases::{channel::ChannelUseCase, message::MessageUseCase, thread::ThreadUseCase},
+    use_cases::{
+        channel::ChannelUseCase, message::MessageUseCase, notion::page::PageUseCase,
+        thread::ThreadUseCase,
+    },
 };
 use async_graphql::{EmptySubscription, Schema};
 use axum::{
@@ -20,9 +29,6 @@ use axum::{
     Extension, Router,
 };
 use dotenv::dotenv;
-use repositories::interfaces::{
-    channel::IChannelRepository, message::IMessageRepository, thread::IThreadRepository,
-};
 use std::{net::SocketAddr, sync::Arc};
 use tower_http::cors::{Any, CorsLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -58,6 +64,11 @@ async fn main() {
         Arc::clone(&message_repository),
     );
 
+    let page_repository: Arc<dyn IPageRepository> =
+        Arc::new(PageRepository::new(Arc::clone(&pool)));
+
+    let page_use_case = PageUseCase::new(Arc::clone(&page_repository));
+
     let schema = Schema::build(
         QueryRoot::default(),
         MutationRoot::default(),
@@ -66,6 +77,7 @@ async fn main() {
     .data(channel_use_case)
     .data(thread_use_case)
     .data(message_use_case)
+    .data(page_use_case)
     .finish();
 
     let app = Router::new()
