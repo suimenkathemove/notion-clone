@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # EDIT THIS
-PROJECT_NAME="slack-clone"
+PROJECT_NAME="monorepo-sandbox"
 
 # EDIT THIS
 DEV_DIR_PATH="${HOME}/development/suimenkathemove"

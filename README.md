@@ -1,4 +1,4 @@
-# slack-clone
+# monorepo-sandbox
 
 ## Reference
 
