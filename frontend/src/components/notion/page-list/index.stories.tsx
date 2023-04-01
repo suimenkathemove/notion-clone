@@ -12,6 +12,7 @@ export const defaultProps: PageListPresenterProps = {
     { id: "1", title: "page1" },
     { id: "2", title: "page2" },
   ],
+  onClickAddPage: () => {},
 };
 
 export const Default: StoryObj = {

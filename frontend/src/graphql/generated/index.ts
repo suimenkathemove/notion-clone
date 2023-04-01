@@ -154,6 +154,14 @@ export type ListPageQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type ListPageQuery = { __typename?: 'QueryRoot', listPage: Array<{ __typename?: 'Page', id: any, title: string, text: string }> };
 
+export type CreatePageMutationVariables = Exact<{
+  title: Scalars['String'];
+  text: Scalars['String'];
+}>;
+
+
+export type CreatePageMutation = { __typename?: 'MutationRoot', createPage: { __typename?: 'Page', id: any, title: string } };
+
 export type ListChannelQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -231,6 +239,41 @@ export function useListPageLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<L
 export type ListPageQueryHookResult = ReturnType<typeof useListPageQuery>;
 export type ListPageLazyQueryHookResult = ReturnType<typeof useListPageLazyQuery>;
 export type ListPageQueryResult = Apollo.QueryResult<ListPageQuery, ListPageQueryVariables>;
+export const CreatePageDocument = gql`
+    mutation createPage($title: String!, $text: String!) {
+  createPage(title: $title, text: $text) {
+    id
+    title
+  }
+}
+    `;
+export type CreatePageMutationFn = Apollo.MutationFunction<CreatePageMutation, CreatePageMutationVariables>;
+
+/**
+ * __useCreatePageMutation__
+ *
+ * To run a mutation, you first call `useCreatePageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreatePageMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createPageMutation, { data, loading, error }] = useCreatePageMutation({
+ *   variables: {
+ *      title: // value for 'title'
+ *      text: // value for 'text'
+ *   },
+ * });
+ */
+export function useCreatePageMutation(baseOptions?: Apollo.MutationHookOptions<CreatePageMutation, CreatePageMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreatePageMutation, CreatePageMutationVariables>(CreatePageDocument, options);
+      }
+export type CreatePageMutationHookResult = ReturnType<typeof useCreatePageMutation>;
+export type CreatePageMutationResult = Apollo.MutationResult<CreatePageMutation>;
+export type CreatePageMutationOptions = Apollo.BaseMutationOptions<CreatePageMutation, CreatePageMutationVariables>;
 export const ListChannelDocument = gql`
     query listChannel {
   listChannel {

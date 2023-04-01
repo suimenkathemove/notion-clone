@@ -9,3 +9,12 @@ export const listPage = gql`
     }
   }
 `;
+
+export const createPage = gql`
+  mutation createPage($title: String!, $text: String!) {
+    createPage(title: $title, text: $text) {
+      id
+      title
+    }
+  }
+`;
