@@ -15,7 +15,7 @@ impl ChannelUseCase {
     }
 
     pub async fn get(&self, id: &models::channel::ChannelId) -> models::channel::Channel {
-        self.channel_repository.get(id).await.into()
+        self.channel_repository.get(id).await
     }
 
     pub async fn create(
