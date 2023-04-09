@@ -50,6 +50,15 @@ impl IPageRepository for PageRepository {
             .collect()
     }
 
+    async fn find_by_id(&self, id: &models::notion::page::PageId) -> models::notion::page::Page {
+        query_as::<_, Page>("SELECT * FROM pages WHERE id = $1")
+            .bind(id.0)
+            .fetch_one(&*self.pool)
+            .await
+            .unwrap()
+            .into()
+    }
+
     async fn create(&self, title: String, text: String) -> models::notion::page::Page {
         query_as::<_, Page>("INSERT INTO pages (title, text) VALUES ($1, $2) RETURNING *")
             .bind(title)

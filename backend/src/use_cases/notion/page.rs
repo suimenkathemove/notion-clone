@@ -14,6 +14,10 @@ impl PageUseCase {
         self.page_repository.find_list().await
     }
 
+    pub async fn get(&self, id: &models::notion::page::PageId) -> models::notion::page::Page {
+        self.page_repository.find_by_id(id).await
+    }
+
     pub async fn create(&self, title: String, text: String) -> models::notion::page::Page {
         self.page_repository.create(title, text).await
     }

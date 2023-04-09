@@ -63,6 +63,11 @@ impl PageQuery {
             .map(|p| p.into())
             .collect()
     }
+
+    async fn get_page(&self, ctx: &Context<'_>, id: PageId) -> Page {
+        let page_use_case = ctx.data_unchecked::<PageUseCase>();
+        page_use_case.get(&id.into()).await.into()
+    }
 }
 
 #[derive(Default)]
