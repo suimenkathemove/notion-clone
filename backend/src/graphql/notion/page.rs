@@ -1,8 +1,6 @@
 use super::super::{error::GraphQLError, utils::DateTimeUtc};
 use crate::use_cases::notion::page::PageUseCase;
-use async_graphql::{scalar, Context, Object, Union};
-use serde::{Deserialize, Serialize};
-use uuid::Uuid;
+use async_graphql::{Context, Object, Union};
 
 define_id!(PageId, models::notion::page::PageId);
 

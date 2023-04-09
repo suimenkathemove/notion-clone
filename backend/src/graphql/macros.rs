@@ -1,7 +1,7 @@
 macro_rules! define_id {
     ($struct_name: ident, $id: path) => {
-        #[derive(Clone, Copy, Serialize, Deserialize)]
-        pub struct $struct_name(pub Uuid);
+        #[derive(Clone, Copy, serde::Serialize, serde::Deserialize)]
+        pub struct $struct_name(pub uuid::Uuid);
 
         impl From<$id> for $struct_name {
             fn from(id: $id) -> Self {
@@ -15,13 +15,13 @@ macro_rules! define_id {
             }
         }
 
-        scalar!($struct_name);
+        async_graphql::scalar!($struct_name);
     };
 }
 
 macro_rules! define_name {
     ($struct_name: ident, $name: path) => {
-        #[derive(Clone, Serialize, Deserialize)]
+        #[derive(Clone, serde::Serialize, serde::Deserialize)]
         pub struct $struct_name(pub String);
 
         impl From<$name> for $struct_name {
@@ -36,6 +36,6 @@ macro_rules! define_name {
             }
         }
 
-        scalar!($struct_name);
+        async_graphql::scalar!($struct_name);
     };
 }

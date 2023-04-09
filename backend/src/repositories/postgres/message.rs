@@ -3,7 +3,6 @@ use crate::repositories::interfaces::message::IMessageRepository;
 use async_trait::async_trait;
 use sqlx::{query, query_as, FromRow, PgPool};
 use std::sync::Arc;
-use uuid::Uuid;
 
 define_id!(MessageId, models::message::MessageId);
 
