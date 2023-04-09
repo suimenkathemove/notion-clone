@@ -2,6 +2,7 @@
 mod macros;
 
 mod channel;
+mod error;
 pub mod handlers;
 mod health_check;
 mod message;

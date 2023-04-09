@@ -1,6 +1,6 @@
-use super::super::utils::DateTimeUtc;
+use super::super::{error::GraphQLError, utils::DateTimeUtc};
 use crate::use_cases::notion::page::PageUseCase;
-use async_graphql::{scalar, Context, Object};
+use async_graphql::{scalar, Context, Object, Union};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -49,6 +49,12 @@ impl Page {
     }
 }
 
+#[derive(Union)]
+enum GetPageResult {
+    Ok(Page),
+    Err(GraphQLError),
+}
+
 #[derive(Default)]
 pub struct PageQuery;
 
@@ -64,9 +70,13 @@ impl PageQuery {
             .collect()
     }
 
-    async fn get_page(&self, ctx: &Context<'_>, id: PageId) -> Page {
+    async fn get_page(&self, ctx: &Context<'_>, id: PageId) -> GetPageResult {
         let page_use_case = ctx.data_unchecked::<PageUseCase>();
-        page_use_case.get(&id.into()).await.into()
+        let result = page_use_case.get(&id.into()).await;
+        match result {
+            Ok(page) => GetPageResult::Ok(page.into()),
+            Err(error) => GetPageResult::Err(GraphQLError { code: error.into() }),
+        }
     }
 }
 
