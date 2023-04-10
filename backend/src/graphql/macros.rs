@@ -39,3 +39,13 @@ macro_rules! define_name {
         async_graphql::scalar!($struct_name);
     };
 }
+
+macro_rules! define_result {
+    ($name: ident, $value: path) => {
+        #[derive(async_graphql::Union)]
+        enum $name {
+            Ok($value),
+            Err(GraphQLError),
+        }
+    };
+}

@@ -41,14 +41,12 @@ impl PageRepository {
 
 #[async_trait]
 impl IPageRepository for PageRepository {
-    async fn find_list(&self) -> Vec<models::notion::page::Page> {
-        query_as::<_, Page>("SELECT * FROM pages")
+    async fn find_list(&self) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
+        let pages = query_as::<_, Page>("SELECT * FROM pages")
             .fetch_all(&*self.pool)
-            .await
-            .unwrap()
-            .into_iter()
-            .map(|p| p.into())
-            .collect()
+            .await?;
+
+        Ok(pages.into_iter().map(|p| p.into()).collect())
     }
 
     async fn find_by_id(
@@ -63,13 +61,18 @@ impl IPageRepository for PageRepository {
         Ok(page.into())
     }
 
-    async fn create(&self, title: String, text: String) -> models::notion::page::Page {
-        query_as::<_, Page>("INSERT INTO pages (title, text) VALUES ($1, $2) RETURNING *")
-            .bind(title)
-            .bind(text)
-            .fetch_one(&*self.pool)
-            .await
-            .unwrap()
-            .into()
+    async fn create(
+        &self,
+        title: String,
+        text: String,
+    ) -> Result<models::notion::page::Page, RepositoryError> {
+        let page =
+            query_as::<_, Page>("INSERT INTO pages (title, text) VALUES ($1, $2) RETURNING *")
+                .bind(title)
+                .bind(text)
+                .fetch_one(&*self.pool)
+                .await?;
+
+        Ok(page.into())
     }
 }

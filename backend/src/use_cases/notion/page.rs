@@ -11,8 +11,10 @@ impl PageUseCase {
         Self { page_repository }
     }
 
-    pub async fn list(&self) -> Vec<models::notion::page::Page> {
-        self.page_repository.find_list().await
+    pub async fn list(&self) -> Result<Vec<models::notion::page::Page>, UseCaseError> {
+        let pages = self.page_repository.find_list().await?;
+
+        Ok(pages)
     }
 
     pub async fn get(
@@ -24,7 +26,13 @@ impl PageUseCase {
         Ok(page)
     }
 
-    pub async fn create(&self, title: String, text: String) -> models::notion::page::Page {
-        self.page_repository.create(title, text).await
+    pub async fn create(
+        &self,
+        title: String,
+        text: String,
+    ) -> Result<models::notion::page::Page, UseCaseError> {
+        let page = self.page_repository.create(title, text).await?;
+
+        Ok(page)
     }
 }

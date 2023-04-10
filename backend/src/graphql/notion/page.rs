@@ -1,6 +1,6 @@
 use super::super::{error::GraphQLError, utils::DateTimeUtc};
 use crate::use_cases::notion::page::PageUseCase;
-use async_graphql::{Context, Object, Union};
+use async_graphql::{Context, Object, SimpleObject};
 
 define_id!(PageId, models::notion::page::PageId);
 
@@ -47,25 +47,31 @@ impl Page {
     }
 }
 
-#[derive(Union)]
-enum GetPageResult {
-    Ok(Page),
-    Err(GraphQLError),
+#[derive(SimpleObject)]
+struct ListPage {
+    items: Vec<Page>,
 }
+
+define_result!(ListPageResult, ListPage);
+
+define_result!(GetPageResult, Page);
+
+define_result!(CreatePageResult, Page);
 
 #[derive(Default)]
 pub struct PageQuery;
 
 #[Object]
 impl PageQuery {
-    async fn list_page(&self, ctx: &Context<'_>) -> Vec<Page> {
+    async fn list_page(&self, ctx: &Context<'_>) -> ListPageResult {
         let page_use_case = ctx.data_unchecked::<PageUseCase>();
-        page_use_case
-            .list()
-            .await
-            .into_iter()
-            .map(|p| p.into())
-            .collect()
+        let result = page_use_case.list().await;
+        match result {
+            Ok(pages) => ListPageResult::Ok(ListPage {
+                items: pages.into_iter().map(|p| p.into()).collect(),
+            }),
+            Err(error) => ListPageResult::Err(GraphQLError { code: error.into() }),
+        }
     }
 
     async fn get_page(&self, ctx: &Context<'_>, id: PageId) -> GetPageResult {
@@ -83,8 +89,17 @@ pub struct PageMutation;
 
 #[Object]
 impl PageMutation {
-    async fn create_page(&self, ctx: &Context<'_>, title: String, text: String) -> Page {
+    async fn create_page(
+        &self,
+        ctx: &Context<'_>,
+        title: String,
+        text: String,
+    ) -> CreatePageResult {
         let page_use_case = ctx.data_unchecked::<PageUseCase>();
-        page_use_case.create(title, text).await.into()
+        let result = page_use_case.create(title, text).await;
+        match result {
+            Ok(page) => CreatePageResult::Ok(page.into()),
+            Err(error) => CreatePageResult::Err(GraphQLError { code: error.into() }),
+        }
     }
 }
