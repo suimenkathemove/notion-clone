@@ -14,10 +14,10 @@ services:
         source: ../..
         target: /app
       - type: volume
-        source: app-cargo
+        source: slack-clone-app-cargo
         target: /usr/local/cargo/registry
       - type: volume
-        source: app-target
+        source: slack-clone-app-target
         target: /app/target
     working_dir: /app/backend
     command: sh -c "cargo watch -x run"
@@ -33,7 +33,7 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - slack-clone-pgdata:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
@@ -41,6 +41,6 @@ services:
     restart: always
 
 volumes:
-  app-cargo:
-  app-target:
-  pgdata:
+  slack-clone-app-cargo:
+  slack-clone-app-target:
+  slack-clone-pgdata:
