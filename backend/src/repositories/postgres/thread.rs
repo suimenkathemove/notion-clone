@@ -45,7 +45,7 @@ impl IThreadRepository for ThreadRepository {
             .await
             .unwrap()
             .into_iter()
-            .map(|t| t.into())
+            .map(Into::into)
             .collect()
     }
 

@@ -68,7 +68,7 @@ impl PageQuery {
         let result = page_use_case.list().await;
         match result {
             Ok(pages) => ListPageResult::Ok(ListPage {
-                items: pages.into_iter().map(|p| p.into()).collect(),
+                items: pages.into_iter().map(Into::into).collect(),
             }),
             Err(error) => ListPageResult::Err(GraphQLError { code: error.into() }),
         }

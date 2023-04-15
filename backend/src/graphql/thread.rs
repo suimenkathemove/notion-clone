@@ -40,7 +40,7 @@ impl Thread {
             .list_by_thread_id(&self.id.into())
             .await
             .into_iter()
-            .map(|m| m.into())
+            .map(Into::into)
             .collect()
     }
 }
@@ -65,7 +65,7 @@ impl ThreadQuery {
             .list_by_channel_id(&channel_id.into())
             .await
             .into_iter()
-            .map(|t| t.into())
+            .map(Into::into)
             .collect()
     }
 

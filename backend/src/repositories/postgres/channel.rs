@@ -49,7 +49,7 @@ impl IChannelRepository for ChannelRepository {
             .await
             .unwrap()
             .into_iter()
-            .map(|c| c.into())
+            .map(Into::into)
             .collect()
     }
 

@@ -60,7 +60,7 @@ impl Channel {
             .list_by_channel_id(&self.id.into())
             .await
             .into_iter()
-            .map(|t| t.into())
+            .map(Into::into)
             .collect()
     }
 }
@@ -76,7 +76,7 @@ impl ChannelQuery {
             .list()
             .await
             .into_iter()
-            .map(|c| c.into())
+            .map(Into::into)
             .collect()
     }
 

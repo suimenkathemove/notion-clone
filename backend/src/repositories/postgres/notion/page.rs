@@ -79,7 +79,7 @@ impl IPageRepository for PageRepository {
             .fetch_all(&*self.pool)
             .await?;
 
-        Ok(pages.into_iter().map(|p| p.into()).collect())
+        Ok(pages.into_iter().map(Into::into).collect())
     }
 
     async fn find_by_id(

@@ -47,7 +47,7 @@ impl IMessageRepository for MessageRepository {
             .await
             .unwrap()
             .into_iter()
-            .map(|m| m.into())
+            .map(Into::into)
             .collect()
     }
 
