@@ -26,3 +26,8 @@ down:
 db-drop: down
 	cd docker && docker compose run --rm app \
 	sh -c "sqlx db drop"
+
+.PHONY: test
+test:
+	cd docker && docker compose run --rm app \
+	sh -c "cargo test"

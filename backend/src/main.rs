@@ -13,7 +13,7 @@ use crate::{
             notion::page::IPageRepository, thread::IThreadRepository,
         },
         postgres::{
-            channel::ChannelRepository, connect_pool, message::MessageRepository,
+            channel::ChannelRepository, create_pool, message::MessageRepository,
             notion::page::PageRepository, thread::ThreadRepository,
         },
     },
@@ -28,7 +28,6 @@ use axum::{
     routing::get,
     Extension, Router,
 };
-use dotenv::dotenv;
 use std::{net::SocketAddr, sync::Arc};
 use tower_http::cors::{Any, CorsLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -42,13 +41,8 @@ async fn main() {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
-    dotenv().ok();
-
-    let pool = {
-        let database_url = std::env::var("DATABASE_URL").unwrap();
-        let pool = connect_pool(&database_url).await;
-        Arc::new(pool)
-    };
+    let pool = create_pool().await;
+    let pool = Arc::new(pool);
 
     let channel_repository: Arc<dyn IChannelRepository> =
         Arc::new(ChannelRepository::new(Arc::clone(&pool)));

@@ -28,10 +28,11 @@ impl PageUseCase {
 
     pub async fn create(
         &self,
+        parent_id: &Option<models::notion::page::PageId>,
         title: String,
         text: String,
     ) -> Result<models::notion::page::Page, UseCaseError> {
-        let page = self.page_repository.create(title, text).await?;
+        let page = self.page_repository.create(parent_id, title, text).await?;
 
         Ok(page)
     }

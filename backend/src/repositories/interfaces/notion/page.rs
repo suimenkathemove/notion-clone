@@ -12,6 +12,7 @@ pub trait IPageRepository: Send + Sync {
 
     async fn create(
         &self,
+        parent_id: &Option<models::notion::page::PageId>,
         title: String,
         text: String,
     ) -> Result<models::notion::page::Page, RepositoryError>;

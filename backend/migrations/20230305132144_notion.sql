@@ -7,3 +7,9 @@ CREATE TABLE pages (
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE page_tree_paths (
+    PRIMARY KEY (ancestor, descendant),
+    ancestor UUID NOT NULL REFERENCES pages(id),
+    descendant UUID NOT NULL REFERENCES pages(id)
+);

@@ -92,11 +92,14 @@ impl PageMutation {
     async fn create_page(
         &self,
         ctx: &Context<'_>,
+        parent_id: Option<PageId>,
         title: String,
         text: String,
     ) -> CreatePageResult {
         let page_use_case = ctx.data_unchecked::<PageUseCase>();
-        let result = page_use_case.create(title, text).await;
+        let result = page_use_case
+            .create(&parent_id.map(Into::into), title, text)
+            .await;
         match result {
             Ok(page) => CreatePageResult::Ok(page.into()),
             Err(error) => CreatePageResult::Err(GraphQLError { code: error.into() }),

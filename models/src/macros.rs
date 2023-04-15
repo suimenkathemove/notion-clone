@@ -1,5 +1,6 @@
 macro_rules! define_id {
     ($name: ident) => {
+        #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
         pub struct $name(pub uuid::Uuid);
     };
 }
