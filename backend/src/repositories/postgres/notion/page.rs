@@ -94,7 +94,7 @@ impl IPageRepository for PageRepository {
         Ok(page.into())
     }
 
-    async fn create(
+    async fn add(
         &self,
         parent_id: &Option<models::notion::page::PageId>,
         title: String,

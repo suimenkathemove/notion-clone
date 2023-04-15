@@ -89,7 +89,7 @@ pub struct PageMutation;
 
 #[Object]
 impl PageMutation {
-    async fn create_page(
+    async fn add_page(
         &self,
         ctx: &Context<'_>,
         parent_id: Option<PageId>,
@@ -98,7 +98,7 @@ impl PageMutation {
     ) -> CreatePageResult {
         let page_use_case = ctx.data_unchecked::<PageUseCase>();
         let result = page_use_case
-            .create(&parent_id.map(Into::into), title, text)
+            .add(&parent_id.map(Into::into), title, text)
             .await;
         match result {
             Ok(page) => CreatePageResult::Ok(page.into()),
