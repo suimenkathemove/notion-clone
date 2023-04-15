@@ -17,6 +17,15 @@ impl PageUseCase {
         Ok(pages)
     }
 
+    pub async fn descendants(
+        &self,
+        parent_id: &models::notion::page::PageId,
+    ) -> Result<Vec<models::notion::page::Page>, UseCaseError> {
+        let pages = self.page_repository.find_descendants(parent_id).await?;
+
+        Ok(pages)
+    }
+
     pub async fn get(
         &self,
         id: &models::notion::page::PageId,

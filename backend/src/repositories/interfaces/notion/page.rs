@@ -5,6 +5,11 @@ use async_trait::async_trait;
 pub trait IPageRepository: Send + Sync {
     async fn find_list(&self) -> Result<Vec<models::notion::page::Page>, RepositoryError>;
 
+    async fn find_descendants(
+        &self,
+        parent_id: &models::notion::page::PageId,
+    ) -> Result<Vec<models::notion::page::Page>, RepositoryError>;
+
     async fn find_by_id(
         &self,
         id: &models::notion::page::PageId,

@@ -32,6 +32,20 @@ impl Into<models::notion::page::Page> for Page {
 struct InternalPageRepository;
 
 impl InternalPageRepository {
+    async fn find_descendants(
+        parent_id: &models::notion::page::PageId,
+        conn: &mut PgConnection,
+    ) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
+        let pages = query_as::<_, Page>(
+            "SELECT * FROM pages WHERE id IN (SELECT descendant FROM page_tree_paths WHERE ancestor = $1 AND descendant <> $1)"
+        )
+        .bind(parent_id.0)
+        .fetch_all(&mut *conn)
+        .await?;
+
+        Ok(pages.into_iter().map(Into::into).collect())
+    }
+
     async fn add(
         parent_id: &Option<models::notion::page::PageId>,
         title: String,
@@ -82,6 +96,16 @@ impl IPageRepository for PageRepository {
         Ok(pages.into_iter().map(Into::into).collect())
     }
 
+    async fn find_descendants(
+        &self,
+        parent_id: &models::notion::page::PageId,
+    ) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
+        let mut conn = self.pool.acquire().await?;
+        let pages = InternalPageRepository::find_descendants(parent_id, &mut conn).await?;
+
+        Ok(pages)
+    }
+
     async fn find_by_id(
         &self,
         id: &models::notion::page::PageId,
@@ -103,13 +127,14 @@ impl IPageRepository for PageRepository {
         let mut conn = self.pool.acquire().await?;
         let page = InternalPageRepository::add(parent_id, title, text, &mut conn).await?;
 
-        Ok(page.into())
+        Ok(page)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::{super::super::create_pool, *};
+    use sqlx::{Postgres, Transaction};
     use std::collections::{HashMap, HashSet};
 
     struct ModelsPageTreePaths {
@@ -132,11 +157,17 @@ mod tests {
         }
     }
 
-    #[tokio::test]
-    async fn add_page_should_success() -> anyhow::Result<()> {
+    async fn setup<'a>() -> anyhow::Result<(
+        (
+            models::notion::page::Page,
+            models::notion::page::Page,
+            models::notion::page::Page,
+        ),
+        Transaction<'a, Postgres>,
+    )> {
         let mut tx = create_pool().await.begin().await?;
 
-        let page1 = InternalPageRepository::add(
+        let oneself = InternalPageRepository::add(
             &None::<models::notion::page::PageId>,
             "".to_string(),
             "".to_string(),
@@ -144,13 +175,56 @@ mod tests {
         )
         .await?;
 
-        let page2 =
-            InternalPageRepository::add(&Some(page1.id), "".to_string(), "".to_string(), &mut tx)
+        let child =
+            InternalPageRepository::add(&Some(oneself.id), "".to_string(), "".to_string(), &mut tx)
                 .await?;
 
-        let page3 =
-            InternalPageRepository::add(&Some(page2.id), "".to_string(), "".to_string(), &mut tx)
+        let grandchild =
+            InternalPageRepository::add(&Some(child.id), "".to_string(), "".to_string(), &mut tx)
                 .await?;
+
+        Ok(((oneself, child, grandchild), tx))
+    }
+
+    async fn teardown<'a>(tx: Transaction<'a, Postgres>) -> anyhow::Result<()> {
+        tx.rollback().await?;
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn find_descendant_page_should_success() -> anyhow::Result<()> {
+        let ((oneself, child, grandchild), mut tx) = setup().await?;
+
+        let oneself_descendants =
+            InternalPageRepository::find_descendants(&oneself.id, &mut tx).await?;
+        assert_eq!(
+            oneself_descendants.into_iter().collect::<HashSet<_>>(),
+            HashSet::from([child.clone(), grandchild.clone()])
+        );
+
+        let child_descendants =
+            InternalPageRepository::find_descendants(&child.id, &mut tx).await?;
+        assert_eq!(
+            child_descendants.into_iter().collect::<HashSet<_>>(),
+            HashSet::from([grandchild.clone()])
+        );
+
+        let grandchild_descendants =
+            InternalPageRepository::find_descendants(&grandchild.id, &mut tx).await?;
+        assert_eq!(
+            grandchild_descendants.into_iter().collect::<HashSet<_>>(),
+            HashSet::from([])
+        );
+
+        teardown(tx).await?;
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn add_page_should_success() -> anyhow::Result<()> {
+        let ((oneself, child, grandchild), mut tx) = setup().await?;
 
         let paths = query_as::<_, RepositoryPageTreePaths>(
             "SELECT ancestor, descendant FROM page_tree_paths",
@@ -168,19 +242,19 @@ mod tests {
         });
 
         assert_eq!(
-            paths_map.get(&page1.id).unwrap(),
-            &HashSet::from([page1.id.clone(), page2.id.clone(), page3.id.clone()])
+            paths_map.get(&oneself.id).unwrap(),
+            &HashSet::from([oneself.id.clone(), child.id.clone(), grandchild.id.clone()])
         );
         assert_eq!(
-            paths_map.get(&page2.id).unwrap(),
-            &HashSet::from([page2.id.clone(), page3.id.clone()])
+            paths_map.get(&child.id).unwrap(),
+            &HashSet::from([child.id.clone(), grandchild.id.clone()])
         );
         assert_eq!(
-            paths_map.get(&page3.id).unwrap(),
-            &HashSet::from([page3.id.clone()])
+            paths_map.get(&grandchild.id).unwrap(),
+            &HashSet::from([grandchild.id.clone()])
         );
 
-        tx.rollback().await?;
+        teardown(tx).await?;
 
         Ok(())
     }
