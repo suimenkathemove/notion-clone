@@ -4,6 +4,10 @@ endif
 
 name =
 
+.PHONY: db-connect
+db-connect:
+	cd docker && docker exec -it slack-clone-db psql -U postgres
+
 .PHONY: migrate-add
 migrate-add:
 	cd docker && docker compose run --rm app \
