@@ -1,6 +1,6 @@
 use sqlx::types::chrono::{DateTime, Utc};
 
-#[derive(sqlx::Type)]
+#[derive(Debug, sqlx::Type)]
 #[sqlx(transparent)]
 pub struct DateTimeUtc(pub DateTime<Utc>);
 

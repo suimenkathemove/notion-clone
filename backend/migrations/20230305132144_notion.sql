@@ -11,5 +11,6 @@ CREATE TABLE pages (
 CREATE TABLE page_tree_paths (
     PRIMARY KEY (ancestor, descendant),
     ancestor UUID NOT NULL REFERENCES pages(id) ON DELETE CASCADE,
-    descendant UUID NOT NULL REFERENCES pages(id)
+    descendant UUID NOT NULL REFERENCES pages(id) ON DELETE CASCADE,
+    weight INTEGER NOT NULL
 );
