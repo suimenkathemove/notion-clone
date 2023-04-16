@@ -45,4 +45,10 @@ impl PageUseCase {
 
         Ok(page)
     }
+
+    pub async fn remove(&self, id: &models::notion::page::PageId) -> Result<(), UseCaseError> {
+        self.page_repository.remove(id).await?;
+
+        Ok(())
+    }
 }

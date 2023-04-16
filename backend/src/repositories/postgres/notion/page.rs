@@ -37,7 +37,11 @@ impl InternalPageRepository {
         conn: &mut PgConnection,
     ) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
         let pages = query_as::<_, Page>(
-            "SELECT * FROM pages WHERE id IN (SELECT descendant FROM page_tree_paths WHERE ancestor = $1 AND descendant <> $1)"
+            "
+            SELECT * FROM pages WHERE id IN (
+                SELECT descendant FROM page_tree_paths WHERE ancestor = $1 AND descendant <> $1
+            )
+            ",
         )
         .bind(parent_id.0)
         .fetch_all(&mut *conn)
@@ -73,6 +77,24 @@ impl InternalPageRepository {
         .await?;
 
         Ok(page.into())
+    }
+
+    async fn remove(
+        id: &models::notion::page::PageId,
+        conn: &mut PgConnection,
+    ) -> Result<(), RepositoryError> {
+        query(
+            "
+            DELETE FROM pages WHERE id IN (
+                SELECT descendant FROM page_tree_paths WHERE ancestor = $1
+            )
+            ",
+        )
+        .bind(id.0)
+        .execute(&mut *conn)
+        .await?;
+
+        Ok(())
     }
 }
 
@@ -128,6 +150,13 @@ impl IPageRepository for PageRepository {
         let page = InternalPageRepository::add(parent_id, title, text, &mut conn).await?;
 
         Ok(page)
+    }
+
+    async fn remove(&self, id: &models::notion::page::PageId) -> Result<(), RepositoryError> {
+        let mut conn = self.pool.acquire().await?;
+        InternalPageRepository::remove(id, &mut conn).await?;
+
+        Ok(())
     }
 }
 
@@ -253,6 +282,35 @@ mod tests {
             paths_map.get(&grandchild.id).unwrap(),
             &HashSet::from([grandchild.id.clone()])
         );
+
+        teardown(tx).await?;
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn remove_page_should_success() -> anyhow::Result<()> {
+        let ((oneself, _, _), mut tx) = setup().await?;
+
+        InternalPageRepository::remove(&oneself.id, &mut tx).await?;
+
+        let pages = query_as::<_, Page>("SELECT * FROM pages")
+            .fetch_all(&mut tx)
+            .await?
+            .into_iter()
+            .map(Into::into)
+            .collect::<Vec<models::notion::page::Page>>();
+        assert!(pages.is_empty());
+
+        let paths = query_as::<_, RepositoryPageTreePaths>(
+            "SELECT ancestor, descendant FROM page_tree_paths",
+        )
+        .fetch_all(&mut tx)
+        .await?
+        .into_iter()
+        .map(Into::into)
+        .collect::<Vec<ModelsPageTreePaths>>();
+        assert!(paths.is_empty());
 
         teardown(tx).await?;
 

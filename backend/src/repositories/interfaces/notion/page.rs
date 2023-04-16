@@ -21,4 +21,6 @@ pub trait IPageRepository: Send + Sync {
         title: String,
         text: String,
     ) -> Result<models::notion::page::Page, RepositoryError>;
+
+    async fn remove(&self, id: &models::notion::page::PageId) -> Result<(), RepositoryError>;
 }
