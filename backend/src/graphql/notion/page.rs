@@ -63,7 +63,7 @@ define_result!(ListDescendantPageResult, ListDescendantPage);
 
 define_result!(GetPageResult, Page);
 
-define_result!(CreatePageResult, Page);
+define_result!(AddPageResult, Page);
 
 #[derive(SimpleObject)]
 struct RemovePage {
@@ -131,14 +131,14 @@ impl PageMutation {
         parent_id: Option<PageId>,
         title: String,
         text: String,
-    ) -> CreatePageResult {
+    ) -> AddPageResult {
         let page_use_case = ctx.data_unchecked::<PageUseCase>();
         let result = page_use_case
             .add(&parent_id.map(Into::into), title, text)
             .await;
         match result {
-            Ok(page) => CreatePageResult::Ok(page.into()),
-            Err(error) => CreatePageResult::Err(GraphQLError { code: error.into() }),
+            Ok(page) => AddPageResult::Ok(page.into()),
+            Err(error) => AddPageResult::Err(GraphQLError { code: error.into() }),
         }
     }
 
