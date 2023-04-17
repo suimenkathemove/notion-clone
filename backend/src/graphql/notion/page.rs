@@ -72,6 +72,13 @@ struct RemovePage {
 
 define_result!(RemovePageResult, RemovePage);
 
+#[derive(SimpleObject)]
+struct MovePage {
+    id: PageId,
+}
+
+define_result!(MovePageResult, MovePage);
+
 #[derive(Default)]
 pub struct PageQuery;
 
@@ -141,6 +148,20 @@ impl PageMutation {
         match result {
             Ok(_) => RemovePageResult::Ok(RemovePage { id }),
             Err(error) => RemovePageResult::Err(GraphQLError { code: error.into() }),
+        }
+    }
+
+    async fn move_page(
+        &self,
+        ctx: &Context<'_>,
+        id: PageId,
+        to_parent_id: PageId,
+    ) -> MovePageResult {
+        let page_use_case = ctx.data_unchecked::<PageUseCase>();
+        let result = page_use_case.move_(&id.into(), &to_parent_id.into()).await;
+        match result {
+            Ok(_) => MovePageResult::Ok(MovePage { id }),
+            Err(error) => MovePageResult::Err(GraphQLError { code: error.into() }),
         }
     }
 }

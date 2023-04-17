@@ -123,6 +123,41 @@ impl InternalPageRepository {
 
         Ok(())
     }
+
+    async fn move_(
+        id: &models::notion::page::PageId,
+        to_parent_id: &models::notion::page::PageId,
+        conn: &mut PgConnection,
+    ) -> Result<(), RepositoryError> {
+        query(
+            "
+            DELETE FROM page_tree_paths WHERE
+                    descendant IN (SELECT descendant FROM page_tree_paths WHERE ancestor = $1)
+                AND
+                    ancestor IN (SELECT ancestor FROM page_tree_paths WHERE descendant = $1 AND ancestor != descendant)
+            ",
+        )
+        .bind(id.0)
+        .execute(&mut *conn)
+        .await?;
+
+        query(
+            "
+            INSERT INTO page_tree_paths (ancestor, descendant, weight)
+                SELECT supertree.ancestor, subtree.descendant, supertree.weight + subtree.weight + 1
+                FROM page_tree_paths AS supertree
+                    CROSS JOIN page_tree_paths AS subtree
+                WHERE supertree.descendant = $1
+                    AND subtree.ancestor = $2
+            ",
+        )
+        .bind(to_parent_id.0)
+        .bind(id.0)
+        .execute(&mut *conn)
+        .await?;
+
+        Ok(())
+    }
 }
 
 pub struct PageRepository {
@@ -182,6 +217,17 @@ impl IPageRepository for PageRepository {
     async fn remove(&self, id: &models::notion::page::PageId) -> Result<(), RepositoryError> {
         let mut conn = self.pool.acquire().await?;
         InternalPageRepository::remove(id, &mut conn).await?;
+
+        Ok(())
+    }
+
+    async fn move_(
+        &self,
+        id: &models::notion::page::PageId,
+        to_parent_id: &models::notion::page::PageId,
+    ) -> Result<(), RepositoryError> {
+        let mut conn = self.pool.acquire().await?;
+        InternalPageRepository::move_(id, to_parent_id, &mut conn).await?;
 
         Ok(())
     }
@@ -325,6 +371,127 @@ mod tests {
             pages.into_iter().map(|p| p.id).collect::<HashSet<_>>(),
             HashSet::from([page1.id.clone(), page3.id.clone()])
         );
+
+        teardown(tx).await?;
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn move_page_should_success() -> anyhow::Result<()> {
+        let ((page1, page2, page3, page4, page5), mut tx) = setup().await?;
+
+        InternalPageRepository::move_(&page2.id, &page3.id, &mut tx).await?;
+
+        let paths = query_as::<_, RepositoryPageTreePaths>("SELECT * FROM page_tree_paths")
+            .fetch_all(&mut tx)
+            .await?
+            .into_iter()
+            .map(Into::into)
+            .collect::<Vec<ModelsPageTreePaths>>();
+
+        {
+            let path_1_1 = paths
+                .iter()
+                .find(|p| p.ancestor == page1.id && p.descendant == page1.id)
+                .unwrap();
+            assert_eq!(path_1_1.weight, 0);
+        }
+        {
+            let path_1_3 = paths
+                .iter()
+                .find(|p| p.ancestor == page1.id && p.descendant == page3.id)
+                .unwrap();
+            assert_eq!(path_1_3.weight, 1);
+        }
+        {
+            let path_1_2 = paths
+                .iter()
+                .find(|p| p.ancestor == page1.id && p.descendant == page2.id)
+                .unwrap();
+            assert_eq!(path_1_2.weight, 2);
+        }
+        {
+            let path_1_4 = paths
+                .iter()
+                .find(|p| p.ancestor == page1.id && p.descendant == page4.id)
+                .unwrap();
+            assert_eq!(path_1_4.weight, 3);
+        }
+        {
+            let path_1_5 = paths
+                .iter()
+                .find(|p| p.ancestor == page1.id && p.descendant == page5.id)
+                .unwrap();
+            assert_eq!(path_1_5.weight, 3);
+        }
+
+        {
+            let path_3_3 = paths
+                .iter()
+                .find(|p| p.ancestor == page3.id && p.descendant == page3.id)
+                .unwrap();
+            assert_eq!(path_3_3.weight, 0);
+        }
+        {
+            let path_3_2 = paths
+                .iter()
+                .find(|p| p.ancestor == page3.id && p.descendant == page2.id)
+                .unwrap();
+            assert_eq!(path_3_2.weight, 1);
+        }
+        {
+            let path_3_4 = paths
+                .iter()
+                .find(|p| p.ancestor == page3.id && p.descendant == page4.id)
+                .unwrap();
+            assert_eq!(path_3_4.weight, 2);
+        }
+        {
+            let path_3_5 = paths
+                .iter()
+                .find(|p| p.ancestor == page3.id && p.descendant == page5.id)
+                .unwrap();
+            assert_eq!(path_3_5.weight, 2);
+        }
+
+        {
+            let path_2_2 = paths
+                .iter()
+                .find(|p| p.ancestor == page2.id && p.descendant == page2.id)
+                .unwrap();
+            assert_eq!(path_2_2.weight, 0);
+        }
+        {
+            let path_2_4 = paths
+                .iter()
+                .find(|p| p.ancestor == page2.id && p.descendant == page4.id)
+                .unwrap();
+            assert_eq!(path_2_4.weight, 1);
+        }
+        {
+            let path_2_5 = paths
+                .iter()
+                .find(|p| p.ancestor == page2.id && p.descendant == page5.id)
+                .unwrap();
+            assert_eq!(path_2_5.weight, 1);
+        }
+
+        {
+            let path_4_4 = paths
+                .iter()
+                .find(|p| p.ancestor == page4.id && p.descendant == page4.id)
+                .unwrap();
+            assert_eq!(path_4_4.weight, 0);
+        }
+
+        {
+            let path_5_5 = paths
+                .iter()
+                .find(|p| p.ancestor == page5.id && p.descendant == page5.id)
+                .unwrap();
+            assert_eq!(path_5_5.weight, 0);
+        }
 
         teardown(tx).await?;
 
