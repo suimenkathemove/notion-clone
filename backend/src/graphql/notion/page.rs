@@ -95,10 +95,10 @@ impl PageQuery {
     async fn list_descendant_page(
         &self,
         ctx: &Context<'_>,
-        parent_id: PageId,
+        ancestor_id: PageId,
     ) -> ListDescendantPageResult {
         let page_use_case = ctx.data_unchecked::<PageUseCase>();
-        let result = page_use_case.descendants(&parent_id.into()).await;
+        let result = page_use_case.descendants(&ancestor_id.into()).await;
         match result {
             Ok(pages) => ListDescendantPageResult::Ok(ListPage {
                 items: pages.into_iter().map(Into::into).collect(),

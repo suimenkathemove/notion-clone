@@ -60,7 +60,7 @@ struct InternalPageRepository;
 
 impl InternalPageRepository {
     async fn find_descendants(
-        parent_id: &models::notion::page::PageId,
+        ancestor_id: &models::notion::page::PageId,
         conn: &mut PgConnection,
     ) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
         let pages = query_as::<_, Page>(
@@ -70,7 +70,7 @@ impl InternalPageRepository {
             )
             ",
         )
-        .bind(parent_id.0)
+        .bind(ancestor_id.0)
         .fetch_all(&mut *conn)
         .await?;
 
@@ -200,10 +200,10 @@ impl IPageRepository for PageRepository {
 
     async fn find_descendants(
         &self,
-        parent_id: &models::notion::page::PageId,
+        ancestor_id: &models::notion::page::PageId,
     ) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
         let mut conn = self.pool.acquire().await?;
-        let pages = InternalPageRepository::find_descendants(parent_id, &mut conn).await?;
+        let pages = InternalPageRepository::find_descendants(ancestor_id, &mut conn).await?;
 
         Ok(pages)
     }

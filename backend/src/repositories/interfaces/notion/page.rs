@@ -7,7 +7,7 @@ pub trait IPageRepository: Send + Sync {
 
     async fn find_descendants(
         &self,
-        parent_id: &models::notion::page::PageId,
+        ancestor_id: &models::notion::page::PageId,
     ) -> Result<Vec<models::notion::page::Page>, RepositoryError>;
 
     async fn find_children(
