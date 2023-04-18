@@ -26,6 +26,15 @@ impl PageUseCase {
         Ok(pages)
     }
 
+    pub async fn children(
+        &self,
+        parent_id: &models::notion::page::PageId,
+    ) -> Result<Vec<models::notion::page::Page>, UseCaseError> {
+        let pages = self.page_repository.find_children(parent_id).await?;
+
+        Ok(pages)
+    }
+
     pub async fn get(
         &self,
         id: &models::notion::page::PageId,

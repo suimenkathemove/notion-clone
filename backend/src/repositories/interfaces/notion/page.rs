@@ -10,6 +10,11 @@ pub trait IPageRepository: Send + Sync {
         parent_id: &models::notion::page::PageId,
     ) -> Result<Vec<models::notion::page::Page>, RepositoryError>;
 
+    async fn find_children(
+        &self,
+        parent_id: &models::notion::page::PageId,
+    ) -> Result<Vec<models::notion::page::Page>, RepositoryError>;
+
     async fn find_by_id(
         &self,
         id: &models::notion::page::PageId,

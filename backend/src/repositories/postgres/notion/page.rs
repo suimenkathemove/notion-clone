@@ -77,6 +77,24 @@ impl InternalPageRepository {
         Ok(pages.into_iter().map(Into::into).collect())
     }
 
+    async fn find_children(
+        parent_id: &models::notion::page::PageId,
+        conn: &mut PgConnection,
+    ) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
+        let pages = query_as::<_, Page>(
+            "
+            SELECT * FROM pages WHERE id IN (
+                SELECT descendant FROM page_tree_paths WHERE ancestor = $1 AND weight = 1
+            )
+            ",
+        )
+        .bind(parent_id.0)
+        .fetch_all(&mut *conn)
+        .await?;
+
+        Ok(pages.into_iter().map(Into::into).collect())
+    }
+
     async fn add(
         parent_id: &Option<models::notion::page::PageId>,
         title: String,
@@ -186,6 +204,16 @@ impl IPageRepository for PageRepository {
     ) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
         let mut conn = self.pool.acquire().await?;
         let pages = InternalPageRepository::find_descendants(parent_id, &mut conn).await?;
+
+        Ok(pages)
+    }
+
+    async fn find_children(
+        &self,
+        parent_id: &models::notion::page::PageId,
+    ) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
+        let mut conn = self.pool.acquire().await?;
+        let pages = InternalPageRepository::find_children(parent_id, &mut conn).await?;
 
         Ok(pages)
     }
