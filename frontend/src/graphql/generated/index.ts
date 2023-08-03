@@ -233,6 +233,13 @@ export type AddPageMutationVariables = Exact<{
 
 export type AddPageMutation = { __typename?: 'MutationRoot', addPage: { __typename?: 'GraphQLError' } | { __typename?: 'Page', id: any, title: string } };
 
+export type RemovePageMutationVariables = Exact<{
+  id: Scalars['PageId'];
+}>;
+
+
+export type RemovePageMutation = { __typename?: 'MutationRoot', removePage: { __typename?: 'GraphQLError' } | { __typename?: 'RemovePage', id: any } };
+
 export type ListChannelQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -352,6 +359,41 @@ export function useAddPageMutation(baseOptions?: Apollo.MutationHookOptions<AddP
 export type AddPageMutationHookResult = ReturnType<typeof useAddPageMutation>;
 export type AddPageMutationResult = Apollo.MutationResult<AddPageMutation>;
 export type AddPageMutationOptions = Apollo.BaseMutationOptions<AddPageMutation, AddPageMutationVariables>;
+export const RemovePageDocument = gql`
+    mutation RemovePage($id: PageId!) {
+  removePage(id: $id) {
+    ... on RemovePage {
+      id
+    }
+  }
+}
+    `;
+export type RemovePageMutationFn = Apollo.MutationFunction<RemovePageMutation, RemovePageMutationVariables>;
+
+/**
+ * __useRemovePageMutation__
+ *
+ * To run a mutation, you first call `useRemovePageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemovePageMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removePageMutation, { data, loading, error }] = useRemovePageMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useRemovePageMutation(baseOptions?: Apollo.MutationHookOptions<RemovePageMutation, RemovePageMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemovePageMutation, RemovePageMutationVariables>(RemovePageDocument, options);
+      }
+export type RemovePageMutationHookResult = ReturnType<typeof useRemovePageMutation>;
+export type RemovePageMutationResult = Apollo.MutationResult<RemovePageMutation>;
+export type RemovePageMutationOptions = Apollo.BaseMutationOptions<RemovePageMutation, RemovePageMutationVariables>;
 export const ListChannelDocument = gql`
     query listChannel {
   listChannel {

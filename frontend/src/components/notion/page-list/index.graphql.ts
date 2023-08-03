@@ -25,3 +25,13 @@ export const AddPage = gql`
     }
   }
 `;
+
+export const RemovePage = gql`
+  mutation RemovePage($id: PageId!) {
+    removePage(id: $id) {
+      ... on RemovePage {
+        id
+      }
+    }
+  }
+`;

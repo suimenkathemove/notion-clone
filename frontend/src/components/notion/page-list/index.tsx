@@ -2,16 +2,28 @@ import { useCallback } from "react";
 
 import { PageListPresenter } from "./presenter";
 
-import { useAddPageMutation, useListPageQuery } from "@/graphql/generated";
+import {
+  useAddPageMutation,
+  useListPageQuery,
+  useRemovePageMutation,
+} from "@/graphql/generated";
 
 export const PageList: React.FC = () => {
   const listPageResult = useListPageQuery();
 
-  const [addPageMutation] = useAddPageMutation();
-
+  const [addPage] = useAddPageMutation();
   const onClickAddPage = useCallback(() => {
-    addPageMutation({ variables: { title: "", text: "" } });
-  }, [addPageMutation]);
+    addPage({ variables: { title: "", text: "" } });
+  }, [addPage]);
+
+  const [removePage] = useRemovePageMutation();
+  const onClickRemovePageButton = useCallback(
+    // TODO: value object
+    (id: string) => {
+      removePage({ variables: { id } });
+    },
+    [removePage],
+  );
 
   if (listPageResult.data == null) {
     return <div>loading...</div>;
@@ -23,6 +35,7 @@ export const PageList: React.FC = () => {
         <PageListPresenter
           pages={listPageResult.data.listPage.items}
           onClickAddPage={onClickAddPage}
+          onClickRemovePageButton={onClickRemovePageButton}
         />
       );
     case "GraphQLError":
