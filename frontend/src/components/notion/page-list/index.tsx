@@ -2,25 +2,34 @@ import { useCallback } from "react";
 
 import { PageListPresenter } from "./presenter";
 
-import { useCreatePageMutation, useListPageQuery } from "@/graphql/generated";
+import { useAddPageMutation, useListPageQuery } from "@/graphql/generated";
 
 export const PageList: React.FC = () => {
   const listPageResult = useListPageQuery();
 
-  const [createPageMutation] = useCreatePageMutation();
+  const [addPageMutation] = useAddPageMutation();
 
   const onClickAddPage = useCallback(() => {
-    createPageMutation({ variables: { title: "", text: "" } });
-  }, [createPageMutation]);
+    addPageMutation({ variables: { title: "", text: "" } });
+  }, [addPageMutation]);
 
   if (listPageResult.data == null) {
     return <div>loading...</div>;
   }
 
-  return (
-    <PageListPresenter
-      pages={listPageResult.data.listPage}
-      onClickAddPage={onClickAddPage}
-    />
-  );
+  switch (listPageResult.data.listPage.__typename) {
+    case "ListPage":
+      return (
+        <PageListPresenter
+          pages={listPageResult.data.listPage.items}
+          onClickAddPage={onClickAddPage}
+        />
+      );
+    case "GraphQLError":
+      // TODO
+      throw new Error();
+    default:
+      // TODO: satisfies
+      return listPageResult.data.listPage;
+  }
 };

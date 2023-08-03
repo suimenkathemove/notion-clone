@@ -21,6 +21,8 @@ export type Scalars = {
   ThreadId: any;
 };
 
+export type AddPageResult = GraphQlError | Page;
+
 export type Channel = {
   __typename?: 'Channel';
   createdAt: Scalars['DateTimeUtc'];
@@ -47,6 +49,29 @@ export type DeleteThreadOutput = {
   id: Scalars['ThreadId'];
 };
 
+export type GetPageResult = GraphQlError | Page;
+
+export type GraphQlError = {
+  __typename?: 'GraphQLError';
+  code: GraphQlErrorCode;
+};
+
+export enum GraphQlErrorCode {
+  InternalServerError = 'INTERNAL_SERVER_ERROR',
+  NotFound = 'NOT_FOUND'
+}
+
+export type ListChildrenPageResult = GraphQlError | ListPage;
+
+export type ListDescendantPageResult = GraphQlError | ListPage;
+
+export type ListPage = {
+  __typename?: 'ListPage';
+  items: Array<Page>;
+};
+
+export type ListPageResult = GraphQlError | ListPage;
+
 export type Message = {
   __typename?: 'Message';
   createdAt: Scalars['DateTimeUtc'];
@@ -55,13 +80,22 @@ export type Message = {
   updatedAt: Scalars['DateTimeUtc'];
 };
 
+export type MovePage = {
+  __typename?: 'MovePage';
+  id: Scalars['PageId'];
+};
+
+export type MovePageResult = GraphQlError | MovePage;
+
 export type MutationRoot = {
   __typename?: 'MutationRoot';
   addMessage: Message;
+  addPage: AddPageResult;
   createChannel: Channel;
-  createPage: Page;
   deleteChannel: DeleteChannelOutput;
   deleteMessage: DeleteMessageOutput;
+  movePage: MovePageResult;
+  removePage: RemovePageResult;
   reply: Message;
 };
 
@@ -72,16 +106,17 @@ export type MutationRootAddMessageArgs = {
 };
 
 
+export type MutationRootAddPageArgs = {
+  parentId?: InputMaybe<Scalars['PageId']>;
+  text: Scalars['String'];
+  title: Scalars['String'];
+};
+
+
 export type MutationRootCreateChannelArgs = {
   description: Scalars['String'];
   name: Scalars['ChannelName'];
   private: Scalars['Boolean'];
-};
-
-
-export type MutationRootCreatePageArgs = {
-  text: Scalars['String'];
-  title: Scalars['String'];
 };
 
 
@@ -92,6 +127,17 @@ export type MutationRootDeleteChannelArgs = {
 
 export type MutationRootDeleteMessageArgs = {
   id: Scalars['MessageId'];
+};
+
+
+export type MutationRootMovePageArgs = {
+  id: Scalars['PageId'];
+  toParentId: Scalars['PageId'];
+};
+
+
+export type MutationRootRemovePageArgs = {
+  id: Scalars['PageId'];
 };
 
 
@@ -113,11 +159,14 @@ export type QueryRoot = {
   __typename?: 'QueryRoot';
   deleteThread: DeleteThreadOutput;
   getChannel: Channel;
+  getPage: GetPageResult;
   getThread: Thread;
   healthCheck: Scalars['String'];
   helloWorld: Scalars['String'];
   listChannel: Array<Channel>;
-  listPage: Array<Page>;
+  listChildrenPage: ListChildrenPageResult;
+  listDescendantPage: ListDescendantPageResult;
+  listPage: ListPageResult;
   listThreadByChannelId: Array<Thread>;
 };
 
@@ -132,14 +181,36 @@ export type QueryRootGetChannelArgs = {
 };
 
 
+export type QueryRootGetPageArgs = {
+  id: Scalars['PageId'];
+};
+
+
 export type QueryRootGetThreadArgs = {
   id: Scalars['ThreadId'];
+};
+
+
+export type QueryRootListChildrenPageArgs = {
+  parentId: Scalars['PageId'];
+};
+
+
+export type QueryRootListDescendantPageArgs = {
+  ancestorId: Scalars['PageId'];
 };
 
 
 export type QueryRootListThreadByChannelIdArgs = {
   channelId: Scalars['ChannelId'];
 };
+
+export type RemovePage = {
+  __typename?: 'RemovePage';
+  id: Scalars['PageId'];
+};
+
+export type RemovePageResult = GraphQlError | RemovePage;
 
 export type Thread = {
   __typename?: 'Thread';
@@ -152,15 +223,15 @@ export type Thread = {
 export type ListPageQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListPageQuery = { __typename?: 'QueryRoot', listPage: Array<{ __typename?: 'Page', id: any, title: string, text: string }> };
+export type ListPageQuery = { __typename?: 'QueryRoot', listPage: { __typename: 'GraphQLError' } | { __typename: 'ListPage', items: Array<{ __typename?: 'Page', id: any, title: string, text: string }> } };
 
-export type CreatePageMutationVariables = Exact<{
+export type AddPageMutationVariables = Exact<{
   title: Scalars['String'];
   text: Scalars['String'];
 }>;
 
 
-export type CreatePageMutation = { __typename?: 'MutationRoot', createPage: { __typename?: 'Page', id: any, title: string } };
+export type AddPageMutation = { __typename?: 'MutationRoot', addPage: { __typename?: 'GraphQLError' } | { __typename?: 'Page', id: any, title: string } };
 
 export type ListChannelQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -204,11 +275,16 @@ export type HealthCheckQuery = { __typename?: 'QueryRoot', healthCheck: string }
 
 
 export const ListPageDocument = gql`
-    query listPage {
+    query ListPage {
   listPage {
-    id
-    title
-    text
+    __typename
+    ... on ListPage {
+      items {
+        id
+        title
+        text
+      }
+    }
   }
 }
     `;
@@ -239,41 +315,43 @@ export function useListPageLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<L
 export type ListPageQueryHookResult = ReturnType<typeof useListPageQuery>;
 export type ListPageLazyQueryHookResult = ReturnType<typeof useListPageLazyQuery>;
 export type ListPageQueryResult = Apollo.QueryResult<ListPageQuery, ListPageQueryVariables>;
-export const CreatePageDocument = gql`
-    mutation createPage($title: String!, $text: String!) {
-  createPage(title: $title, text: $text) {
-    id
-    title
+export const AddPageDocument = gql`
+    mutation AddPage($title: String!, $text: String!) {
+  addPage(title: $title, text: $text) {
+    ... on Page {
+      id
+      title
+    }
   }
 }
     `;
-export type CreatePageMutationFn = Apollo.MutationFunction<CreatePageMutation, CreatePageMutationVariables>;
+export type AddPageMutationFn = Apollo.MutationFunction<AddPageMutation, AddPageMutationVariables>;
 
 /**
- * __useCreatePageMutation__
+ * __useAddPageMutation__
  *
- * To run a mutation, you first call `useCreatePageMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreatePageMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useAddPageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddPageMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [createPageMutation, { data, loading, error }] = useCreatePageMutation({
+ * const [addPageMutation, { data, loading, error }] = useAddPageMutation({
  *   variables: {
  *      title: // value for 'title'
  *      text: // value for 'text'
  *   },
  * });
  */
-export function useCreatePageMutation(baseOptions?: Apollo.MutationHookOptions<CreatePageMutation, CreatePageMutationVariables>) {
+export function useAddPageMutation(baseOptions?: Apollo.MutationHookOptions<AddPageMutation, AddPageMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreatePageMutation, CreatePageMutationVariables>(CreatePageDocument, options);
+        return Apollo.useMutation<AddPageMutation, AddPageMutationVariables>(AddPageDocument, options);
       }
-export type CreatePageMutationHookResult = ReturnType<typeof useCreatePageMutation>;
-export type CreatePageMutationResult = Apollo.MutationResult<CreatePageMutation>;
-export type CreatePageMutationOptions = Apollo.BaseMutationOptions<CreatePageMutation, CreatePageMutationVariables>;
+export type AddPageMutationHookResult = ReturnType<typeof useAddPageMutation>;
+export type AddPageMutationResult = Apollo.MutationResult<AddPageMutation>;
+export type AddPageMutationOptions = Apollo.BaseMutationOptions<AddPageMutation, AddPageMutationVariables>;
 export const ListChannelDocument = gql`
     query listChannel {
   listChannel {
