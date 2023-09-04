@@ -1,14 +1,9 @@
-# Welcome to your CDK TypeScript project
+# LocalStack Sandbox
 
-This is a blank project for CDK development with TypeScript.
+This is a LocalStack Sandbox.
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+## Request to API Gateway
 
-## Useful commands
-
-* `npm run build`   compile typescript to js
-* `npm run watch`   watch for changes and compile
-* `npm run test`    perform the jest unit tests
-* `cdk deploy`      deploy this stack to your default AWS account/region
-* `cdk diff`        compare deployed stack with current state
-* `cdk synth`       emits the synthesized CloudFormation template
+```sh
+curl http://localhost:4566/restapis/<apiId>/prod/_user_request_/
+```
