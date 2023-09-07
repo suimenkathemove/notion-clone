@@ -1,7 +1,11 @@
-FROM rust:1.65.0
+FROM rust:1.72.0
 
 WORKDIR /app
 
 RUN set -x \
-  && cargo install cargo-watch \
-  && cargo install sqlx-cli
+  && rustup component add \
+  clippy \
+  rustfmt \
+  && cargo install \
+  cargo-watch@8.4.1 \
+  sqlx-cli@0.7.1
