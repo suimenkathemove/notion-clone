@@ -36,6 +36,11 @@ lint:
 	cd docker && docker compose run --rm app \
 	sh -c "cargo clippy"
 
+.PHONY: format
+format:
+	cd docker && docker compose run --rm app \
+	sh -c "cargo fmt"
+
 .PHONY: test
 test:
 	cd docker && docker compose run --rm app \
