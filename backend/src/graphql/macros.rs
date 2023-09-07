@@ -9,9 +9,9 @@ macro_rules! define_id {
             }
         }
 
-        impl Into<$id> for $struct_name {
-            fn into(self) -> $id {
-                $id(self.0)
+        impl From<$struct_name> for $id {
+            fn from(value: $struct_name) -> Self {
+                Self(value.0)
             }
         }
 
@@ -30,9 +30,9 @@ macro_rules! define_name {
             }
         }
 
-        impl Into<$name> for $struct_name {
-            fn into(self) -> $name {
-                $name(self.0)
+        impl From<$struct_name> for $name {
+            fn from(value: $struct_name) -> Self {
+                Self(value.0)
             }
         }
 

@@ -18,15 +18,15 @@ pub struct Channel {
     pub updated_at: DateTimeUtc,
 }
 
-impl Into<models::channel::Channel> for Channel {
-    fn into(self) -> models::channel::Channel {
-        models::channel::Channel {
-            id: self.id.into(),
-            name: self.name.into(),
-            description: self.description,
-            private: self.private,
-            created_at: self.created_at.into(),
-            updated_at: self.updated_at.into(),
+impl From<Channel> for models::channel::Channel {
+    fn from(value: Channel) -> Self {
+        Self {
+            id: value.id.into(),
+            name: value.name.into(),
+            description: value.description,
+            private: value.private,
+            created_at: value.created_at.into(),
+            updated_at: value.updated_at.into(),
         }
     }
 }

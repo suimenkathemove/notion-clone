@@ -14,13 +14,13 @@ pub struct Message {
     pub updated_at: DateTimeUtc,
 }
 
-impl Into<models::message::Message> for Message {
-    fn into(self) -> models::message::Message {
-        models::message::Message {
-            id: self.id.into(),
-            text: self.text,
-            created_at: self.created_at.into(),
-            updated_at: self.updated_at.into(),
+impl From<Message> for models::message::Message {
+    fn from(value: Message) -> Self {
+        Self {
+            id: value.id.into(),
+            text: value.text,
+            created_at: value.created_at.into(),
+            updated_at: value.updated_at.into(),
         }
     }
 }

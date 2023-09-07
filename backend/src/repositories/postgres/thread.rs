@@ -13,12 +13,12 @@ pub struct Thread {
     pub updated_at: DateTimeUtc,
 }
 
-impl Into<models::thread::Thread> for Thread {
-    fn into(self) -> models::thread::Thread {
-        models::thread::Thread {
-            id: self.id.into(),
-            created_at: self.created_at.into(),
-            updated_at: self.updated_at.into(),
+impl From<Thread> for models::thread::Thread {
+    fn from(value: Thread) -> Self {
+        Self {
+            id: value.id.into(),
+            created_at: value.created_at.into(),
+            updated_at: value.updated_at.into(),
         }
     }
 }

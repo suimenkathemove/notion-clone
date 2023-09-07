@@ -17,14 +17,14 @@ pub struct Page {
     pub updated_at: DateTimeUtc,
 }
 
-impl Into<models::notion::page::Page> for Page {
-    fn into(self) -> models::notion::page::Page {
-        models::notion::page::Page {
-            id: self.id.into(),
-            title: self.title,
-            text: self.text,
-            created_at: self.created_at.into(),
-            updated_at: self.updated_at.into(),
+impl From<Page> for models::notion::page::Page {
+    fn from(value: Page) -> Self {
+        Self {
+            id: value.id.into(),
+            title: value.title,
+            text: value.text,
+            created_at: value.created_at.into(),
+            updated_at: value.updated_at.into(),
         }
     }
 }
@@ -46,12 +46,12 @@ struct RepositoryPageTreePaths {
     weight: i32,
 }
 
-impl Into<ModelsPageTreePaths> for RepositoryPageTreePaths {
-    fn into(self) -> ModelsPageTreePaths {
-        ModelsPageTreePaths {
-            ancestor: self.ancestor.into(),
-            descendant: self.descendant.into(),
-            weight: self.weight,
+impl From<RepositoryPageTreePaths> for ModelsPageTreePaths {
+    fn from(value: RepositoryPageTreePaths) -> Self {
+        Self {
+            ancestor: value.ancestor.into(),
+            descendant: value.descendant.into(),
+            weight: value.weight,
         }
     }
 }
