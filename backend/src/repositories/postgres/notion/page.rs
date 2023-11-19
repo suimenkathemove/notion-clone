@@ -65,8 +65,8 @@ impl InternalPageRepository {
     ) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
         let pages = query_as::<_, Page>(
             "
-            SELECT * FROM pages WHERE id IN (
-                SELECT descendant FROM page_tree_paths WHERE ancestor = $1 AND descendant <> $1
+            SELECT * FROM notion.pages WHERE id IN (
+                SELECT descendant FROM notion.page_tree_paths WHERE ancestor = $1 AND descendant <> $1
             )
             ",
         )
@@ -83,8 +83,8 @@ impl InternalPageRepository {
     ) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
         let pages = query_as::<_, Page>(
             "
-            SELECT * FROM pages WHERE id IN (
-                SELECT descendant FROM page_tree_paths WHERE ancestor = $1 AND weight = 1
+            SELECT * FROM notion.pages WHERE id IN (
+                SELECT descendant FROM notion.page_tree_paths WHERE ancestor = $1 AND weight = 1
             )
             ",
         )
@@ -101,17 +101,18 @@ impl InternalPageRepository {
         text: String,
         conn: &mut PgConnection,
     ) -> Result<models::notion::page::Page, RepositoryError> {
-        let page =
-            query_as::<_, Page>("INSERT INTO pages (title, text) VALUES ($1, $2) RETURNING *")
-                .bind(title)
-                .bind(text)
-                .fetch_one(&mut *conn)
-                .await?;
+        let page = query_as::<_, Page>(
+            "INSERT INTO notion.pages (title, text) VALUES ($1, $2) RETURNING *",
+        )
+        .bind(title)
+        .bind(text)
+        .fetch_one(&mut *conn)
+        .await?;
 
         query(
             "
-            INSERT INTO page_tree_paths (ancestor, descendant, weight)
-                    SELECT ancestor, $2, weight + 1 FROM page_tree_paths WHERE descendant = $1
+            INSERT INTO notion.page_tree_paths (ancestor, descendant, weight)
+                    SELECT ancestor, $2, weight + 1 FROM notion.page_tree_paths WHERE descendant = $1
                 UNION ALL
                     SELECT $2, $2, 0
             ",
@@ -130,8 +131,8 @@ impl InternalPageRepository {
     ) -> Result<(), RepositoryError> {
         query(
             "
-            DELETE FROM pages WHERE id IN (
-                SELECT descendant FROM page_tree_paths WHERE ancestor = $1
+            DELETE FROM notion.pages WHERE id IN (
+                SELECT descendant FROM notion.page_tree_paths WHERE ancestor = $1
             )
             ",
         )
@@ -149,10 +150,10 @@ impl InternalPageRepository {
     ) -> Result<(), RepositoryError> {
         query(
             "
-            DELETE FROM page_tree_paths WHERE
-                    descendant IN (SELECT descendant FROM page_tree_paths WHERE ancestor = $1)
+            DELETE FROM notion.page_tree_paths WHERE
+                    descendant IN (SELECT descendant FROM notion.page_tree_paths WHERE ancestor = $1)
                 AND
-                    ancestor IN (SELECT ancestor FROM page_tree_paths WHERE descendant = $1 AND ancestor != descendant)
+                    ancestor IN (SELECT ancestor FROM notion.page_tree_paths WHERE descendant = $1 AND ancestor != descendant)
             ",
         )
         .bind(id.0)
@@ -161,10 +162,10 @@ impl InternalPageRepository {
 
         query(
             "
-            INSERT INTO page_tree_paths (ancestor, descendant, weight)
+            INSERT INTO notion.page_tree_paths (ancestor, descendant, weight)
                 SELECT supertree.ancestor, subtree.descendant, supertree.weight + subtree.weight + 1
-                FROM page_tree_paths AS supertree
-                    CROSS JOIN page_tree_paths AS subtree
+                FROM notion.page_tree_paths AS supertree
+                    CROSS JOIN notion.page_tree_paths AS subtree
                 WHERE supertree.descendant = $1
                     AND subtree.ancestor = $2
             ",
@@ -191,7 +192,7 @@ impl PageRepository {
 #[async_trait]
 impl IPageRepository for PageRepository {
     async fn find_list(&self) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
-        let pages = query_as::<_, Page>("SELECT * FROM pages")
+        let pages = query_as::<_, Page>("SELECT * FROM notion.pages")
             .fetch_all(&*self.pool)
             .await?;
 
@@ -222,7 +223,7 @@ impl IPageRepository for PageRepository {
         &self,
         id: &models::notion::page::PageId,
     ) -> Result<models::notion::page::Page, RepositoryError> {
-        let page = query_as::<_, Page>("SELECT * FROM pages WHERE id = $1")
+        let page = query_as::<_, Page>("SELECT * FROM notion.pages WHERE id = $1")
             .bind(id.0)
             .fetch_one(&*self.pool)
             .await?;
@@ -346,7 +347,7 @@ mod tests {
     async fn add_page_should_success() -> anyhow::Result<()> {
         let ((page1, page2, page3, page4, page5), mut tx) = setup().await?;
 
-        let paths = query_as::<_, RepositoryPageTreePaths>("SELECT * FROM page_tree_paths")
+        let paths = query_as::<_, RepositoryPageTreePaths>("SELECT * FROM notion.page_tree_paths")
             .fetch_all(&mut tx)
             .await?
             .into_iter()
@@ -389,7 +390,7 @@ mod tests {
 
         InternalPageRepository::remove(&page2.id, &mut tx).await?;
 
-        let pages = query_as::<_, Page>("SELECT * FROM pages")
+        let pages = query_as::<_, Page>("SELECT * FROM notion.pages")
             .fetch_all(&mut tx)
             .await?
             .into_iter()
@@ -411,7 +412,7 @@ mod tests {
 
         InternalPageRepository::move_(&page2.id, &page3.id, &mut tx).await?;
 
-        let paths = query_as::<_, RepositoryPageTreePaths>("SELECT * FROM page_tree_paths")
+        let paths = query_as::<_, RepositoryPageTreePaths>("SELECT * FROM notion.page_tree_paths")
             .fetch_all(&mut tx)
             .await?
             .into_iter()
