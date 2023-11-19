@@ -61,18 +61,18 @@ export enum GraphQlErrorCode {
   NotFound = 'NOT_FOUND'
 }
 
-export type ListChildrenPageResult = GraphQlError | ListPage;
+export type ListChildrenPagesResult = GraphQlError | ListPages;
 
-export type ListDescendantPageResult = GraphQlError | ListPage;
+export type ListDescendantPagesResult = GraphQlError | ListPages;
 
-export type ListPage = {
-  __typename?: 'ListPage';
+export type ListPages = {
+  __typename?: 'ListPages';
   items: Array<Page>;
 };
 
-export type ListPageResult = GraphQlError | ListPage;
+export type ListPagesResult = GraphQlError | ListPages;
 
-export type ListRootPagesResult = GraphQlError | ListPage;
+export type ListRootPagesResult = GraphQlError | ListPages;
 
 export type Message = {
   __typename?: 'Message';
@@ -166,9 +166,9 @@ export type QueryRoot = {
   healthCheck: Scalars['String'];
   helloWorld: Scalars['String'];
   listChannel: Array<Channel>;
-  listChildrenPage: ListChildrenPageResult;
-  listDescendantPage: ListDescendantPageResult;
-  listPage: ListPageResult;
+  listChildrenPages: ListChildrenPagesResult;
+  listDescendantPages: ListDescendantPagesResult;
+  listPages: ListPagesResult;
   listRootPages: ListRootPagesResult;
   listThreadByChannelId: Array<Thread>;
 };
@@ -194,12 +194,12 @@ export type QueryRootGetThreadArgs = {
 };
 
 
-export type QueryRootListChildrenPageArgs = {
+export type QueryRootListChildrenPagesArgs = {
   parentId: Scalars['PageId'];
 };
 
 
-export type QueryRootListDescendantPageArgs = {
+export type QueryRootListDescendantPagesArgs = {
   ancestorId: Scalars['PageId'];
 };
 
@@ -226,7 +226,7 @@ export type Thread = {
 export type ListRootPagesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListRootPagesQuery = { __typename?: 'QueryRoot', listRootPages: { __typename: 'GraphQLError' } | { __typename: 'ListPage', items: Array<{ __typename?: 'Page', id: any, title: string, text: string }> } };
+export type ListRootPagesQuery = { __typename?: 'QueryRoot', listRootPages: { __typename: 'GraphQLError' } | { __typename: 'ListPages', items: Array<{ __typename?: 'Page', id: any, title: string, text: string }> } };
 
 export type AddPageMutationVariables = Exact<{
   title: Scalars['String'];
@@ -288,7 +288,7 @@ export const ListRootPagesDocument = gql`
     query ListRootPages {
   listRootPages {
     __typename
-    ... on ListPage {
+    ... on ListPages {
       items {
         id
         title

@@ -30,7 +30,7 @@ export const PageList: React.FC = () => {
   }
 
   switch (listRootPagesResult.data.listRootPages.__typename) {
-    case "ListPage":
+    case "ListPages":
       return (
         <PageListPresenter
           pages={listRootPagesResult.data.listRootPages.items}

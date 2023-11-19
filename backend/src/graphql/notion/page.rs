@@ -48,17 +48,17 @@ impl Page {
 }
 
 #[derive(SimpleObject)]
-struct ListPage {
+struct ListPages {
     items: Vec<Page>,
 }
 
-define_result!(ListPageResult, ListPage);
+define_result!(ListPagesResult, ListPages);
 
-define_result!(ListRootPagesResult, ListPage);
+define_result!(ListRootPagesResult, ListPages);
 
-define_result!(ListDescendantPageResult, ListPage);
+define_result!(ListDescendantPagesResult, ListPages);
 
-define_result!(ListChildrenPageResult, ListPage);
+define_result!(ListChildrenPagesResult, ListPages);
 
 define_result!(GetPageResult, Page);
 
@@ -83,14 +83,14 @@ pub struct PageQuery;
 
 #[Object]
 impl PageQuery {
-    async fn list_page(&self, ctx: &Context<'_>) -> ListPageResult {
+    async fn list_pages(&self, ctx: &Context<'_>) -> ListPagesResult {
         let page_use_case = ctx.data_unchecked::<PageUseCase>();
         let result = page_use_case.list().await;
         match result {
-            Ok(pages) => ListPageResult::Ok(ListPage {
+            Ok(pages) => ListPagesResult::Ok(ListPages {
                 items: pages.into_iter().map(Into::into).collect(),
             }),
-            Err(error) => ListPageResult::Err(GraphQLError { code: error.into() }),
+            Err(error) => ListPagesResult::Err(GraphQLError { code: error.into() }),
         }
     }
 
@@ -98,40 +98,40 @@ impl PageQuery {
         let page_use_case = ctx.data_unchecked::<PageUseCase>();
         let result = page_use_case.list_roots().await;
         match result {
-            Ok(pages) => ListRootPagesResult::Ok(ListPage {
+            Ok(pages) => ListRootPagesResult::Ok(ListPages {
                 items: pages.into_iter().map(Into::into).collect(),
             }),
             Err(error) => ListRootPagesResult::Err(GraphQLError { code: error.into() }),
         }
     }
 
-    async fn list_descendant_page(
+    async fn list_descendant_pages(
         &self,
         ctx: &Context<'_>,
         ancestor_id: PageId,
-    ) -> ListDescendantPageResult {
+    ) -> ListDescendantPagesResult {
         let page_use_case = ctx.data_unchecked::<PageUseCase>();
         let result = page_use_case.descendants(&ancestor_id.into()).await;
         match result {
-            Ok(pages) => ListDescendantPageResult::Ok(ListPage {
+            Ok(pages) => ListDescendantPagesResult::Ok(ListPages {
                 items: pages.into_iter().map(Into::into).collect(),
             }),
-            Err(error) => ListDescendantPageResult::Err(GraphQLError { code: error.into() }),
+            Err(error) => ListDescendantPagesResult::Err(GraphQLError { code: error.into() }),
         }
     }
 
-    async fn list_children_page(
+    async fn list_children_pages(
         &self,
         ctx: &Context<'_>,
         parent_id: PageId,
-    ) -> ListChildrenPageResult {
+    ) -> ListChildrenPagesResult {
         let page_use_case = ctx.data_unchecked::<PageUseCase>();
         let result = page_use_case.children(&parent_id.into()).await;
         match result {
-            Ok(pages) => ListChildrenPageResult::Ok(ListPage {
+            Ok(pages) => ListChildrenPagesResult::Ok(ListPages {
                 items: pages.into_iter().map(Into::into).collect(),
             }),
-            Err(error) => ListChildrenPageResult::Err(GraphQLError { code: error.into() }),
+            Err(error) => ListChildrenPagesResult::Err(GraphQLError { code: error.into() }),
         }
     }
 

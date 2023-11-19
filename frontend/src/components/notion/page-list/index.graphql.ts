@@ -4,7 +4,7 @@ export const ListRootPages = gql`
   query ListRootPages {
     listRootPages {
       __typename
-      ... on ListPage {
+      ... on ListPages {
         items {
           id
           title
