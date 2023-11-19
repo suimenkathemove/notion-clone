@@ -4,12 +4,12 @@ import { PageListPresenter } from "./presenter";
 
 import {
   useAddPageMutation,
-  useListPageQuery,
+  useListRootPagesQuery,
   useRemovePageMutation,
 } from "@/graphql/generated";
 
 export const PageList: React.FC = () => {
-  const listPageResult = useListPageQuery();
+  const listRootPagesResult = useListRootPagesQuery();
 
   const [addPage] = useAddPageMutation();
   const onClickAddPage = useCallback(() => {
@@ -25,15 +25,15 @@ export const PageList: React.FC = () => {
     [removePage],
   );
 
-  if (listPageResult.data == null) {
+  if (listRootPagesResult.data == null) {
     return <div>loading...</div>;
   }
 
-  switch (listPageResult.data.listPage.__typename) {
+  switch (listRootPagesResult.data.listRootPages.__typename) {
     case "ListPage":
       return (
         <PageListPresenter
-          pages={listPageResult.data.listPage.items}
+          pages={listRootPagesResult.data.listRootPages.items}
           onClickAddPage={onClickAddPage}
           onClickRemovePageButton={onClickRemovePageButton}
         />
@@ -43,6 +43,6 @@ export const PageList: React.FC = () => {
       throw new Error();
     default:
       // TODO: satisfies
-      return listPageResult.data.listPage;
+      return listRootPagesResult.data.listRootPages;
   }
 };

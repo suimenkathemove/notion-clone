@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client";
 
-export const ListPage = gql`
-  query ListPage {
-    listPage {
+export const ListRootPages = gql`
+  query ListRootPages {
+    listRootPages {
       __typename
       ... on ListPage {
         items {

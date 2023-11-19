@@ -59,6 +59,25 @@ impl From<RepositoryPageTreePaths> for ModelsPageTreePaths {
 struct InternalPageRepository;
 
 impl InternalPageRepository {
+    async fn find_roots(
+        conn: &mut PgConnection,
+    ) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
+        let pages = query_as::<_, Page>(
+            "
+            SELECT * FROM notion.pages WHERE id IN (
+                SELECT descendant
+                        FROM notion.page_tree_paths
+                    GROUP BY descendant
+                HAVING COUNT(*) = 1
+            )
+            ",
+        )
+        .fetch_all(&mut *conn)
+        .await?;
+
+        Ok(pages.into_iter().map(Into::into).collect())
+    }
+
     async fn find_descendants(
         ancestor_id: &models::notion::page::PageId,
         conn: &mut PgConnection,
@@ -197,6 +216,13 @@ impl IPageRepository for PageRepository {
             .await?;
 
         Ok(pages.into_iter().map(Into::into).collect())
+    }
+
+    async fn find_roots(&self) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
+        let mut conn = self.pool.acquire().await?;
+        let pages = InternalPageRepository::find_roots(&mut conn).await?;
+
+        Ok(pages)
     }
 
     async fn find_descendants(

@@ -54,6 +54,8 @@ struct ListPage {
 
 define_result!(ListPageResult, ListPage);
 
+define_result!(ListRootPagesResult, ListPage);
+
 define_result!(ListDescendantPageResult, ListPage);
 
 define_result!(ListChildrenPageResult, ListPage);
@@ -89,6 +91,17 @@ impl PageQuery {
                 items: pages.into_iter().map(Into::into).collect(),
             }),
             Err(error) => ListPageResult::Err(GraphQLError { code: error.into() }),
+        }
+    }
+
+    async fn list_root_pages(&self, ctx: &Context<'_>) -> ListRootPagesResult {
+        let page_use_case = ctx.data_unchecked::<PageUseCase>();
+        let result = page_use_case.list_roots().await;
+        match result {
+            Ok(pages) => ListRootPagesResult::Ok(ListPage {
+                items: pages.into_iter().map(Into::into).collect(),
+            }),
+            Err(error) => ListRootPagesResult::Err(GraphQLError { code: error.into() }),
         }
     }
 

@@ -72,6 +72,8 @@ export type ListPage = {
 
 export type ListPageResult = GraphQlError | ListPage;
 
+export type ListRootPagesResult = GraphQlError | ListPage;
+
 export type Message = {
   __typename?: 'Message';
   createdAt: Scalars['DateTimeUtc'];
@@ -167,6 +169,7 @@ export type QueryRoot = {
   listChildrenPage: ListChildrenPageResult;
   listDescendantPage: ListDescendantPageResult;
   listPage: ListPageResult;
+  listRootPages: ListRootPagesResult;
   listThreadByChannelId: Array<Thread>;
 };
 
@@ -220,10 +223,10 @@ export type Thread = {
   updatedAt: Scalars['DateTimeUtc'];
 };
 
-export type ListPageQueryVariables = Exact<{ [key: string]: never; }>;
+export type ListRootPagesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListPageQuery = { __typename?: 'QueryRoot', listPage: { __typename: 'GraphQLError' } | { __typename: 'ListPage', items: Array<{ __typename?: 'Page', id: any, title: string, text: string }> } };
+export type ListRootPagesQuery = { __typename?: 'QueryRoot', listRootPages: { __typename: 'GraphQLError' } | { __typename: 'ListPage', items: Array<{ __typename?: 'Page', id: any, title: string, text: string }> } };
 
 export type AddPageMutationVariables = Exact<{
   title: Scalars['String'];
@@ -281,9 +284,9 @@ export type HealthCheckQueryVariables = Exact<{ [key: string]: never; }>;
 export type HealthCheckQuery = { __typename?: 'QueryRoot', healthCheck: string };
 
 
-export const ListPageDocument = gql`
-    query ListPage {
-  listPage {
+export const ListRootPagesDocument = gql`
+    query ListRootPages {
+  listRootPages {
     __typename
     ... on ListPage {
       items {
@@ -297,31 +300,31 @@ export const ListPageDocument = gql`
     `;
 
 /**
- * __useListPageQuery__
+ * __useListRootPagesQuery__
  *
- * To run a query within a React component, call `useListPageQuery` and pass it any options that fit your needs.
- * When your component renders, `useListPageQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useListRootPagesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListRootPagesQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useListPageQuery({
+ * const { data, loading, error } = useListRootPagesQuery({
  *   variables: {
  *   },
  * });
  */
-export function useListPageQuery(baseOptions?: Apollo.QueryHookOptions<ListPageQuery, ListPageQueryVariables>) {
+export function useListRootPagesQuery(baseOptions?: Apollo.QueryHookOptions<ListRootPagesQuery, ListRootPagesQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<ListPageQuery, ListPageQueryVariables>(ListPageDocument, options);
+        return Apollo.useQuery<ListRootPagesQuery, ListRootPagesQueryVariables>(ListRootPagesDocument, options);
       }
-export function useListPageLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListPageQuery, ListPageQueryVariables>) {
+export function useListRootPagesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListRootPagesQuery, ListRootPagesQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<ListPageQuery, ListPageQueryVariables>(ListPageDocument, options);
+          return Apollo.useLazyQuery<ListRootPagesQuery, ListRootPagesQueryVariables>(ListRootPagesDocument, options);
         }
-export type ListPageQueryHookResult = ReturnType<typeof useListPageQuery>;
-export type ListPageLazyQueryHookResult = ReturnType<typeof useListPageLazyQuery>;
-export type ListPageQueryResult = Apollo.QueryResult<ListPageQuery, ListPageQueryVariables>;
+export type ListRootPagesQueryHookResult = ReturnType<typeof useListRootPagesQuery>;
+export type ListRootPagesLazyQueryHookResult = ReturnType<typeof useListRootPagesLazyQuery>;
+export type ListRootPagesQueryResult = Apollo.QueryResult<ListRootPagesQuery, ListRootPagesQueryVariables>;
 export const AddPageDocument = gql`
     mutation AddPage($title: String!, $text: String!) {
   addPage(title: $title, text: $text) {

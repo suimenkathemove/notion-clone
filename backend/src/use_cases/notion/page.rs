@@ -17,6 +17,12 @@ impl PageUseCase {
         Ok(pages)
     }
 
+    pub async fn list_roots(&self) -> Result<Vec<models::notion::page::Page>, UseCaseError> {
+        let pages = self.page_repository.find_roots().await?;
+
+        Ok(pages)
+    }
+
     pub async fn descendants(
         &self,
         ancestor_id: &models::notion::page::PageId,
