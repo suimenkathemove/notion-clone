@@ -18,7 +18,6 @@
     "@suimenkathemove/eslint-config": "^0.1.4",
     "@suimenkathemove/prettier-config": "^0.1.1",
     "@suimenkathemove/tsconfig": "^0.1.12",
-    "ts-node": "^10.9.1",
-    "typesync": "^0.11.1"
+    "ts-node": "^10.9.1"
   }
 }
