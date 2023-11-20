@@ -243,6 +243,13 @@ export type RemovePageMutationVariables = Exact<{
 
 export type RemovePageMutation = { __typename?: 'MutationRoot', removePage: { __typename?: 'GraphQLError' } | { __typename?: 'RemovePage', id: any } };
 
+export type GetPageInPagePageQueryVariables = Exact<{
+  id: Scalars['PageId'];
+}>;
+
+
+export type GetPageInPagePageQuery = { __typename?: 'QueryRoot', getPage: { __typename: 'GraphQLError' } | { __typename: 'Page', id: any, title: string, text: string } };
+
 export type ListChannelQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -397,6 +404,46 @@ export function useRemovePageMutation(baseOptions?: Apollo.MutationHookOptions<R
 export type RemovePageMutationHookResult = ReturnType<typeof useRemovePageMutation>;
 export type RemovePageMutationResult = Apollo.MutationResult<RemovePageMutation>;
 export type RemovePageMutationOptions = Apollo.BaseMutationOptions<RemovePageMutation, RemovePageMutationVariables>;
+export const GetPageInPagePageDocument = gql`
+    query GetPageInPagePage($id: PageId!) {
+  getPage(id: $id) {
+    __typename
+    ... on Page {
+      id
+      title
+      text
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetPageInPagePageQuery__
+ *
+ * To run a query within a React component, call `useGetPageInPagePageQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPageInPagePageQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPageInPagePageQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetPageInPagePageQuery(baseOptions: Apollo.QueryHookOptions<GetPageInPagePageQuery, GetPageInPagePageQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPageInPagePageQuery, GetPageInPagePageQueryVariables>(GetPageInPagePageDocument, options);
+      }
+export function useGetPageInPagePageLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPageInPagePageQuery, GetPageInPagePageQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPageInPagePageQuery, GetPageInPagePageQueryVariables>(GetPageInPagePageDocument, options);
+        }
+export type GetPageInPagePageQueryHookResult = ReturnType<typeof useGetPageInPagePageQuery>;
+export type GetPageInPagePageLazyQueryHookResult = ReturnType<typeof useGetPageInPagePageLazyQuery>;
+export type GetPageInPagePageQueryResult = Apollo.QueryResult<GetPageInPagePageQuery, GetPageInPagePageQueryVariables>;
 export const ListChannelDocument = gql`
     query listChannel {
   listChannel {
