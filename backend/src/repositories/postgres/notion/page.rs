@@ -291,22 +291,14 @@ impl IPageRepository for PageRepository {
 #[cfg(test)]
 mod tests {
     use super::{super::super::create_pool, *};
-    use sqlx::{Postgres, Transaction};
+    use sqlx::{Executor, Postgres, Transaction};
     use std::collections::{HashMap, HashSet};
 
-    async fn setup<'a>() -> anyhow::Result<(
-        (
-            models::notion::page::Page,
-            models::notion::page::Page,
-            models::notion::page::Page,
-            models::notion::page::Page,
-            models::notion::page::Page,
-        ),
-        Transaction<'a, Postgres>,
-    )> {
+    async fn setup<'a>(
+    ) -> anyhow::Result<([models::notion::page::Page; 8], Transaction<'a, Postgres>)> {
         let mut tx = create_pool().await.begin().await?;
 
-        let page1 = InternalPageRepository::add(
+        let page_1 = InternalPageRepository::add(
             &None::<models::notion::page::PageId>,
             "1".to_string(),
             "".to_string(),
@@ -314,23 +306,68 @@ mod tests {
         )
         .await?;
 
-        let page2 =
-            InternalPageRepository::add(&Some(page1.id), "2".to_string(), "".to_string(), &mut tx)
-                .await?;
+        let page_2 = InternalPageRepository::add(
+            &None::<models::notion::page::PageId>,
+            "2".to_string(),
+            "".to_string(),
+            &mut tx,
+        )
+        .await?;
 
-        let page3 =
-            InternalPageRepository::add(&Some(page1.id), "3".to_string(), "".to_string(), &mut tx)
-                .await?;
+        let page_1_1 = InternalPageRepository::add(
+            &Some(page_1.id),
+            "1-1".to_string(),
+            "".to_string(),
+            &mut tx,
+        )
+        .await?;
 
-        let page4 =
-            InternalPageRepository::add(&Some(page2.id), "4".to_string(), "".to_string(), &mut tx)
-                .await?;
+        let page_1_2 = InternalPageRepository::add(
+            &Some(page_1.id),
+            "1-2".to_string(),
+            "".to_string(),
+            &mut tx,
+        )
+        .await?;
 
-        let page5 =
-            InternalPageRepository::add(&Some(page2.id), "5".to_string(), "".to_string(), &mut tx)
-                .await?;
+        let page_2_1 = InternalPageRepository::add(
+            &Some(page_2.id),
+            "2-1".to_string(),
+            "".to_string(),
+            &mut tx,
+        )
+        .await?;
 
-        Ok(((page1, page2, page3, page4, page5), tx))
+        let page_2_2 = InternalPageRepository::add(
+            &Some(page_2.id),
+            "2-2".to_string(),
+            "".to_string(),
+            &mut tx,
+        )
+        .await?;
+
+        let page_1_1_1 = InternalPageRepository::add(
+            &Some(page_1_1.id),
+            "1-1-1".to_string(),
+            "".to_string(),
+            &mut tx,
+        )
+        .await?;
+
+        let page_1_1_2 = InternalPageRepository::add(
+            &Some(page_1_1.id),
+            "1-1-2".to_string(),
+            "".to_string(),
+            &mut tx,
+        )
+        .await?;
+
+        Ok((
+            [
+                page_1, page_2, page_1_1, page_1_2, page_2_1, page_2_2, page_1_1_1, page_1_1_2,
+            ],
+            tx,
+        ))
     }
 
     async fn teardown<'a>(tx: Transaction<'a, Postgres>) -> anyhow::Result<()> {
@@ -339,42 +376,14 @@ mod tests {
         Ok(())
     }
 
-    #[tokio::test]
-    async fn find_descendant_page_should_success() -> anyhow::Result<()> {
-        let ((page1, page2, page3, page4, page5), mut tx) = setup().await?;
-
-        let page1_descendants =
-            InternalPageRepository::find_descendants(&page1.id, &mut tx).await?;
-        assert_eq!(
-            page1_descendants.into_iter().collect::<HashSet<_>>(),
-            HashSet::from([page2.clone(), page3.clone(), page4.clone(), page5.clone()])
-        );
-
-        let page2_descendants =
-            InternalPageRepository::find_descendants(&page2.id, &mut tx).await?;
-        assert_eq!(
-            page2_descendants.into_iter().collect::<HashSet<_>>(),
-            HashSet::from([page4.clone(), page5.clone()])
-        );
-
-        let page3_descendants =
-            InternalPageRepository::find_descendants(&page3.id, &mut tx).await?;
-        assert_eq!(
-            page3_descendants.into_iter().collect::<HashSet<_>>(),
-            HashSet::from([])
-        );
-
-        teardown(tx).await?;
-
-        Ok(())
-    }
-
-    #[tokio::test]
-    async fn add_page_should_success() -> anyhow::Result<()> {
-        let ((page1, page2, page3, page4, page5), mut tx) = setup().await?;
-
+    async fn get_paths_map<'e, 'c: 'e, E>(
+        executor: E,
+    ) -> anyhow::Result<HashMap<models::notion::page::PageId, HashSet<models::notion::page::PageId>>>
+    where
+        E: 'e + Executor<'c, Database = Postgres>,
+    {
         let paths = query_as::<_, RepositoryPageTreePaths>("SELECT * FROM notion.page_tree_paths")
-            .fetch_all(&mut tx)
+            .fetch_all(executor)
             .await?
             .into_iter()
             .map(Into::into)
@@ -386,45 +395,47 @@ mod tests {
             acc
         });
 
+        Ok(paths_map)
+    }
+
+    #[tokio::test]
+    async fn find_descendants_should_success() -> anyhow::Result<()> {
+        let (
+            [page_1, page_2, page_1_1, page_1_2, page_2_1, page_2_2, page_1_1_1, page_1_1_2],
+            mut tx,
+        ) = setup().await?;
+
+        let page_1_descendants =
+            InternalPageRepository::find_descendants(&page_1.id, &mut tx).await?;
         assert_eq!(
-            paths_map.get(&page1.id).unwrap(),
-            &HashSet::from([
-                page1.id.clone(),
-                page2.id.clone(),
-                page3.id.clone(),
-                page4.id.clone(),
-                page5.id.clone()
+            page_1_descendants.into_iter().collect::<HashSet<_>>(),
+            HashSet::from([
+                page_1_1.clone(),
+                page_1_2.clone(),
+                page_1_1_1.clone(),
+                page_1_1_2.clone()
             ])
         );
+
+        let page_2_descendants =
+            InternalPageRepository::find_descendants(&page_2.id, &mut tx).await?;
         assert_eq!(
-            paths_map.get(&page2.id).unwrap(),
-            &HashSet::from([page2.id.clone(), page4.id.clone(), page5.id.clone()])
+            page_2_descendants.into_iter().collect::<HashSet<_>>(),
+            HashSet::from([page_2_1.clone(), page_2_2.clone()])
         );
+
+        let page_1_1_descendants =
+            InternalPageRepository::find_descendants(&page_1_1.id, &mut tx).await?;
         assert_eq!(
-            paths_map.get(&page3.id).unwrap(),
-            &HashSet::from([page3.id.clone()])
+            page_1_1_descendants.into_iter().collect::<HashSet<_>>(),
+            HashSet::from([page_1_1_1.clone(), page_1_1_2.clone()])
         );
 
-        teardown(tx).await?;
-
-        Ok(())
-    }
-
-    #[tokio::test]
-    async fn remove_page_should_success() -> anyhow::Result<()> {
-        let ((page1, page2, page3, _, _), mut tx) = setup().await?;
-
-        InternalPageRepository::remove(&page2.id, &mut tx).await?;
-
-        let pages = query_as::<_, Page>("SELECT * FROM notion.pages")
-            .fetch_all(&mut tx)
-            .await?
-            .into_iter()
-            .map(Into::into)
-            .collect::<Vec<models::notion::page::Page>>();
+        let page_1_2_descendants =
+            InternalPageRepository::find_descendants(&page_1_2.id, &mut tx).await?;
         assert_eq!(
-            pages.into_iter().map(|p| p.id).collect::<HashSet<_>>(),
-            HashSet::from([page1.id.clone(), page3.id.clone()])
+            page_1_2_descendants.into_iter().collect::<HashSet<_>>(),
+            HashSet::from([])
         );
 
         teardown(tx).await?;
@@ -433,120 +444,78 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn move_page_should_success() -> anyhow::Result<()> {
-        let ((page1, page2, page3, page4, page5), mut tx) = setup().await?;
+    async fn add_should_success() -> anyhow::Result<()> {
+        let mut tx = create_pool().await.begin().await?;
 
-        InternalPageRepository::move_(&page2.id, &page3.id, &mut tx).await?;
+        let page_1 = InternalPageRepository::add(
+            &None::<models::notion::page::PageId>,
+            "1".to_string(),
+            "".to_string(),
+            &mut tx,
+        )
+        .await?;
 
-        let paths = query_as::<_, RepositoryPageTreePaths>("SELECT * FROM notion.page_tree_paths")
-            .fetch_all(&mut tx)
-            .await?
-            .into_iter()
-            .map(Into::into)
-            .collect::<Vec<ModelsPageTreePaths>>();
+        let page_1_1 = InternalPageRepository::add(
+            &Some(page_1.id),
+            "1-1".to_string(),
+            "".to_string(),
+            &mut tx,
+        )
+        .await?;
 
-        {
-            let path_1_1 = paths
-                .iter()
-                .find(|p| p.ancestor == page1.id && p.descendant == page1.id)
-                .unwrap();
-            assert_eq!(path_1_1.weight, 0);
-        }
-        {
-            let path_1_3 = paths
-                .iter()
-                .find(|p| p.ancestor == page1.id && p.descendant == page3.id)
-                .unwrap();
-            assert_eq!(path_1_3.weight, 1);
-        }
-        {
-            let path_1_2 = paths
-                .iter()
-                .find(|p| p.ancestor == page1.id && p.descendant == page2.id)
-                .unwrap();
-            assert_eq!(path_1_2.weight, 2);
-        }
-        {
-            let path_1_4 = paths
-                .iter()
-                .find(|p| p.ancestor == page1.id && p.descendant == page4.id)
-                .unwrap();
-            assert_eq!(path_1_4.weight, 3);
-        }
-        {
-            let path_1_5 = paths
-                .iter()
-                .find(|p| p.ancestor == page1.id && p.descendant == page5.id)
-                .unwrap();
-            assert_eq!(path_1_5.weight, 3);
-        }
+        let paths_map = get_paths_map(&mut tx).await?;
 
-        {
-            let path_3_3 = paths
-                .iter()
-                .find(|p| p.ancestor == page3.id && p.descendant == page3.id)
-                .unwrap();
-            assert_eq!(path_3_3.weight, 0);
-        }
-        {
-            let path_3_2 = paths
-                .iter()
-                .find(|p| p.ancestor == page3.id && p.descendant == page2.id)
-                .unwrap();
-            assert_eq!(path_3_2.weight, 1);
-        }
-        {
-            let path_3_4 = paths
-                .iter()
-                .find(|p| p.ancestor == page3.id && p.descendant == page4.id)
-                .unwrap();
-            assert_eq!(path_3_4.weight, 2);
-        }
-        {
-            let path_3_5 = paths
-                .iter()
-                .find(|p| p.ancestor == page3.id && p.descendant == page5.id)
-                .unwrap();
-            assert_eq!(path_3_5.weight, 2);
-        }
+        assert_eq!(
+            paths_map.get(&page_1.id).unwrap(),
+            &HashSet::from([page_1.id.clone(), page_1_1.id.clone()])
+        );
 
-        {
-            let path_2_2 = paths
-                .iter()
-                .find(|p| p.ancestor == page2.id && p.descendant == page2.id)
-                .unwrap();
-            assert_eq!(path_2_2.weight, 0);
-        }
-        {
-            let path_2_4 = paths
-                .iter()
-                .find(|p| p.ancestor == page2.id && p.descendant == page4.id)
-                .unwrap();
-            assert_eq!(path_2_4.weight, 1);
-        }
-        {
-            let path_2_5 = paths
-                .iter()
-                .find(|p| p.ancestor == page2.id && p.descendant == page5.id)
-                .unwrap();
-            assert_eq!(path_2_5.weight, 1);
-        }
+        teardown(tx).await?;
 
-        {
-            let path_4_4 = paths
-                .iter()
-                .find(|p| p.ancestor == page4.id && p.descendant == page4.id)
-                .unwrap();
-            assert_eq!(path_4_4.weight, 0);
-        }
+        Ok(())
+    }
 
-        {
-            let path_5_5 = paths
-                .iter()
-                .find(|p| p.ancestor == page5.id && p.descendant == page5.id)
-                .unwrap();
-            assert_eq!(path_5_5.weight, 0);
-        }
+    #[tokio::test]
+    async fn remove_should_success() -> anyhow::Result<()> {
+        let (
+            [page_1, _page_2, page_1_1, page_1_2, _page_2_1, _page_2_2, _page_1_1_1, _page_1_1_2],
+            mut tx,
+        ) = setup().await?;
+
+        InternalPageRepository::remove(&page_1_1.id, &mut tx).await?;
+
+        let paths_map = get_paths_map(&mut tx).await?;
+
+        assert_eq!(
+            paths_map.get(&page_1.id).unwrap(),
+            &HashSet::from([page_1.id.clone(), page_1_2.id.clone()])
+        );
+
+        teardown(tx).await?;
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn move_should_success() -> anyhow::Result<()> {
+        let (
+            [_page_1, _page_2, page_1_1, page_1_2, _page_2_1, _page_2_2, page_1_1_1, page_1_1_2],
+            mut tx,
+        ) = setup().await?;
+
+        InternalPageRepository::move_(&page_1_1.id, &page_1_2.id, &mut tx).await?;
+
+        let paths_map = get_paths_map(&mut tx).await?;
+
+        assert_eq!(
+            paths_map.get(&page_1_2.id).unwrap(),
+            &HashSet::from([
+                page_1_2.id.clone(),
+                page_1_1.id.clone(),
+                page_1_1_1.id.clone(),
+                page_1_1_2.id.clone()
+            ])
+        );
 
         teardown(tx).await?;
 
