@@ -399,6 +399,24 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn find_roots_should_success() -> anyhow::Result<()> {
+        let (
+            [page_1, page_2, _page_1_1, _page_1_2, _page_2_1, _page_2_2, _page_1_1_1, _page_1_1_2],
+            mut tx,
+        ) = setup().await?;
+
+        let roots = InternalPageRepository::find_roots(&mut tx).await?;
+        assert_eq!(
+            roots.into_iter().collect::<HashSet<_>>(),
+            HashSet::from([page_1.clone(), page_2.clone()])
+        );
+
+        teardown(tx).await?;
+
+        Ok(())
+    }
+
+    #[tokio::test]
     async fn find_descendants_should_success() -> anyhow::Result<()> {
         let (
             [page_1, page_2, page_1_1, page_1_2, page_2_1, page_2_2, page_1_1_1, page_1_1_2],
