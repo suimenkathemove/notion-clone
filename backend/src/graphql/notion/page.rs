@@ -52,8 +52,6 @@ struct ListPages {
     items: Vec<Page>,
 }
 
-define_result!(ListPagesResult, ListPages);
-
 define_result!(ListRootPagesResult, ListPages);
 
 define_result!(ListDescendantPagesResult, ListPages);
@@ -85,17 +83,6 @@ pub struct PageQuery;
 
 #[Object]
 impl PageQuery {
-    async fn list_pages(&self, ctx: &Context<'_>) -> ListPagesResult {
-        let page_use_case = ctx.data_unchecked::<PageUseCase>();
-        let result = page_use_case.list().await;
-        match result {
-            Ok(pages) => ListPagesResult::Ok(ListPages {
-                items: pages.into_iter().map(Into::into).collect(),
-            }),
-            Err(error) => ListPagesResult::Err(GraphQLError { code: error.into() }),
-        }
-    }
-
     async fn list_root_pages(&self, ctx: &Context<'_>) -> ListRootPagesResult {
         let page_use_case = ctx.data_unchecked::<PageUseCase>();
         let result = page_use_case.list_roots().await;

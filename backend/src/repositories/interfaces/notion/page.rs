@@ -3,8 +3,6 @@ use async_trait::async_trait;
 
 #[async_trait]
 pub trait IPageRepository: Send + Sync {
-    async fn find_list(&self) -> Result<Vec<models::notion::page::Page>, RepositoryError>;
-
     async fn find_roots(&self) -> Result<Vec<models::notion::page::Page>, RepositoryError>;
 
     async fn find_descendants(

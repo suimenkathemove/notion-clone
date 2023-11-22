@@ -230,14 +230,6 @@ impl PageRepository {
 
 #[async_trait]
 impl IPageRepository for PageRepository {
-    async fn find_list(&self) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
-        let pages = query_as::<_, Page>("SELECT * FROM notion.pages")
-            .fetch_all(&*self.pool)
-            .await?;
-
-        Ok(pages.into_iter().map(Into::into).collect())
-    }
-
     async fn find_roots(&self) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
         let mut conn = self.pool.acquire().await?;
         let pages = InternalPageRepository::find_roots(&mut conn).await?;
