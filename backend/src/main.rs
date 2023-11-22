@@ -23,8 +23,8 @@ use crate::{
         },
     },
     use_cases::{
-        channel::ChannelUseCase, message::MessageUseCase, notion::page::PageUseCase,
-        thread::ThreadUseCase,
+        notion::page::PageUseCase,
+        slack::{channel::ChannelUseCase, message::MessageUseCase, thread::ThreadUseCase},
     },
 };
 use async_graphql::{EmptySubscription, Schema};
