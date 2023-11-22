@@ -39,7 +39,7 @@ args = ["docker-run", "cargo nextest run"]
 [tasks.db-connect]
 script = '''
 cd docker
-docker exec -it slack-clone-db psql -U postgres
+docker exec -it monorepo-sandbox-db psql -U postgres
 '''
 
 [tasks.db-drop]

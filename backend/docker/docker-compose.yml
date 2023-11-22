@@ -1,12 +1,12 @@
-version: '3.9'
+version: "3.9"
 
 services:
   app:
     build:
       context: ..
       dockerfile: docker/app/Dockerfile
-    image: slack-clone-app
-    container_name: slack-clone-app
+    image: monorepo-sandbox-app
+    container_name: monorepo-sandbox-app
     ports:
       - 8080:8080
     volumes:
@@ -14,10 +14,10 @@ services:
         source: ../..
         target: /app
       - type: volume
-        source: slack-clone-app-cargo
+        source: monorepo-sandbox-app-cargo
         target: /usr/local/cargo/registry
       - type: volume
-        source: slack-clone-app-target
+        source: monorepo-sandbox-app-target
         target: /app/target
     working_dir: /app/backend
     command: sh -c "cargo watch -x run"
@@ -28,19 +28,19 @@ services:
       context: ..
       dockerfile: docker/db/Dockerfile
       target: database
-    image: slack-clone-db
-    container_name: slack-clone-db
+    image: monorepo-sandbox-db
+    container_name: monorepo-sandbox-db
     ports:
       - 5432:5432
     volumes:
-      - slack-clone-pgdata:/var/lib/postgresql/data
+      - monorepo-sandbox-pgdata:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: slack_clone
+      POSTGRES_DB: monorepo_sandbox
     restart: always
 
 volumes:
-  slack-clone-app-cargo:
-  slack-clone-app-target:
-  slack-clone-pgdata:
+  monorepo-sandbox-app-cargo:
+  monorepo-sandbox-app-target:
+  monorepo-sandbox-pgdata:

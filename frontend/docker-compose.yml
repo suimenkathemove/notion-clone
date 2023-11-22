@@ -1,10 +1,10 @@
-version: '3.9'
+version: "3.9"
 
 services:
   frontend:
     build: .
-    image: slack-clone-frontend
-    container_name: slack-clone-frontend
+    image: monorepo-sandbox-frontend
+    container_name: monorepo-sandbox-frontend
     volumes:
       - ./src:/frontend/src
       - ./public:/frontend/public
