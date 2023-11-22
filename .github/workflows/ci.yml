@@ -1,0 +1,15 @@
+name: Continuous Integration
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: davidB/rust-cargo-make@v1
+      - name: Run lint
+        run: |
+          cd backend
+          cargo make test
