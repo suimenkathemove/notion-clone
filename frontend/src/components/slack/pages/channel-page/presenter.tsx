@@ -1,7 +1,7 @@
 import { Container } from "./styles";
 
-import { ChannelList } from "@/components/channel-list";
-import { ChatRoom, ChatRoomProps } from "@/components/chat-room";
+import { ChannelList } from "@/components/slack/channel-list";
+import { ChatRoom, ChatRoomProps } from "@/components/slack/chat-room";
 import { Channel } from "@/graphql/generated";
 
 export type ChannelPagePresenterProps = {

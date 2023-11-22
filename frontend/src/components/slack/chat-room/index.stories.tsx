@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from "@storybook/react";
 
-import { ChatRoom, ChatRoomProps } from "./";
+import { ChatRoom, ChatRoomProps } from ".";
 
 export default {
   component: ChatRoom,

@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from "@storybook/react";
 
-import { ChannelList, ChannelListProps } from "./";
+import { ChannelList, ChannelListProps } from ".";
 
 export default {
   component: ChannelList,

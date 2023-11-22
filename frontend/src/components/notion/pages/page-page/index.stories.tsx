@@ -8,6 +8,10 @@ export default {
 } as Meta<PagePagePresenterProps>;
 
 export const defaultProps: PagePagePresenterProps = {
+  ancestors: [
+    { id: "parent", name: "parent" },
+    { id: "title", name: "title" },
+  ],
   title: "title",
   text: "text",
 };
