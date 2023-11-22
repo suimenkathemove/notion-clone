@@ -5,6 +5,9 @@ cd docker
 docker compose run --rm app sh -c "${@}"
 '''
 
+[tasks.init]
+dependencies = ["migrate-run"]
+
 [tasks.serve]
 script = '''
 cd docker
