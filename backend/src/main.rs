@@ -15,8 +15,11 @@ use crate::{
             },
         },
         postgres::{
-            channel::ChannelRepository, create_pool, message::MessageRepository,
-            notion::page::PageRepository, thread::ThreadRepository,
+            create_pool,
+            notion::page::PageRepository,
+            slack::{
+                channel::ChannelRepository, message::MessageRepository, thread::ThreadRepository,
+            },
         },
     },
     use_cases::{

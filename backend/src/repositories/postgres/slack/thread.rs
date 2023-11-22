@@ -1,5 +1,6 @@
-use super::utils::DateTimeUtc;
-use crate::repositories::interfaces::slack::thread::IThreadRepository;
+use crate::repositories::{
+    interfaces::slack::thread::IThreadRepository, postgres::utils::DateTimeUtc,
+};
 use async_trait::async_trait;
 use sqlx::{query, query_as, FromRow, PgPool};
 use std::sync::Arc;

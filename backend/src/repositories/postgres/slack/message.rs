@@ -1,5 +1,6 @@
-use super::utils::DateTimeUtc;
-use crate::repositories::interfaces::slack::message::IMessageRepository;
+use crate::repositories::{
+    interfaces::slack::message::IMessageRepository, postgres::utils::DateTimeUtc,
+};
 use async_trait::async_trait;
 use sqlx::{query, query_as, FromRow, PgPool};
 use std::sync::Arc;
