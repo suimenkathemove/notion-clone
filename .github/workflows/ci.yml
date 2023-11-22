@@ -3,13 +3,44 @@ name: Continuous Integration
 on: [push, pull_request]
 
 jobs:
+  check:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: davidB/rust-cargo-make@v1
+      - name: Check
+        working-directory: ./backend
+        run: cargo make check
+
+  lint:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: davidB/rust-cargo-make@v1
+      - name: Lint
+        working-directory: ./backend
+        run: cargo make lint
+
+  format:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: davidB/rust-cargo-make@v1
+      - name: Format
+        working-directory: ./backend
+        run: cargo make format
+
   test:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
       - uses: davidB/rust-cargo-make@v1
-      - name: Run lint
+      - name: Test
+        working-directory: ./backend
         run: |
-          cd backend
+          cargo make init
           cargo make test

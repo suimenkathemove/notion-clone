@@ -21,23 +21,24 @@ docker compose down
 '''
 
 [tasks.check]
-command = "makers"
-args = ["docker-run", "cargo check"]
+command = "cargo"
+args = ["make", "docker-run", "cargo check"]
 
 [tasks.lint]
-command = "makers"
+command = "cargo"
 args = [
+  "make",
   "docker-run",
   "cargo clippy --all-targets --all-features -- -D warnings",
 ]
 
 [tasks.format]
-command = "makers"
-args = ["docker-run", "cargo fmt --all --check"]
+command = "cargo"
+args = ["make", "docker-run", "cargo fmt --all --check"]
 
 [tasks.test]
-command = "makers"
-args = ["docker-run", "cargo nextest run"]
+command = "cargo"
+args = ["make", "docker-run", "cargo nextest run"]
 
 [tasks.db-connect]
 script = '''
@@ -46,13 +47,13 @@ docker exec -it monorepo-sandbox-db psql -U postgres
 '''
 
 [tasks.db-drop]
-command = "makers"
-args = ["docker-run", "sqlx db drop"]
+command = "cargo"
+args = ["make", "docker-run", "sqlx db drop"]
 
 [tasks.migrate-add]
-command = "makers"
-args = ["docker-run", "sqlx migrate add '${@}'"]
+command = "cargo"
+args = ["make", "docker-run", "sqlx migrate add '${@}'"]
 
 [tasks.migrate-run]
-command = "makers"
-args = ["docker-run", "sqlx db setup"]
+command = "cargo"
+args = ["make", "docker-run", "sqlx db setup"]
