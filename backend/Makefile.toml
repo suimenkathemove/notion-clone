@@ -17,6 +17,10 @@ cd docker
 docker compose down
 '''
 
+[tasks.check]
+command = "makers"
+args = ["docker-run", "cargo check"]
+
 [tasks.lint]
 command = "makers"
 args = [
