@@ -12,3 +12,17 @@ export const GetPageInPagePage = gql`
     }
   }
 `;
+
+export const ListAncestorPages = gql`
+  query ListAncestorPages($id: PageId!) {
+    listAncestorPages(id: $id) {
+      __typename
+      ... on ListPages {
+        items {
+          id
+          title
+        }
+      }
+    }
+  }
+`;

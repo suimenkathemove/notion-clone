@@ -61,6 +61,8 @@ export enum GraphQlErrorCode {
   NotFound = 'NOT_FOUND'
 }
 
+export type ListAncestorPagesResult = GraphQlError | ListPages;
+
 export type ListChildrenPagesResult = GraphQlError | ListPages;
 
 export type ListDescendantPagesResult = GraphQlError | ListPages;
@@ -165,6 +167,7 @@ export type QueryRoot = {
   getThread: Thread;
   healthCheck: Scalars['String'];
   helloWorld: Scalars['String'];
+  listAncestorPages: ListAncestorPagesResult;
   listChannel: Array<Channel>;
   listChildrenPages: ListChildrenPagesResult;
   listDescendantPages: ListDescendantPagesResult;
@@ -194,13 +197,18 @@ export type QueryRootGetThreadArgs = {
 };
 
 
+export type QueryRootListAncestorPagesArgs = {
+  id: Scalars['PageId'];
+};
+
+
 export type QueryRootListChildrenPagesArgs = {
-  parentId: Scalars['PageId'];
+  id: Scalars['PageId'];
 };
 
 
 export type QueryRootListDescendantPagesArgs = {
-  ancestorId: Scalars['PageId'];
+  id: Scalars['PageId'];
 };
 
 
@@ -249,6 +257,13 @@ export type GetPageInPagePageQueryVariables = Exact<{
 
 
 export type GetPageInPagePageQuery = { __typename?: 'QueryRoot', getPage: { __typename: 'GraphQLError' } | { __typename: 'Page', id: any, title: string, text: string } };
+
+export type ListAncestorPagesQueryVariables = Exact<{
+  id: Scalars['PageId'];
+}>;
+
+
+export type ListAncestorPagesQuery = { __typename?: 'QueryRoot', listAncestorPages: { __typename: 'GraphQLError' } | { __typename: 'ListPages', items: Array<{ __typename?: 'Page', id: any, title: string }> } };
 
 export type ListChannelQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -444,6 +459,47 @@ export function useGetPageInPagePageLazyQuery(baseOptions?: Apollo.LazyQueryHook
 export type GetPageInPagePageQueryHookResult = ReturnType<typeof useGetPageInPagePageQuery>;
 export type GetPageInPagePageLazyQueryHookResult = ReturnType<typeof useGetPageInPagePageLazyQuery>;
 export type GetPageInPagePageQueryResult = Apollo.QueryResult<GetPageInPagePageQuery, GetPageInPagePageQueryVariables>;
+export const ListAncestorPagesDocument = gql`
+    query ListAncestorPages($id: PageId!) {
+  listAncestorPages(id: $id) {
+    __typename
+    ... on ListPages {
+      items {
+        id
+        title
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useListAncestorPagesQuery__
+ *
+ * To run a query within a React component, call `useListAncestorPagesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListAncestorPagesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListAncestorPagesQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useListAncestorPagesQuery(baseOptions: Apollo.QueryHookOptions<ListAncestorPagesQuery, ListAncestorPagesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListAncestorPagesQuery, ListAncestorPagesQueryVariables>(ListAncestorPagesDocument, options);
+      }
+export function useListAncestorPagesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListAncestorPagesQuery, ListAncestorPagesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListAncestorPagesQuery, ListAncestorPagesQueryVariables>(ListAncestorPagesDocument, options);
+        }
+export type ListAncestorPagesQueryHookResult = ReturnType<typeof useListAncestorPagesQuery>;
+export type ListAncestorPagesLazyQueryHookResult = ReturnType<typeof useListAncestorPagesLazyQuery>;
+export type ListAncestorPagesQueryResult = Apollo.QueryResult<ListAncestorPagesQuery, ListAncestorPagesQueryVariables>;
 export const ListChannelDocument = gql`
     query listChannel {
   listChannel {

@@ -79,7 +79,7 @@ impl InternalPageRepository {
     }
 
     async fn find_descendants(
-        ancestor_id: &models::notion::page::PageId,
+        id: &models::notion::page::PageId,
         conn: &mut PgConnection,
     ) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
         let pages = query_as::<_, Page>(
@@ -89,7 +89,27 @@ impl InternalPageRepository {
             )
             ",
         )
-        .bind(ancestor_id.0)
+        .bind(id.0)
+        .fetch_all(&mut *conn)
+        .await?;
+
+        Ok(pages.into_iter().map(Into::into).collect())
+    }
+
+    async fn find_ancestors(
+        id: &models::notion::page::PageId,
+        conn: &mut PgConnection,
+    ) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
+        let pages = query_as::<_, Page>(
+            "
+            SELECT *
+            FROM notion.pages
+            JOIN notion.page_tree_paths ON notion.pages.id = notion.page_tree_paths.ancestor
+            WHERE notion.page_tree_paths.descendant = $1 AND notion.page_tree_paths.ancestor <> $1
+            ORDER BY notion.page_tree_paths.weight DESC
+            ",
+        )
+        .bind(id.0)
         .fetch_all(&mut *conn)
         .await?;
 
@@ -97,7 +117,7 @@ impl InternalPageRepository {
     }
 
     async fn find_children(
-        parent_id: &models::notion::page::PageId,
+        id: &models::notion::page::PageId,
         conn: &mut PgConnection,
     ) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
         let pages = query_as::<_, Page>(
@@ -107,7 +127,7 @@ impl InternalPageRepository {
             )
             ",
         )
-        .bind(parent_id.0)
+        .bind(id.0)
         .fetch_all(&mut *conn)
         .await?;
 
@@ -227,20 +247,30 @@ impl IPageRepository for PageRepository {
 
     async fn find_descendants(
         &self,
-        ancestor_id: &models::notion::page::PageId,
+        id: &models::notion::page::PageId,
     ) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
         let mut conn = self.pool.acquire().await?;
-        let pages = InternalPageRepository::find_descendants(ancestor_id, &mut conn).await?;
+        let pages = InternalPageRepository::find_descendants(id, &mut conn).await?;
+
+        Ok(pages)
+    }
+
+    async fn find_ancestors(
+        &self,
+        id: &models::notion::page::PageId,
+    ) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
+        let mut conn = self.pool.acquire().await?;
+        let pages = InternalPageRepository::find_ancestors(id, &mut conn).await?;
 
         Ok(pages)
     }
 
     async fn find_children(
         &self,
-        parent_id: &models::notion::page::PageId,
+        id: &models::notion::page::PageId,
     ) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
         let mut conn = self.pool.acquire().await?;
-        let pages = InternalPageRepository::find_children(parent_id, &mut conn).await?;
+        let pages = InternalPageRepository::find_children(id, &mut conn).await?;
 
         Ok(pages)
     }
@@ -419,7 +449,7 @@ mod tests {
     #[tokio::test]
     async fn find_descendants_should_success() -> anyhow::Result<()> {
         let (
-            [page_1, page_2, page_1_1, page_1_2, page_2_1, page_2_2, page_1_1_1, page_1_1_2],
+            [page_1, _page_2, page_1_1, page_1_2, _page_2_1, _page_2_2, page_1_1_1, page_1_1_2],
             mut tx,
         ) = setup().await?;
 
@@ -435,13 +465,6 @@ mod tests {
             ])
         );
 
-        let page_2_descendants =
-            InternalPageRepository::find_descendants(&page_2.id, &mut tx).await?;
-        assert_eq!(
-            page_2_descendants.into_iter().collect::<HashSet<_>>(),
-            HashSet::from([page_2_1.clone(), page_2_2.clone()])
-        );
-
         let page_1_1_descendants =
             InternalPageRepository::find_descendants(&page_1_1.id, &mut tx).await?;
         assert_eq!(
@@ -449,11 +472,40 @@ mod tests {
             HashSet::from([page_1_1_1.clone(), page_1_1_2.clone()])
         );
 
-        let page_1_2_descendants =
-            InternalPageRepository::find_descendants(&page_1_2.id, &mut tx).await?;
+        let page_1_1_1_descendants =
+            InternalPageRepository::find_descendants(&page_1_1_1.id, &mut tx).await?;
         assert_eq!(
-            page_1_2_descendants.into_iter().collect::<HashSet<_>>(),
+            page_1_1_1_descendants.into_iter().collect::<HashSet<_>>(),
             HashSet::from([])
+        );
+
+        teardown(tx).await?;
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn find_ancestors_should_success() -> anyhow::Result<()> {
+        let (
+            [page_1, _page_2, page_1_1, _page_1_2, _page_2_1, _page_2_2, page_1_1_1, _page_1_1_2],
+            mut tx,
+        ) = setup().await?;
+
+        let page_1_ancestors = InternalPageRepository::find_ancestors(&page_1.id, &mut tx).await?;
+        assert_eq!(page_1_ancestors.into_iter().collect::<Vec<_>>(), vec![]);
+
+        let page_1_1_ancestors =
+            InternalPageRepository::find_ancestors(&page_1_1.id, &mut tx).await?;
+        assert_eq!(
+            page_1_1_ancestors.into_iter().collect::<Vec<_>>(),
+            vec![page_1.clone()]
+        );
+
+        let page_1_1_1_ancestors =
+            InternalPageRepository::find_ancestors(&page_1_1_1.id, &mut tx).await?;
+        assert_eq!(
+            page_1_1_1_ancestors.into_iter().collect::<Vec<_>>(),
+            vec![page_1.clone(), page_1_1.clone()]
         );
 
         teardown(tx).await?;

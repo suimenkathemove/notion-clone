@@ -25,18 +25,27 @@ impl PageUseCase {
 
     pub async fn descendants(
         &self,
-        ancestor_id: &models::notion::page::PageId,
+        id: &models::notion::page::PageId,
     ) -> Result<Vec<models::notion::page::Page>, UseCaseError> {
-        let pages = self.page_repository.find_descendants(ancestor_id).await?;
+        let pages = self.page_repository.find_descendants(id).await?;
+
+        Ok(pages)
+    }
+
+    pub async fn ancestors(
+        &self,
+        id: &models::notion::page::PageId,
+    ) -> Result<Vec<models::notion::page::Page>, UseCaseError> {
+        let pages = self.page_repository.find_ancestors(id).await?;
 
         Ok(pages)
     }
 
     pub async fn children(
         &self,
-        parent_id: &models::notion::page::PageId,
+        id: &models::notion::page::PageId,
     ) -> Result<Vec<models::notion::page::Page>, UseCaseError> {
-        let pages = self.page_repository.find_children(parent_id).await?;
+        let pages = self.page_repository.find_children(id).await?;
 
         Ok(pages)
     }
