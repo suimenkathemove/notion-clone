@@ -1,5 +1,8 @@
-use super::{channel::ChannelId, message::Message, utils::DateTimeUtc};
-use crate::use_cases::{message::MessageUseCase, thread::ThreadUseCase};
+use super::{channel::ChannelId, message::Message};
+use crate::{
+    graphql::utils::DateTimeUtc,
+    use_cases::{message::MessageUseCase, thread::ThreadUseCase},
+};
 use async_graphql::{Context, Object, SimpleObject};
 
 define_id!(ThreadId, models::thread::ThreadId);

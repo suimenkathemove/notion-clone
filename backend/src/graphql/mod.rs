@@ -1,28 +1,24 @@
 #[macro_use]
 mod macros;
 
-mod channel;
 mod error;
 pub mod handlers;
 mod health_check;
-mod message;
 mod notion;
-mod thread;
+mod slack;
 mod utils;
 
 use self::{
-    channel::{ChannelMutation, ChannelQuery},
     health_check::HealthCheckQuery,
-    message::MessageMutation,
     notion::{NotionMutationRoot, NotionQueryRoot},
-    thread::ThreadQuery,
+    slack::{SlackMutationRoot, SlackQueryRoot},
 };
 use async_graphql::{EmptySubscription, MergedObject, Schema};
 
 pub type MySchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 
 #[derive(Default, MergedObject)]
-pub struct QueryRoot(HealthCheckQuery, ChannelQuery, ThreadQuery, NotionQueryRoot);
+pub struct QueryRoot(HealthCheckQuery, SlackQueryRoot, NotionQueryRoot);
 
 #[derive(Default, MergedObject)]
-pub struct MutationRoot(ChannelMutation, MessageMutation, NotionMutationRoot);
+pub struct MutationRoot(SlackMutationRoot, NotionMutationRoot);

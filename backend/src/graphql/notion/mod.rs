@@ -1,14 +1,10 @@
-mod hello_world;
 mod page;
 
-use self::{
-    hello_world::HelloWorldQuery,
-    page::{PageMutation, PageQuery},
-};
+use self::page::{PageMutation, PageQuery};
 use async_graphql::MergedObject;
 
 #[derive(Default, MergedObject)]
-pub struct NotionQueryRoot(HelloWorldQuery, PageQuery);
+pub struct NotionQueryRoot(PageQuery);
 
 #[derive(Default, MergedObject)]
 pub struct NotionMutationRoot(PageMutation);
