@@ -1,5 +1,5 @@
 use super::utils::DateTimeUtc;
-use crate::repositories::interfaces::channel::IChannelRepository;
+use crate::repositories::interfaces::slack::channel::IChannelRepository;
 use async_trait::async_trait;
 use sqlx::{query, query_as, FromRow, PgPool};
 use std::sync::Arc;

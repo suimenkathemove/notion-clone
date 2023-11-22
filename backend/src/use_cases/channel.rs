@@ -1,4 +1,4 @@
-use crate::repositories::interfaces::channel::IChannelRepository;
+use crate::repositories::interfaces::slack::channel::IChannelRepository;
 use std::sync::Arc;
 
 pub struct ChannelUseCase {

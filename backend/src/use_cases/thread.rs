@@ -1,4 +1,4 @@
-use crate::repositories::interfaces::thread::IThreadRepository;
+use crate::repositories::interfaces::slack::thread::IThreadRepository;
 use std::sync::Arc;
 
 pub struct ThreadUseCase {

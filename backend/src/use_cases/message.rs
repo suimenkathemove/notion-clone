@@ -1,4 +1,6 @@
-use crate::repositories::interfaces::{message::IMessageRepository, thread::IThreadRepository};
+use crate::repositories::interfaces::slack::{
+    message::IMessageRepository, thread::IThreadRepository,
+};
 use std::sync::Arc;
 
 pub struct MessageUseCase {

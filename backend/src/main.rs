@@ -9,8 +9,10 @@ use crate::{
     },
     repositories::{
         interfaces::{
-            channel::IChannelRepository, message::IMessageRepository,
-            notion::page::IPageRepository, thread::IThreadRepository,
+            notion::page::IPageRepository,
+            slack::{
+                channel::IChannelRepository, message::IMessageRepository, thread::IThreadRepository,
+            },
         },
         postgres::{
             channel::ChannelRepository, create_pool, message::MessageRepository,
