@@ -8,4 +8,5 @@ RUN set -x \
   rustfmt \
   && cargo install \
   cargo-watch@8.4.1 \
-  sqlx-cli@0.7.1
+  sqlx-cli@0.7.1 \
+  cargo-nextest@0.9.63 \

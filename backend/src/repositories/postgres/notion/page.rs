@@ -392,7 +392,7 @@ mod tests {
         ))
     }
 
-    async fn teardown<'a>(tx: Transaction<'a, Postgres>) -> anyhow::Result<()> {
+    async fn teardown(tx: Transaction<'_, Postgres>) -> anyhow::Result<()> {
         tx.rollback().await?;
 
         Ok(())
@@ -529,7 +529,7 @@ mod tests {
 
         assert_eq!(
             paths_map.get(&page_1.id).unwrap(),
-            &HashSet::from([page_1.id.clone(), page_1_1.id.clone()])
+            &HashSet::from([page_1.id, page_1_1.id])
         );
 
         teardown(tx).await?;
@@ -550,7 +550,7 @@ mod tests {
 
         assert_eq!(
             paths_map.get(&page_1.id).unwrap(),
-            &HashSet::from([page_1.id.clone(), page_1_2.id.clone()])
+            &HashSet::from([page_1.id, page_1_2.id])
         );
 
         teardown(tx).await?;
@@ -571,12 +571,7 @@ mod tests {
 
         assert_eq!(
             paths_map.get(&page_1_2.id).unwrap(),
-            &HashSet::from([
-                page_1_2.id.clone(),
-                page_1_1.id.clone(),
-                page_1_1_1.id.clone(),
-                page_1_1_2.id.clone()
-            ])
+            &HashSet::from([page_1_2.id, page_1_1.id, page_1_1_1.id, page_1_1_2.id])
         );
 
         teardown(tx).await?;

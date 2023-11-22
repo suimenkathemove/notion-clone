@@ -1,0 +1,21 @@
+[tasks.docker-run]
+description = "Run a command in Docker"
+script = '''
+cd docker
+docker compose run --rm app sh -c "${@}"
+'''
+
+[tasks.lint]
+command = "makers"
+args = [
+  "docker-run",
+  "cargo clippy --all-targets --all-features -- -D warnings",
+]
+
+[tasks.format]
+command = "makers"
+args = ["docker-run", "cargo fmt --all --check"]
+
+[tasks.test]
+command = "makers"
+args = ["docker-run", "cargo nextest run"]
