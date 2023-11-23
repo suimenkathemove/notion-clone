@@ -40,6 +40,10 @@ args = ["make", "docker-run", "cargo fmt --all --check"]
 command = "cargo"
 args = ["make", "docker-run", "cargo nextest run"]
 
+[tasks.seed-mock]
+command = "cargo"
+args = ["make", "docker-run", "cargo run --bin seed_mock"]
+
 [tasks.db-connect]
 script = '''
 cd docker

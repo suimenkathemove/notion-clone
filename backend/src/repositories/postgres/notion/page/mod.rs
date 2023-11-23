@@ -1,3 +1,5 @@
+pub mod mock;
+
 use super::super::{
     super::{error::RepositoryError, interfaces::notion::page::IPageRepository},
     utils::DateTimeUtc,
@@ -312,7 +314,7 @@ impl IPageRepository for PageRepository {
 
 #[cfg(test)]
 mod tests {
-    use super::{super::super::create_pool, *};
+    use super::{super::super::create_pool, mock::insert_mock, *};
     use sqlx::{Executor, Postgres, Transaction};
     use std::collections::{HashMap, HashSet};
 
@@ -320,76 +322,9 @@ mod tests {
     ) -> anyhow::Result<([models::notion::page::Page; 8], Transaction<'a, Postgres>)> {
         let mut tx = create_pool().await.begin().await?;
 
-        let page_1 = InternalPageRepository::add(
-            &None::<models::notion::page::PageId>,
-            "1".to_string(),
-            "".to_string(),
-            &mut tx,
-        )
-        .await?;
+        let pages = insert_mock(&mut tx).await?;
 
-        let page_2 = InternalPageRepository::add(
-            &None::<models::notion::page::PageId>,
-            "2".to_string(),
-            "".to_string(),
-            &mut tx,
-        )
-        .await?;
-
-        let page_1_1 = InternalPageRepository::add(
-            &Some(page_1.id),
-            "1-1".to_string(),
-            "".to_string(),
-            &mut tx,
-        )
-        .await?;
-
-        let page_1_2 = InternalPageRepository::add(
-            &Some(page_1.id),
-            "1-2".to_string(),
-            "".to_string(),
-            &mut tx,
-        )
-        .await?;
-
-        let page_2_1 = InternalPageRepository::add(
-            &Some(page_2.id),
-            "2-1".to_string(),
-            "".to_string(),
-            &mut tx,
-        )
-        .await?;
-
-        let page_2_2 = InternalPageRepository::add(
-            &Some(page_2.id),
-            "2-2".to_string(),
-            "".to_string(),
-            &mut tx,
-        )
-        .await?;
-
-        let page_1_1_1 = InternalPageRepository::add(
-            &Some(page_1_1.id),
-            "1-1-1".to_string(),
-            "".to_string(),
-            &mut tx,
-        )
-        .await?;
-
-        let page_1_1_2 = InternalPageRepository::add(
-            &Some(page_1_1.id),
-            "1-1-2".to_string(),
-            "".to_string(),
-            &mut tx,
-        )
-        .await?;
-
-        Ok((
-            [
-                page_1, page_2, page_1_1, page_1_2, page_2_1, page_2_2, page_1_1_1, page_1_1_2,
-            ],
-            tx,
-        ))
+        Ok((pages, tx))
     }
 
     async fn teardown(tx: Transaction<'_, Postgres>) -> anyhow::Result<()> {
