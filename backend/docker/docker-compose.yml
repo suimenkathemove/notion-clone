@@ -20,7 +20,7 @@ services:
         source: monorepo-sandbox-app-target
         target: /app/target
     working_dir: /app/backend
-    command: sh -c "cargo watch -x run"
+    command: sh -c "DATABASE_URL=$DATABASE_URL cargo watch -x 'run --bin backend'"
     depends_on:
       - db
   db:
@@ -34,10 +34,6 @@ services:
       - 5432:5432
     volumes:
       - monorepo-sandbox-pgdata:/var/lib/postgresql/data
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: monorepo_sandbox
     restart: always
 
 volumes:

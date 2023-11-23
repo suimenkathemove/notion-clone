@@ -1,8 +1,13 @@
+env_files = [
+  { path = "./.env.dev", profile = "development" },
+  { path = "./.env.test", profile = "test" },
+]
+
 [tasks.docker-run]
 description = "Run a command in Docker"
 script = '''
 cd docker
-docker compose run --rm app sh -c "${@}"
+docker compose run --rm app sh -c "DATABASE_URL=$DATABASE_URL ${@}"
 '''
 
 [tasks.init]
@@ -22,27 +27,29 @@ docker compose down
 
 [tasks.check]
 command = "cargo"
-args = ["make", "docker-run", "cargo check"]
+args = ["make", "-p", "$PROFILE", "docker-run", "cargo check"]
 
 [tasks.lint]
 command = "cargo"
 args = [
   "make",
+  "-p",
+  "$PROFILE",
   "docker-run",
   "cargo clippy --all-targets --all-features -- -D warnings",
 ]
 
 [tasks.format]
 command = "cargo"
-args = ["make", "docker-run", "cargo fmt --all --check"]
+args = ["make", "-p", "$PROFILE", "docker-run", "cargo fmt --all --check"]
 
 [tasks.test]
 command = "cargo"
-args = ["make", "docker-run", "cargo nextest run"]
+args = ["make", "-p", "test", "docker-run", "cargo nextest run --bin backend"]
 
 [tasks.seed-mock]
 command = "cargo"
-args = ["make", "docker-run", "cargo run --bin seed_mock"]
+args = ["make", "-p", "$PROFILE", "docker-run", "cargo run --bin seed_mock"]
 
 [tasks.db-connect]
 script = '''
@@ -52,12 +59,12 @@ docker exec -it monorepo-sandbox-db psql -U postgres
 
 [tasks.db-drop]
 command = "cargo"
-args = ["make", "docker-run", "sqlx db drop"]
+args = ["make", "-p", "$PROFILE", "docker-run", "sqlx db drop"]
 
 [tasks.migrate-add]
 command = "cargo"
-args = ["make", "docker-run", "sqlx migrate add '${@}'"]
+args = ["make", "-p", "$PROFILE", "docker-run", "sqlx migrate add ${@}"]
 
 [tasks.migrate-run]
 command = "cargo"
-args = ["make", "docker-run", "sqlx db setup"]
+args = ["make", "-p", "$PROFILE", "docker-run", "sqlx db setup"]
