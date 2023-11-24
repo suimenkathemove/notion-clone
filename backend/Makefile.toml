@@ -51,7 +51,7 @@ args = ["make", "-p", "test", "docker-run", "cargo nextest run --bin backend"]
 command = "cargo"
 args = ["make", "-p", "$PROFILE", "docker-run", "cargo run --bin seed_mock"]
 
-[tasks.db-connect]
+[tasks.db-enter]
 script = '''
 cd docker
 docker exec -it monorepo-sandbox-db psql -U postgres
