@@ -10,7 +10,7 @@ CREATE TABLE notion.pages (
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
-CREATE TABLE notion.page_tree_paths (
+CREATE TABLE notion.page_relationships (
     PRIMARY KEY (ancestor, descendant),
     ancestor UUID NOT NULL REFERENCES notion.pages(id) ON DELETE CASCADE,
     descendant UUID NOT NULL REFERENCES notion.pages(id) ON DELETE CASCADE,

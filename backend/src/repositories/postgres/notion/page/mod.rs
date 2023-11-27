@@ -59,7 +59,7 @@ impl InternalPageRepository {
             "
             SELECT * FROM notion.pages WHERE id IN (
                 SELECT descendant
-                        FROM notion.page_tree_paths
+                        FROM notion.page_relationships
                     GROUP BY descendant
                 HAVING COUNT(*) = 1
             )
@@ -84,7 +84,7 @@ impl InternalPageRepository {
         let pages = query_as::<_, Page>(
             "
             SELECT * FROM notion.pages WHERE id IN (
-                SELECT descendant FROM notion.page_tree_paths WHERE ancestor = $1
+                SELECT descendant FROM notion.page_relationships WHERE ancestor = $1
             )
             ",
         )
@@ -94,19 +94,19 @@ impl InternalPageRepository {
 
         let page_relationships = query_as::<_, PageRelationship>(
             "
-            WITH RECURSIVE descendants_page_tree_paths AS (
+            WITH RECURSIVE descendants_page_relationships AS (
                 SELECT ancestor, descendant, weight
-                FROM notion.page_tree_paths
+                FROM notion.page_relationships
                 WHERE ancestor = $1 AND weight = 1
                 UNION ALL
                 SELECT child.ancestor, child.descendant, child.weight
-                FROM descendants_page_tree_paths
-                JOIN notion.page_tree_paths AS child
-                ON descendants_page_tree_paths.descendant = child.ancestor
+                FROM descendants_page_relationships
+                JOIN notion.page_relationships AS child
+                ON descendants_page_relationships.descendant = child.ancestor
                 WHERE child.weight = 1
             )
             SELECT ancestor, descendant, weight
-            FROM descendants_page_tree_paths
+            FROM descendants_page_relationships
             ",
         )
         .bind(id.0)
@@ -127,9 +127,9 @@ impl InternalPageRepository {
             "
             SELECT *
             FROM notion.pages
-            JOIN notion.page_tree_paths ON notion.pages.id = notion.page_tree_paths.ancestor
-            WHERE notion.page_tree_paths.descendant = $1 AND notion.page_tree_paths.ancestor <> $1
-            ORDER BY notion.page_tree_paths.weight DESC
+            JOIN notion.page_relationships ON notion.pages.id = notion.page_relationships.ancestor
+            WHERE notion.page_relationships.descendant = $1 AND notion.page_relationships.ancestor <> $1
+            ORDER BY notion.page_relationships.weight DESC
             ",
         )
         .bind(id.0)
@@ -146,7 +146,7 @@ impl InternalPageRepository {
         let pages = query_as::<_, Page>(
             "
             SELECT * FROM notion.pages WHERE id IN (
-                SELECT descendant FROM notion.page_tree_paths WHERE ancestor = $1 AND weight = 1
+                SELECT descendant FROM notion.page_relationships WHERE ancestor = $1 AND weight = 1
             )
             ",
         )
@@ -173,8 +173,8 @@ impl InternalPageRepository {
 
         query(
             "
-            INSERT INTO notion.page_tree_paths (ancestor, descendant, weight)
-                    SELECT ancestor, $2, weight + 1 FROM notion.page_tree_paths WHERE descendant = $1
+            INSERT INTO notion.page_relationships (ancestor, descendant, weight)
+                    SELECT ancestor, $2, weight + 1 FROM notion.page_relationships WHERE descendant = $1
                 UNION ALL
                     SELECT $2, $2, 0
             ",
@@ -194,7 +194,7 @@ impl InternalPageRepository {
         query(
             "
             DELETE FROM notion.pages WHERE id IN (
-                SELECT descendant FROM notion.page_tree_paths WHERE ancestor = $1
+                SELECT descendant FROM notion.page_relationships WHERE ancestor = $1
             )
             ",
         )
@@ -212,10 +212,10 @@ impl InternalPageRepository {
     ) -> Result<(), RepositoryError> {
         query(
             "
-            DELETE FROM notion.page_tree_paths WHERE
-                    descendant IN (SELECT descendant FROM notion.page_tree_paths WHERE ancestor = $1)
+            DELETE FROM notion.page_relationships WHERE
+                    descendant IN (SELECT descendant FROM notion.page_relationships WHERE ancestor = $1)
                 AND
-                    ancestor IN (SELECT ancestor FROM notion.page_tree_paths WHERE descendant = $1 AND ancestor != descendant)
+                    ancestor IN (SELECT ancestor FROM notion.page_relationships WHERE descendant = $1 AND ancestor != descendant)
             ",
         )
         .bind(id.0)
@@ -224,10 +224,10 @@ impl InternalPageRepository {
 
         query(
             "
-            INSERT INTO notion.page_tree_paths (ancestor, descendant, weight)
+            INSERT INTO notion.page_relationships (ancestor, descendant, weight)
                 SELECT supertree.ancestor, subtree.descendant, supertree.weight + subtree.weight + 1
-                FROM notion.page_tree_paths AS supertree
-                    CROSS JOIN notion.page_tree_paths AS subtree
+                FROM notion.page_relationships AS supertree
+                    CROSS JOIN notion.page_relationships AS subtree
                 WHERE supertree.descendant = $1
                     AND subtree.ancestor = $2
             ",
@@ -366,7 +366,7 @@ mod tests {
     where
         E: 'e + Executor<'c, Database = Postgres>,
     {
-        let paths = query_as::<_, PageRelationship>("SELECT * FROM notion.page_tree_paths")
+        let paths = query_as::<_, PageRelationship>("SELECT * FROM notion.page_relationships")
             .fetch_all(executor)
             .await?
             .into_iter()
