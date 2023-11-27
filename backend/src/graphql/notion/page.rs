@@ -4,12 +4,12 @@ use async_graphql::{Context, Object, SimpleObject};
 
 define_id!(PageId, models::notion::page::PageId);
 
-pub struct Page {
-    pub id: PageId,
-    pub title: String,
-    pub text: String,
-    pub created_at: DateTimeUtc,
-    pub updated_at: DateTimeUtc,
+struct Page {
+    id: PageId,
+    title: String,
+    text: String,
+    created_at: DateTimeUtc,
+    updated_at: DateTimeUtc,
 }
 
 impl From<models::notion::page::Page> for Page {
@@ -47,6 +47,55 @@ impl Page {
     }
 }
 
+struct PageTree {
+    id: PageId,
+    title: String,
+    text: String,
+    created_at: DateTimeUtc,
+    updated_at: DateTimeUtc,
+    children: Vec<PageTree>,
+}
+
+impl From<models::notion::page::PageTree> for PageTree {
+    fn from(value: models::notion::page::PageTree) -> Self {
+        Self {
+            id: value.id.into(),
+            title: value.title,
+            text: value.text,
+            created_at: value.created_at.into(),
+            updated_at: value.updated_at.into(),
+            children: value.children.into_iter().map(Self::from).collect(),
+        }
+    }
+}
+
+#[Object]
+impl PageTree {
+    async fn id(&self) -> &PageId {
+        &self.id
+    }
+
+    async fn title(&self) -> &str {
+        &self.title
+    }
+
+    async fn text(&self) -> &str {
+        &self.text
+    }
+
+    async fn created_at(&self) -> &DateTimeUtc {
+        &self.created_at
+    }
+
+    async fn updated_at(&self) -> &DateTimeUtc {
+        &self.updated_at
+    }
+
+    async fn children(&self) -> &Vec<PageTree> {
+        &self.children
+    }
+}
+
 #[derive(SimpleObject)]
 struct ListPages {
     items: Vec<Page>,
@@ -54,7 +103,7 @@ struct ListPages {
 
 define_result!(ListRootPagesResult, ListPages);
 
-define_result!(ListDescendantPagesResult, ListPages);
+define_result!(ListDescendantPagesResult, PageTree);
 
 define_result!(ListAncestorPagesResult, ListPages);
 
@@ -102,9 +151,7 @@ impl PageQuery {
         let page_use_case = ctx.data_unchecked::<PageUseCase>();
         let result = page_use_case.descendants(&id.into()).await;
         match result {
-            Ok(pages) => ListDescendantPagesResult::Ok(ListPages {
-                items: pages.into_iter().map(Into::into).collect(),
-            }),
+            Ok(page_tree) => ListDescendantPagesResult::Ok(page_tree.into()),
             Err(error) => ListDescendantPagesResult::Err(GraphQLError { code: error.into() }),
         }
     }

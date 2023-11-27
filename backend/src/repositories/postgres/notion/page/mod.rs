@@ -11,12 +11,12 @@ use std::sync::Arc;
 define_id!(PageId, models::notion::page::PageId);
 
 #[derive(Debug, FromRow)]
-pub struct Page {
-    pub id: PageId,
-    pub title: String,
-    pub text: String,
-    pub created_at: DateTimeUtc,
-    pub updated_at: DateTimeUtc,
+struct Page {
+    id: PageId,
+    title: String,
+    text: String,
+    created_at: DateTimeUtc,
+    updated_at: DateTimeUtc,
 }
 
 impl From<Page> for models::notion::page::Page {
@@ -31,25 +31,16 @@ impl From<Page> for models::notion::page::Page {
     }
 }
 
-#[derive(Debug)]
-#[allow(dead_code)]
-struct ModelsPageTreePaths {
-    ancestor: models::notion::page::PageId,
-    descendant: models::notion::page::PageId,
-    // TODO: usize
-    weight: i32,
-}
-
 #[derive(Debug, FromRow)]
-struct RepositoryPageTreePaths {
+struct PageRelationship {
     ancestor: PageId,
     descendant: PageId,
     // TODO: usize
     weight: i32,
 }
 
-impl From<RepositoryPageTreePaths> for ModelsPageTreePaths {
-    fn from(value: RepositoryPageTreePaths) -> Self {
+impl From<PageRelationship> for models::notion::page::PageRelationship {
+    fn from(value: PageRelationship) -> Self {
         Self {
             ancestor: value.ancestor.into(),
             descendant: value.descendant.into(),
@@ -83,11 +74,17 @@ impl InternalPageRepository {
     async fn find_descendants(
         id: &models::notion::page::PageId,
         conn: &mut PgConnection,
-    ) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
+    ) -> Result<
+        (
+            Vec<models::notion::page::Page>,
+            Vec<models::notion::page::PageRelationship>,
+        ),
+        RepositoryError,
+    > {
         let pages = query_as::<_, Page>(
             "
             SELECT * FROM notion.pages WHERE id IN (
-                SELECT descendant FROM notion.page_tree_paths WHERE ancestor = $1 AND descendant <> $1
+                SELECT descendant FROM notion.page_tree_paths WHERE ancestor = $1
             )
             ",
         )
@@ -95,7 +92,31 @@ impl InternalPageRepository {
         .fetch_all(&mut *conn)
         .await?;
 
-        Ok(pages.into_iter().map(Into::into).collect())
+        let page_relationships = query_as::<_, PageRelationship>(
+            "
+            WITH RECURSIVE descendants_page_tree_paths AS (
+                SELECT ancestor, descendant, weight
+                FROM notion.page_tree_paths
+                WHERE ancestor = $1 AND weight = 1
+                UNION ALL
+                SELECT child.ancestor, child.descendant, child.weight
+                FROM descendants_page_tree_paths
+                JOIN notion.page_tree_paths AS child
+                ON descendants_page_tree_paths.descendant = child.ancestor
+                WHERE child.weight = 1
+            )
+            SELECT ancestor, descendant, weight
+            FROM descendants_page_tree_paths
+            ",
+        )
+        .bind(id.0)
+        .fetch_all(&mut *conn)
+        .await?;
+
+        Ok((
+            pages.into_iter().map(Into::into).collect(),
+            page_relationships.into_iter().map(Into::into).collect(),
+        ))
     }
 
     async fn find_ancestors(
@@ -242,11 +263,17 @@ impl IPageRepository for PageRepository {
     async fn find_descendants(
         &self,
         id: &models::notion::page::PageId,
-    ) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
+    ) -> Result<
+        (
+            Vec<models::notion::page::Page>,
+            Vec<models::notion::page::PageRelationship>,
+        ),
+        RepositoryError,
+    > {
         let mut conn = self.pool.acquire().await?;
-        let pages = InternalPageRepository::find_descendants(id, &mut conn).await?;
+        let response = InternalPageRepository::find_descendants(id, &mut conn).await?;
 
-        Ok(pages)
+        Ok(response)
     }
 
     async fn find_ancestors(
@@ -339,12 +366,12 @@ mod tests {
     where
         E: 'e + Executor<'c, Database = Postgres>,
     {
-        let paths = query_as::<_, RepositoryPageTreePaths>("SELECT * FROM notion.page_tree_paths")
+        let paths = query_as::<_, PageRelationship>("SELECT * FROM notion.page_tree_paths")
             .fetch_all(executor)
             .await?
             .into_iter()
             .map(Into::into)
-            .collect::<Vec<ModelsPageTreePaths>>();
+            .collect::<Vec<models::notion::page::PageRelationship>>();
         let paths_map = paths.iter().fold(HashMap::new(), |mut acc, paths| {
             acc.entry(paths.ancestor)
                 .or_insert_with(HashSet::new)
@@ -380,35 +407,88 @@ mod tests {
             mut tx,
         ) = setup().await?;
 
-        let page_1_descendants =
-            InternalPageRepository::find_descendants(&page_1.id, &mut tx).await?;
-        assert_eq!(
-            page_1_descendants
-                .into_iter()
-                .map(|p| p.id)
-                .collect::<HashSet<_>>(),
-            HashSet::from([page_1_1.id, page_1_2.id, page_1_1_1.id, page_1_1_2.id])
-        );
+        {
+            let (pages, page_relationships) =
+                InternalPageRepository::find_descendants(&page_1.id, &mut tx).await?;
 
-        let page_1_1_descendants =
-            InternalPageRepository::find_descendants(&page_1_1.id, &mut tx).await?;
-        assert_eq!(
-            page_1_1_descendants
-                .into_iter()
-                .map(|p| p.id)
-                .collect::<HashSet<_>>(),
-            HashSet::from([page_1_1_1.id, page_1_1_2.id])
-        );
+            assert_eq!(
+                pages.into_iter().map(|p| p.id).collect::<HashSet<_>>(),
+                HashSet::from([
+                    page_1.id,
+                    page_1_1.id,
+                    page_1_2.id,
+                    page_1_1_1.id,
+                    page_1_1_2.id
+                ])
+            );
 
-        let page_1_1_1_descendants =
-            InternalPageRepository::find_descendants(&page_1_1_1.id, &mut tx).await?;
-        assert_eq!(
-            page_1_1_1_descendants
-                .into_iter()
-                .map(|p| p.id)
-                .collect::<HashSet<_>>(),
-            HashSet::from([])
-        );
+            assert_eq!(
+                page_relationships.into_iter().collect::<HashSet<_>>(),
+                HashSet::from([
+                    models::notion::page::PageRelationship {
+                        ancestor: page_1.id,
+                        descendant: page_1_1.id,
+                        weight: 1
+                    },
+                    models::notion::page::PageRelationship {
+                        ancestor: page_1.id,
+                        descendant: page_1_2.id,
+                        weight: 1
+                    },
+                    models::notion::page::PageRelationship {
+                        ancestor: page_1_1.id,
+                        descendant: page_1_1_1.id,
+                        weight: 1
+                    },
+                    models::notion::page::PageRelationship {
+                        ancestor: page_1_1.id,
+                        descendant: page_1_1_2.id,
+                        weight: 1
+                    }
+                ])
+            )
+        }
+
+        {
+            let (pages, page_relationships) =
+                InternalPageRepository::find_descendants(&page_1_1.id, &mut tx).await?;
+
+            assert_eq!(
+                pages.into_iter().map(|p| p.id).collect::<HashSet<_>>(),
+                HashSet::from([page_1_1.id, page_1_1_1.id, page_1_1_2.id])
+            );
+
+            assert_eq!(
+                page_relationships.into_iter().collect::<HashSet<_>>(),
+                HashSet::from([
+                    models::notion::page::PageRelationship {
+                        ancestor: page_1_1.id,
+                        descendant: page_1_1_1.id,
+                        weight: 1
+                    },
+                    models::notion::page::PageRelationship {
+                        ancestor: page_1_1.id,
+                        descendant: page_1_1_2.id,
+                        weight: 1
+                    }
+                ])
+            )
+        }
+
+        {
+            let (pages, page_relationships) =
+                InternalPageRepository::find_descendants(&page_1_1_1.id, &mut tx).await?;
+
+            assert_eq!(
+                pages.into_iter().map(|p| p.id).collect::<HashSet<_>>(),
+                HashSet::from([page_1_1_1.id])
+            );
+
+            assert_eq!(
+                page_relationships.into_iter().collect::<HashSet<_>>(),
+                HashSet::new()
+            )
+        }
 
         teardown(tx).await?;
 
@@ -428,7 +508,7 @@ mod tests {
                 .into_iter()
                 .map(|p| p.id)
                 .collect::<Vec<_>>(),
-            vec![]
+            Vec::new()
         );
 
         let page_1_1_ancestors =
