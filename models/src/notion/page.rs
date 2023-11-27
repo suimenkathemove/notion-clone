@@ -33,7 +33,7 @@ pub struct PageTree {
 impl PageTree {
     pub fn build_from_page_relationships(
         pages: Vec<Page>,
-        page_relationships: &Vec<PageRelationship>,
+        page_relationships: &[PageRelationship],
         root_id: &PageId,
     ) -> PageTree {
         let page_tree_map: HashMap<PageId, Rc<RefCell<MutablePageTree>>> =
