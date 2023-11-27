@@ -2,7 +2,7 @@ pub mod mock;
 
 use super::super::{
     super::{error::RepositoryError, interfaces::notion::page::IPageRepository},
-    utils::DateTimeUtc,
+    common::DateTimeUtc,
 };
 use async_trait::async_trait;
 use sqlx::{query, query_as, FromRow, PgConnection, PgPool};

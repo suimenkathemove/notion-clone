@@ -1,6 +1,6 @@
 use super::thread::Thread;
 use crate::{
-    graphql::utils::DateTimeUtc,
+    graphql::common::DateTimeUtc,
     use_cases::slack::{channel::ChannelUseCase, thread::ThreadUseCase},
 };
 use async_graphql::{Context, Object, SimpleObject};

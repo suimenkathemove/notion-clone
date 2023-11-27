@@ -1,5 +1,5 @@
 use crate::repositories::{
-    interfaces::slack::channel::IChannelRepository, postgres::utils::DateTimeUtc,
+    interfaces::slack::channel::IChannelRepository, postgres::common::DateTimeUtc,
 };
 use async_trait::async_trait;
 use sqlx::{query, query_as, FromRow, PgPool};

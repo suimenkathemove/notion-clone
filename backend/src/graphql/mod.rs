@@ -1,12 +1,12 @@
 #[macro_use]
 mod macros;
 
+mod common;
 mod error;
 pub mod handlers;
 mod health_check;
 mod notion;
 mod slack;
-mod utils;
 
 use self::{
     health_check::HealthCheckQuery,

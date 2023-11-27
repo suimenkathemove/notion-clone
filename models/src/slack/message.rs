@@ -1,4 +1,4 @@
-use crate::utils::DateTimeUtc;
+use crate::common::DateTimeUtc;
 
 define_id!(MessageId);
 

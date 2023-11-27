@@ -1,4 +1,4 @@
-use super::super::{error::GraphQLError, utils::DateTimeUtc};
+use super::super::{common::DateTimeUtc, error::GraphQLError};
 use crate::use_cases::notion::page::PageUseCase;
 use async_graphql::{Context, Object, SimpleObject};
 

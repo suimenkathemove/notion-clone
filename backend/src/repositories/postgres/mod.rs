@@ -1,9 +1,9 @@
 #[macro_use]
 mod macros;
 
+mod common;
 pub mod notion;
 pub mod slack;
-mod utils;
 
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 

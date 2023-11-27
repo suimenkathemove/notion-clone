@@ -5,8 +5,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize)]
 pub struct DateTimeUtc(pub DateTime<Utc>);
 
-impl From<models::utils::DateTimeUtc> for DateTimeUtc {
-    fn from(date_time_utc: models::utils::DateTimeUtc) -> Self {
+impl From<models::common::DateTimeUtc> for DateTimeUtc {
+    fn from(date_time_utc: models::common::DateTimeUtc) -> Self {
         Self(date_time_utc.0)
     }
 }
