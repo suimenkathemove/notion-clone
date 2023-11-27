@@ -5,9 +5,9 @@ use crate::{
 };
 use async_graphql::{Context, Object, SimpleObject};
 
-define_id!(ChannelId, models::channel::ChannelId);
+define_id!(ChannelId, models::slack::channel::ChannelId);
 
-define_name!(ChannelName, models::channel::ChannelName);
+define_name!(ChannelName, models::slack::channel::ChannelName);
 
 pub struct Channel {
     pub id: ChannelId,
@@ -18,8 +18,8 @@ pub struct Channel {
     pub updated_at: DateTimeUtc,
 }
 
-impl From<models::channel::Channel> for Channel {
-    fn from(channel: models::channel::Channel) -> Self {
+impl From<models::slack::channel::Channel> for Channel {
+    fn from(channel: models::slack::channel::Channel) -> Self {
         Self {
             id: channel.id.into(),
             name: channel.name.into(),

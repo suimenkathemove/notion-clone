@@ -5,7 +5,7 @@ use async_trait::async_trait;
 use sqlx::{query, query_as, FromRow, PgPool};
 use std::sync::Arc;
 
-define_id!(MessageId, models::message::MessageId);
+define_id!(MessageId, models::slack::message::MessageId);
 
 #[derive(FromRow)]
 pub struct Message {
@@ -15,7 +15,7 @@ pub struct Message {
     pub updated_at: DateTimeUtc,
 }
 
-impl From<Message> for models::message::Message {
+impl From<Message> for models::slack::message::Message {
     fn from(value: Message) -> Self {
         Self {
             id: value.id.into(),
@@ -40,8 +40,8 @@ impl MessageRepository {
 impl IMessageRepository for MessageRepository {
     async fn list_by_thread_id(
         &self,
-        thread_id: &models::thread::ThreadId,
-    ) -> Vec<models::message::Message> {
+        thread_id: &models::slack::thread::ThreadId,
+    ) -> Vec<models::slack::message::Message> {
         query_as::<_, Message>("SELECT * FROM messages WHERE thread_id = $1")
             .bind(thread_id.0)
             .fetch_all(&*self.pool)
@@ -54,9 +54,9 @@ impl IMessageRepository for MessageRepository {
 
     async fn create(
         &self,
-        thread_id: &models::thread::ThreadId,
+        thread_id: &models::slack::thread::ThreadId,
         text: String,
-    ) -> models::message::Message {
+    ) -> models::slack::message::Message {
         query_as::<_, Message>("INSERT INTO messages (thread_id, text) VALUES ($1, $2) RETURNING *")
             .bind(thread_id.0)
             .bind(text)
@@ -66,7 +66,7 @@ impl IMessageRepository for MessageRepository {
             .into()
     }
 
-    async fn delete(&self, id: &models::message::MessageId) {
+    async fn delete(&self, id: &models::slack::message::MessageId) {
         query("DELETE FROM messages WHERE id = $1")
             .bind(id.0)
             .execute(&*self.pool)

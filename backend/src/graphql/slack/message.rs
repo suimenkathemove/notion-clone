@@ -2,7 +2,7 @@ use super::{channel::ChannelId, thread::ThreadId};
 use crate::{graphql::utils::DateTimeUtc, use_cases::slack::message::MessageUseCase};
 use async_graphql::{Context, Object, SimpleObject};
 
-define_id!(MessageId, models::message::MessageId);
+define_id!(MessageId, models::slack::message::MessageId);
 
 pub struct Message {
     pub id: MessageId,
@@ -11,8 +11,8 @@ pub struct Message {
     pub updated_at: DateTimeUtc,
 }
 
-impl From<models::message::Message> for Message {
-    fn from(message: models::message::Message) -> Self {
+impl From<models::slack::message::Message> for Message {
+    fn from(message: models::slack::message::Message) -> Self {
         Self {
             id: message.id.into(),
             text: message.text,

@@ -5,7 +5,7 @@ use crate::{
 };
 use async_graphql::{Context, Object, SimpleObject};
 
-define_id!(ThreadId, models::thread::ThreadId);
+define_id!(ThreadId, models::slack::thread::ThreadId);
 
 pub struct Thread {
     pub id: ThreadId,
@@ -13,8 +13,8 @@ pub struct Thread {
     pub updated_at: DateTimeUtc,
 }
 
-impl From<models::thread::Thread> for Thread {
-    fn from(thread: models::thread::Thread) -> Self {
+impl From<models::slack::thread::Thread> for Thread {
+    fn from(thread: models::slack::thread::Thread) -> Self {
         Self {
             id: thread.id.into(),
             created_at: thread.created_at.into(),

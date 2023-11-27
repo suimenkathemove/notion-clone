@@ -21,29 +21,29 @@ impl MessageUseCase {
 
     pub async fn list_by_thread_id(
         &self,
-        thread_id: &models::thread::ThreadId,
-    ) -> Vec<models::message::Message> {
+        thread_id: &models::slack::thread::ThreadId,
+    ) -> Vec<models::slack::message::Message> {
         self.message_repository.list_by_thread_id(thread_id).await
     }
 
     pub async fn add_message(
         &self,
-        channel_id: &models::channel::ChannelId,
+        channel_id: &models::slack::channel::ChannelId,
         text: String,
-    ) -> models::message::Message {
+    ) -> models::slack::message::Message {
         let thread = self.thread_repository.create(channel_id).await;
         self.message_repository.create(&thread.id, text).await
     }
 
     pub async fn reply(
         &self,
-        thread_id: &models::thread::ThreadId,
+        thread_id: &models::slack::thread::ThreadId,
         text: String,
-    ) -> models::message::Message {
+    ) -> models::slack::message::Message {
         self.message_repository.create(thread_id, text).await
     }
 
-    pub async fn delete(&self, id: &models::message::MessageId) {
+    pub async fn delete(&self, id: &models::slack::message::MessageId) {
         self.message_repository.delete(id).await;
     }
 }

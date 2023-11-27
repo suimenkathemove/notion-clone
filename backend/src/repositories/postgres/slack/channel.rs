@@ -5,9 +5,9 @@ use async_trait::async_trait;
 use sqlx::{query, query_as, FromRow, PgPool};
 use std::sync::Arc;
 
-define_id!(ChannelId, models::channel::ChannelId);
+define_id!(ChannelId, models::slack::channel::ChannelId);
 
-define_name!(ChannelName, models::channel::ChannelName);
+define_name!(ChannelName, models::slack::channel::ChannelName);
 
 #[derive(FromRow)]
 pub struct Channel {
@@ -19,7 +19,7 @@ pub struct Channel {
     pub updated_at: DateTimeUtc,
 }
 
-impl From<Channel> for models::channel::Channel {
+impl From<Channel> for models::slack::channel::Channel {
     fn from(value: Channel) -> Self {
         Self {
             id: value.id.into(),
@@ -44,7 +44,7 @@ impl ChannelRepository {
 
 #[async_trait]
 impl IChannelRepository for ChannelRepository {
-    async fn list(&self) -> Vec<models::channel::Channel> {
+    async fn list(&self) -> Vec<models::slack::channel::Channel> {
         query_as::<_, Channel>("SELECT * FROM channels")
             .fetch_all(&*self.pool)
             .await
@@ -54,7 +54,7 @@ impl IChannelRepository for ChannelRepository {
             .collect()
     }
 
-    async fn get(&self, id: &models::channel::ChannelId) -> models::channel::Channel {
+    async fn get(&self, id: &models::slack::channel::ChannelId) -> models::slack::channel::Channel {
         query_as::<_, Channel>("SELECT * FROM channels WHERE id = $1")
             .bind(id.0)
             .fetch_one(&*self.pool)
@@ -65,10 +65,10 @@ impl IChannelRepository for ChannelRepository {
 
     async fn create(
         &self,
-        name: models::channel::ChannelName,
+        name: models::slack::channel::ChannelName,
         description: String,
         private: bool,
-    ) -> models::channel::Channel {
+    ) -> models::slack::channel::Channel {
         query_as::<_, Channel>(
             "INSERT INTO channels (name, description, private) VALUES ($1, $2, $3) RETURNING *",
         )
@@ -81,7 +81,7 @@ impl IChannelRepository for ChannelRepository {
         .into()
     }
 
-    async fn delete(&self, id: &models::channel::ChannelId) {
+    async fn delete(&self, id: &models::slack::channel::ChannelId) {
         query("DELETE FROM channels WHERE id = $1")
             .bind(id.0)
             .execute(&*self.pool)
