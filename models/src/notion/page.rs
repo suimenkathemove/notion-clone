@@ -2,7 +2,7 @@ use crate::utils::DateTimeUtc;
 
 define_id!(PageId);
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug)]
 pub struct Page {
     pub id: PageId,
     pub title: String,

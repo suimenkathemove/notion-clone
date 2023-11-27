@@ -364,8 +364,8 @@ mod tests {
 
         let roots = InternalPageRepository::find_roots(&mut tx).await?;
         assert_eq!(
-            roots.into_iter().collect::<HashSet<_>>(),
-            HashSet::from([page_1.clone(), page_2.clone()])
+            roots.into_iter().map(|p| p.id).collect::<HashSet<_>>(),
+            HashSet::from([page_1.id, page_2.id])
         );
 
         teardown(tx).await?;
@@ -383,26 +383,30 @@ mod tests {
         let page_1_descendants =
             InternalPageRepository::find_descendants(&page_1.id, &mut tx).await?;
         assert_eq!(
-            page_1_descendants.into_iter().collect::<HashSet<_>>(),
-            HashSet::from([
-                page_1_1.clone(),
-                page_1_2.clone(),
-                page_1_1_1.clone(),
-                page_1_1_2.clone()
-            ])
+            page_1_descendants
+                .into_iter()
+                .map(|p| p.id)
+                .collect::<HashSet<_>>(),
+            HashSet::from([page_1_1.id, page_1_2.id, page_1_1_1.id, page_1_1_2.id])
         );
 
         let page_1_1_descendants =
             InternalPageRepository::find_descendants(&page_1_1.id, &mut tx).await?;
         assert_eq!(
-            page_1_1_descendants.into_iter().collect::<HashSet<_>>(),
-            HashSet::from([page_1_1_1.clone(), page_1_1_2.clone()])
+            page_1_1_descendants
+                .into_iter()
+                .map(|p| p.id)
+                .collect::<HashSet<_>>(),
+            HashSet::from([page_1_1_1.id, page_1_1_2.id])
         );
 
         let page_1_1_1_descendants =
             InternalPageRepository::find_descendants(&page_1_1_1.id, &mut tx).await?;
         assert_eq!(
-            page_1_1_1_descendants.into_iter().collect::<HashSet<_>>(),
+            page_1_1_1_descendants
+                .into_iter()
+                .map(|p| p.id)
+                .collect::<HashSet<_>>(),
             HashSet::from([])
         );
 
@@ -419,20 +423,32 @@ mod tests {
         ) = setup().await?;
 
         let page_1_ancestors = InternalPageRepository::find_ancestors(&page_1.id, &mut tx).await?;
-        assert_eq!(page_1_ancestors.into_iter().collect::<Vec<_>>(), vec![]);
+        assert_eq!(
+            page_1_ancestors
+                .into_iter()
+                .map(|p| p.id)
+                .collect::<Vec<_>>(),
+            vec![]
+        );
 
         let page_1_1_ancestors =
             InternalPageRepository::find_ancestors(&page_1_1.id, &mut tx).await?;
         assert_eq!(
-            page_1_1_ancestors.into_iter().collect::<Vec<_>>(),
-            vec![page_1.clone()]
+            page_1_1_ancestors
+                .into_iter()
+                .map(|p| p.id)
+                .collect::<Vec<_>>(),
+            vec![page_1.id]
         );
 
         let page_1_1_1_ancestors =
             InternalPageRepository::find_ancestors(&page_1_1_1.id, &mut tx).await?;
         assert_eq!(
-            page_1_1_1_ancestors.into_iter().collect::<Vec<_>>(),
-            vec![page_1.clone(), page_1_1.clone()]
+            page_1_1_1_ancestors
+                .into_iter()
+                .map(|p| p.id)
+                .collect::<Vec<_>>(),
+            vec![page_1.id, page_1_1.id]
         );
 
         teardown(tx).await?;

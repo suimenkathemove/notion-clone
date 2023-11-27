@@ -1,4 +1,4 @@
 use chrono::{DateTime, Utc};
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug)]
 pub struct DateTimeUtc(pub DateTime<Utc>);
