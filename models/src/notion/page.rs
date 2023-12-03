@@ -40,11 +40,11 @@ impl PageTree {
             pages.into_iter().map(|p| (p.id, p.into())).collect();
 
         page_relationships.iter().for_each(|r| {
-            if r.weight == 1 {
-                let parent = page_tree_map.get(&r.ancestor).unwrap();
-                let child = page_tree_map.get(&r.descendant).unwrap();
-                parent.borrow_mut().children.push(Rc::clone(child));
-            }
+            assert_eq!(1, r.weight);
+
+            let parent = page_tree_map.get(&r.ancestor).unwrap();
+            let child = page_tree_map.get(&r.descendant).unwrap();
+            parent.borrow_mut().children.push(Rc::clone(child));
         });
 
         Rc::clone(page_tree_map.get(root_id).unwrap()).into()
