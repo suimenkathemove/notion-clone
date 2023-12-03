@@ -5,6 +5,16 @@ use async_trait::async_trait;
 pub trait IPageRepository: Send + Sync {
     async fn find_roots(&self) -> Result<Vec<models::notion::page::Page>, RepositoryError>;
 
+    async fn find_children(
+        &self,
+        id: &models::notion::page::PageId,
+    ) -> Result<Vec<models::notion::page::Page>, RepositoryError>;
+
+    async fn find_ancestors(
+        &self,
+        id: &models::notion::page::PageId,
+    ) -> Result<Vec<models::notion::page::Page>, RepositoryError>;
+
     async fn find_descendants(
         &self,
         id: &models::notion::page::PageId,
@@ -15,16 +25,6 @@ pub trait IPageRepository: Send + Sync {
         ),
         RepositoryError,
     >;
-
-    async fn find_ancestors(
-        &self,
-        id: &models::notion::page::PageId,
-    ) -> Result<Vec<models::notion::page::Page>, RepositoryError>;
-
-    async fn find_children(
-        &self,
-        id: &models::notion::page::PageId,
-    ) -> Result<Vec<models::notion::page::Page>, RepositoryError>;
 
     async fn find_by_id(
         &self,
