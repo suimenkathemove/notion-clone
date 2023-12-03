@@ -11,8 +11,15 @@ CREATE TABLE notion.pages (
 );
 
 CREATE TABLE notion.page_relationships (
-    PRIMARY KEY (ancestor, descendant),
     ancestor UUID NOT NULL REFERENCES notion.pages(id) ON DELETE CASCADE,
     descendant UUID NOT NULL REFERENCES notion.pages(id) ON DELETE CASCADE,
-    weight INTEGER NOT NULL
+    weight INTEGER NOT NULL,
+    PRIMARY KEY (ancestor, descendant)
+);
+
+CREATE TABLE notion.page_sibling_relationships (
+    ancestor UUID NOT NULL REFERENCES notion.pages(id) ON DELETE CASCADE,
+    descendant UUID NOT NULL REFERENCES notion.pages(id) ON DELETE CASCADE,
+    weight INTEGER NOT NULL,
+    PRIMARY KEY (ancestor, descendant)
 );
