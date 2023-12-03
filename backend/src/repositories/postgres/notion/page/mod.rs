@@ -150,9 +150,32 @@ impl InternalPageRepository {
     > {
         let pages = query_as::<_, Page>(
             "
-            SELECT * FROM notion.pages WHERE id IN (
-                SELECT descendant FROM notion.page_relationships WHERE ancestor = $1
+            WITH ancestors AS (
+                SELECT id, title, text, created_at, updated_at
+                FROM notion.pages
+                WHERE id IN (
+                    SELECT descendant
+                    FROM notion.page_relationships
+                    WHERE ancestor = $1
+                )
+            ),
+            descendant_counts AS (
+                SELECT descendant, COUNT(*) AS count
+                FROM notion.page_relationships
+                GROUP BY descendant
+            ),
+            sibling_descendant_counts AS (
+                SELECT descendant, COUNT(*) AS count
+                FROM notion.page_sibling_relationships
+                GROUP BY descendant
             )
+            SELECT id, title, text, created_at, updated_at
+            FROM ancestors
+            JOIN descendant_counts
+            ON ancestors.id = descendant_counts.descendant
+            JOIN sibling_descendant_counts
+            ON ancestors.id = sibling_descendant_counts.descendant
+            ORDER BY descendant_counts.count, sibling_descendant_counts.count
             ",
         )
         .bind(id.0)
