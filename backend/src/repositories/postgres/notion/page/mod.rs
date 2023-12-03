@@ -89,9 +89,24 @@ impl InternalPageRepository {
     ) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
         let pages = query_as::<_, Page>(
             "
-            SELECT * FROM notion.pages WHERE id IN (
-                SELECT descendant FROM notion.page_relationships WHERE ancestor = $1 AND weight = 1
+            WITH children AS (
+                SELECT descendant AS id
+                FROM notion.page_relationships
+                WHERE ancestor = $1
+                AND weight = 1
+            ),
+            sibling_descendant_counts AS (
+                SELECT descendant, COUNT(*) AS count
+                FROM notion.page_sibling_relationships
+                GROUP BY descendant
             )
+            SELECT notion.pages.id, title, text, created_at, updated_at
+            FROM notion.pages
+            JOIN children
+            ON notion.pages.id = children.id
+            JOIN sibling_descendant_counts
+            ON notion.pages.id = sibling_descendant_counts.descendant
+            ORDER BY sibling_descendant_counts.count
             ",
         )
         .bind(id.0)
