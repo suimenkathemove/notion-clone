@@ -223,10 +223,12 @@ impl PageMutation {
         &self,
         ctx: &Context<'_>,
         id: PageId,
-        to_parent_id: PageId,
+        to_sibling_parent_id: PageId,
     ) -> MovePageResult {
         let page_use_case = ctx.data_unchecked::<PageUseCase>();
-        let result = page_use_case.move_(&id.into(), &to_parent_id.into()).await;
+        let result = page_use_case
+            .move_(&id.into(), &to_sibling_parent_id.into())
+            .await;
         match result {
             Ok(_) => MovePageResult::Ok(MovePage { id }),
             Err(error) => MovePageResult::Err(GraphQLError { code: error.into() }),

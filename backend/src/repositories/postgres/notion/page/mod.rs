@@ -351,32 +351,82 @@ impl InternalPageRepository {
 
     async fn move_(
         id: &models::notion::page::PageId,
-        to_parent_id: &models::notion::page::PageId,
+        to_sibling_parent_id: &models::notion::page::PageId,
         conn: &mut PgConnection,
     ) -> Result<(), RepositoryError> {
         query(
             "
-            DELETE FROM notion.page_relationships WHERE
-                    descendant IN (SELECT descendant FROM notion.page_relationships WHERE ancestor = $1)
-                AND
-                    ancestor IN (SELECT ancestor FROM notion.page_relationships WHERE descendant = $1 AND ancestor != descendant)
+            DELETE FROM notion.page_relationships
+            WHERE ancestor IN (
+                SELECT ancestor
+                FROM notion.page_relationships
+                WHERE descendant = $1
+                AND ancestor != $1
+            )
+            AND descendant IN (
+                SELECT descendant
+                FROM notion.page_relationships
+                WHERE ancestor = $1
+            )
             ",
         )
         .bind(id.0)
         .execute(&mut *conn)
         .await?;
+        let to_parent_id = query_as::<_, Page>(
+            "
+            WITH parent AS (
+                SELECT ancestor AS id
+                FROM notion.page_relationships
+                WHERE descendant = $1
+                AND weight = 1
+            )
+            SELECT notion.pages.id, title, text, created_at, updated_at
+            FROM notion.pages
+            JOIN parent
+            ON notion.pages.id = parent.id
+            ",
+        )
+        .bind(to_sibling_parent_id.0)
+        .fetch_optional(&mut *conn)
+        .await?
+        .map(|p| p.id);
+        if let Some(to_parent_id) = to_parent_id {
+            query(
+                "
+                INSERT INTO notion.page_relationships (ancestor, descendant, weight)
+                SELECT parent.ancestor, child.descendant, parent.weight + child.weight + 1
+                FROM notion.page_relationships AS parent
+                JOIN notion.page_relationships AS child
+                ON parent.descendant = $1
+                AND child.ancestor = $2
+                ",
+            )
+            .bind(to_parent_id)
+            .bind(id.0)
+            .execute(&mut *conn)
+            .await?;
+        }
 
         query(
             "
-            INSERT INTO notion.page_relationships (ancestor, descendant, weight)
-                SELECT supertree.ancestor, subtree.descendant, supertree.weight + subtree.weight + 1
-                FROM notion.page_relationships AS supertree
-                    CROSS JOIN notion.page_relationships AS subtree
-                WHERE supertree.descendant = $1
-                    AND subtree.ancestor = $2
+            DELETE FROM notion.page_sibling_relationships
+            WHERE (ancestor = $1 OR descendant = $1)
+            AND ancestor != descendant
             ",
         )
-        .bind(to_parent_id.0)
+        .bind(id.0)
+        .execute(&mut *conn)
+        .await?;
+        query(
+            "
+            INSERT INTO notion.page_sibling_relationships (ancestor, descendant, weight)
+            SELECT ancestor, $2, weight + 1
+            FROM notion.page_sibling_relationships
+            WHERE descendant = $1
+            ",
+        )
+        .bind(to_sibling_parent_id.0)
         .bind(id.0)
         .execute(&mut *conn)
         .await?;
@@ -474,10 +524,10 @@ impl IPageRepository for PageRepository {
     async fn move_(
         &self,
         id: &models::notion::page::PageId,
-        to_parent_id: &models::notion::page::PageId,
+        to_sibling_parent_id: &models::notion::page::PageId,
     ) -> Result<(), RepositoryError> {
         let mut conn = self.pool.acquire().await?;
-        InternalPageRepository::move_(id, to_parent_id, &mut conn).await?;
+        InternalPageRepository::move_(id, to_sibling_parent_id, &mut conn).await?;
 
         Ok(())
     }

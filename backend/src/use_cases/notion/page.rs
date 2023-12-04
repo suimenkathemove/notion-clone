@@ -78,9 +78,9 @@ impl PageUseCase {
     pub async fn move_(
         &self,
         id: &models::notion::page::PageId,
-        to_parent_id: &models::notion::page::PageId,
+        to_sibling_parent_id: &models::notion::page::PageId,
     ) -> Result<(), UseCaseError> {
-        self.page_repository.move_(id, to_parent_id).await?;
+        self.page_repository.move_(id, to_sibling_parent_id).await?;
 
         Ok(())
     }
