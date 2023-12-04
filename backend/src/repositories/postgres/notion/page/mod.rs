@@ -184,19 +184,34 @@ impl InternalPageRepository {
 
         let page_relationships = query_as::<_, PageRelationship>(
             "
-            WITH RECURSIVE descendants_page_relationships AS (
+            WITH RECURSIVE descendant_relationships AS (
                 SELECT ancestor, descendant, weight
                 FROM notion.page_relationships
                 WHERE ancestor = $1 AND weight = 1
                 UNION ALL
                 SELECT child.ancestor, child.descendant, child.weight
-                FROM descendants_page_relationships
+                FROM descendant_relationships
                 JOIN notion.page_relationships AS child
-                ON descendants_page_relationships.descendant = child.ancestor
+                ON descendant_relationships.descendant = child.ancestor
                 WHERE child.weight = 1
+            ),
+            descendant_counts AS (
+                SELECT descendant, COUNT(*) AS count
+                FROM notion.page_relationships
+                GROUP BY descendant
+            ),
+            sibling_descendant_counts AS (
+                SELECT descendant, COUNT(*) AS count
+                FROM notion.page_sibling_relationships
+                GROUP BY descendant
             )
-            SELECT ancestor, descendant, weight
-            FROM descendants_page_relationships
+            SELECT descendant_relationships.ancestor, descendant_relationships.descendant, descendant_relationships.weight
+            FROM descendant_relationships
+            JOIN descendant_counts
+            ON descendant_relationships.descendant = descendant_counts.descendant
+            JOIN sibling_descendant_counts
+            ON descendant_relationships.descendant = sibling_descendant_counts.descendant
+            ORDER BY descendant_counts.count, sibling_descendant_counts.count
             ",
         )
         .bind(id.0)
