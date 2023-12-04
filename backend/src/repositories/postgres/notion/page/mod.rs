@@ -231,7 +231,11 @@ impl InternalPageRepository {
         conn: &mut PgConnection,
     ) -> Result<models::notion::page::Page, RepositoryError> {
         let page = query_as::<_, Page>(
-            "INSERT INTO notion.pages (title, text) VALUES ($1, $2) RETURNING *",
+            "
+            INSERT INTO notion.pages (title, text)
+            VALUES ($1, $2)
+            RETURNING id, title, text, created_at, updated_at
+            ",
         )
         .bind(title)
         .bind(text)
@@ -241,12 +245,82 @@ impl InternalPageRepository {
         query(
             "
             INSERT INTO notion.page_relationships (ancestor, descendant, weight)
-                    SELECT ancestor, $2, weight + 1 FROM notion.page_relationships WHERE descendant = $1
-                UNION ALL
-                    SELECT $2, $2, 0
+            SELECT ancestor, $2, weight + 1
+            FROM notion.page_relationships
+            WHERE descendant = $1
+            UNION ALL
+            SELECT $2, $2, 0
             ",
         )
         .bind(parent_id.as_ref().map(|p| p.0))
+        .bind(&page.id)
+        .execute(&mut *conn)
+        .await?;
+
+        let sibling_parent_id: Option<PageId> = match parent_id {
+            Some(parent_id) => query_as::<_, Page>(
+                "
+                WITH children AS (
+                    SELECT descendant AS id
+                    FROM notion.page_relationships
+                    WHERE ancestor = $1
+                    AND weight = 1
+                ),
+                sibling_leaves AS (
+                    SELECT ancestor AS id
+                    FROM notion.page_sibling_relationships
+                    GROUP BY ancestor
+                    HAVING COUNT(*) = 1
+                )
+                SELECT notion.pages.id, title, text, created_at, updated_at
+                FROM notion.pages
+                JOIN children
+                ON notion.pages.id = children.id
+                JOIN sibling_leaves
+                ON notion.pages.id = sibling_leaves.id
+                ",
+            )
+            .bind(parent_id.0)
+            .fetch_optional(&mut *conn)
+            .await?
+            .map(|p| p.id),
+            None => query_as::<_, Page>(
+                "
+                WITH roots AS (
+                    SELECT descendant AS id
+                    FROM notion.page_relationships
+                    GROUP BY descendant
+                    HAVING COUNT(*) = 1
+                ),
+                sibling_leaves AS (
+                    SELECT ancestor AS id
+                    FROM notion.page_sibling_relationships
+                    GROUP BY ancestor
+                    HAVING COUNT(*) = 1
+                )
+                SELECT notion.pages.id, title, text, created_at, updated_at
+                FROM notion.pages
+                JOIN roots
+                ON notion.pages.id = roots.id
+                JOIN sibling_leaves
+                ON notion.pages.id = sibling_leaves.id
+                ",
+            )
+            .fetch_optional(&mut *conn)
+            .await?
+            .map(|p| p.id),
+        };
+        query(
+            "
+            INSERT INTO notion.page_sibling_relationships (ancestor, descendant, weight)
+            SELECT ancestor, $2, weight + 1
+            FROM notion.page_sibling_relationships
+            WHERE descendant = $1
+            UNION ALL
+            SELECT $2, $2, 0
+            ",
+        )
+        .bind(sibling_parent_id)
         .bind(&page.id)
         .execute(&mut *conn)
         .await?;
