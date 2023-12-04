@@ -334,8 +334,11 @@ impl InternalPageRepository {
     ) -> Result<(), RepositoryError> {
         query(
             "
-            DELETE FROM notion.pages WHERE id IN (
-                SELECT descendant FROM notion.page_relationships WHERE ancestor = $1
+            DELETE FROM notion.pages
+            WHERE id IN (
+                SELECT descendant
+                FROM notion.page_relationships
+                WHERE ancestor = $1
             )
             ",
         )
