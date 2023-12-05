@@ -13,13 +13,13 @@ CREATE TABLE notion.pages (
 CREATE TABLE notion.page_relationships (
     ancestor UUID NOT NULL REFERENCES notion.pages(id) ON DELETE CASCADE,
     descendant UUID NOT NULL REFERENCES notion.pages(id) ON DELETE CASCADE,
-    weight INTEGER NOT NULL,
+    weight INTEGER NOT NULL CHECK (weight >= 0),
     PRIMARY KEY (ancestor, descendant)
 );
 
 CREATE TABLE notion.page_sibling_relationships (
     ancestor UUID NOT NULL REFERENCES notion.pages(id) ON DELETE CASCADE,
     descendant UUID NOT NULL REFERENCES notion.pages(id) ON DELETE CASCADE,
-    weight INTEGER NOT NULL,
+    weight INTEGER NOT NULL CHECK (weight >= 0),
     PRIMARY KEY (ancestor, descendant)
 );
