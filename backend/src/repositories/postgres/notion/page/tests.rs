@@ -280,26 +280,39 @@ async fn remove_should_success() -> anyhow::Result<()> {
     Ok(())
 }
 
-#[tokio::test]
-async fn move_should_success() -> anyhow::Result<()> {
-    // let (
-    //     InsertMockResponse {
-    //         page_1,
-    //         page_2,
-    //         page_3,
-    //         page_1_1,
-    //         page_1_2,
-    //         page_1_3,
-    //         page_1_1_1,
-    //     },
-    //     mut tx,
-    // ) = setup().await?;
+mod move_ {
+    use super::*;
 
-    // InternalPageRepository::move_(&page_1_1.id, &page_1.id, &mut tx).await?;
+    #[tokio::test]
+    async fn move_to_root_should_success() -> anyhow::Result<()> {
+        let (
+            InsertMockResponse {
+                page_1,
+                page_2,
+                page_3,
+                page_1_1,
+                page_1_2,
+                page_1_3,
+                page_1_1_1: _,
+            },
+            mut tx,
+        ) = setup().await?;
 
-    // TODO
+        InternalPageRepository::move_(&page_1_1.id, &page_1.id, &mut tx).await?;
 
-    // teardown(tx).await?;
+        let page_relationships_map = get_page_relationships_map(&mut tx).await?;
+        assert_eq!(
+            &HashSet::from([page_1.id, page_1_2.id, page_1_3.id]),
+            page_relationships_map.get(&page_1.id).unwrap()
+        );
+        let page_sibling_relationships_map = get_page_sibling_relationships_map(&mut tx).await?;
+        assert_eq!(
+            &HashSet::from([page_1.id, page_1_1.id, page_2.id, page_3.id]),
+            page_sibling_relationships_map.get(&page_1.id).unwrap()
+        );
 
-    Ok(())
+        teardown(tx).await?;
+
+        Ok(())
+    }
 }
