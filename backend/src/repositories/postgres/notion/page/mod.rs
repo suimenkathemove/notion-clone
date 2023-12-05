@@ -515,7 +515,7 @@ impl IPageRepository for PageRepository {
         let mut conn = self.pool.acquire().await?;
         let page = InternalPageRepository::find_by_id(id, &mut conn).await?;
 
-        Ok(page.into())
+        Ok(page)
     }
 
     async fn add(
