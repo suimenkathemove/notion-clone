@@ -802,17 +802,20 @@ mod tests {
     #[tokio::test]
     async fn move_should_success() -> anyhow::Result<()> {
         let (
-            [_page_1, _page_2, page_1_1, page_1_2, _page_2_1, _page_2_2, page_1_1_1, page_1_1_2],
+            [page_1, _page_2, page_1_1, page_1_2, _page_2_1, _page_2_2, page_1_1_1, page_1_1_2],
             mut tx,
         ) = setup().await?;
 
-        InternalPageRepository::move_(&page_1_1.id, &page_1_2.id, &mut tx).await?;
+        InternalPageRepository::move_(&page_1_1.id, &page_1.id, &mut tx).await?;
 
         let paths_map = get_paths_map(&mut tx).await?;
-
         assert_eq!(
-            paths_map.get(&page_1_2.id).unwrap(),
-            &HashSet::from([page_1_2.id, page_1_1.id, page_1_1_1.id, page_1_1_2.id])
+            paths_map.get(&page_1_1.id).unwrap(),
+            &HashSet::from([page_1_1.id, page_1_1_1.id, page_1_1_2.id])
+        );
+        assert_eq!(
+            paths_map.get(&page_1.id).unwrap(),
+            &HashSet::from([page_1.id, page_1_2.id])
         );
 
         teardown(tx).await?;
