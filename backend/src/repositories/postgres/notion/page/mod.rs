@@ -224,6 +224,24 @@ impl InternalPageRepository {
         ))
     }
 
+    async fn find_by_id(
+        id: &models::notion::page::PageId,
+        conn: &mut PgConnection,
+    ) -> Result<models::notion::page::Page, RepositoryError> {
+        let page = query_as::<_, Page>(
+            "
+            SELECT id, title, text, created_at, updated_at
+            FROM notion.pages
+            WHERE id = $1
+            ",
+        )
+        .bind(id.0)
+        .fetch_one(&mut *conn)
+        .await?;
+
+        Ok(page.into())
+    }
+
     async fn add(
         parent_id: &Option<models::notion::page::PageId>,
         title: String,
@@ -494,10 +512,8 @@ impl IPageRepository for PageRepository {
         &self,
         id: &models::notion::page::PageId,
     ) -> Result<models::notion::page::Page, RepositoryError> {
-        let page = query_as::<_, Page>("SELECT * FROM notion.pages WHERE id = $1")
-            .bind(id.0)
-            .fetch_one(&*self.pool)
-            .await?;
+        let mut conn = self.pool.acquire().await?;
+        let page = InternalPageRepository::find_by_id(id, &mut conn).await?;
 
         Ok(page.into())
     }
