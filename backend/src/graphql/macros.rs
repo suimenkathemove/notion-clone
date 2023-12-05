@@ -1,5 +1,5 @@
 macro_rules! define_id {
-    ($struct_name: ident, $id: path) => {
+    ($struct_name:ident, $id:path) => {
         #[derive(Clone, Copy, serde::Serialize, serde::Deserialize)]
         pub struct $struct_name(pub uuid::Uuid);
 
@@ -20,7 +20,7 @@ macro_rules! define_id {
 }
 
 macro_rules! define_name {
-    ($struct_name: ident, $name: path) => {
+    ($struct_name:ident, $name:path) => {
         #[derive(Clone, serde::Serialize, serde::Deserialize)]
         pub struct $struct_name(pub String);
 
@@ -41,7 +41,7 @@ macro_rules! define_name {
 }
 
 macro_rules! define_result {
-    ($name: ident, $value: path) => {
+    ($name:ident, $value:path) => {
         #[derive(async_graphql::Union)]
         enum $name {
             Ok($value),

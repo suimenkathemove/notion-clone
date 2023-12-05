@@ -1,5 +1,5 @@
 macro_rules! define_id {
-    ($name: ident) => {
+    ($name:ident) => {
         #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
         pub struct $name(pub uuid::Uuid);
 
@@ -13,7 +13,7 @@ macro_rules! define_id {
 }
 
 macro_rules! define_name {
-    ($name: ident) => {
+    ($name:ident) => {
         pub struct $name(pub String);
 
         impl std::str::FromStr for $name {
