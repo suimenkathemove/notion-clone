@@ -551,17 +551,20 @@ impl IPageRepository for PageRepository {
 
 #[cfg(test)]
 mod tests {
-    use super::{super::super::create_pool, mock::insert_mock, *};
+    use super::{
+        super::super::create_pool,
+        mock::{insert_mock, InsertMockResponse},
+        *,
+    };
     use sqlx::{Executor, Postgres, Transaction};
     use std::collections::{HashMap, HashSet};
 
-    async fn setup<'a>(
-    ) -> anyhow::Result<([models::notion::page::Page; 8], Transaction<'a, Postgres>)> {
+    async fn setup<'a>() -> anyhow::Result<(InsertMockResponse, Transaction<'a, Postgres>)> {
         let mut tx = create_pool().await.begin().await?;
 
-        let pages = insert_mock(&mut tx).await?;
+        let insert_mock_response = insert_mock(&mut tx).await?;
 
-        Ok((pages, tx))
+        Ok((insert_mock_response, tx))
     }
 
     async fn teardown(tx: Transaction<'_, Postgres>) -> anyhow::Result<()> {
