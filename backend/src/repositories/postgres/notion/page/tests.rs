@@ -249,24 +249,33 @@ async fn add_should_success() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn remove_should_success() -> anyhow::Result<()> {
-    // let (
-    //     InsertMockResponse {
-    //         page_1,
-    //         page_2,
-    //         page_3,
-    //         page_1_1,
-    //         page_1_2,
-    //         page_1_3,
-    //         page_1_1_1,
-    //     },
-    //     mut tx,
-    // ) = setup().await?;
+    let (
+        InsertMockResponse {
+            page_1,
+            page_2: _,
+            page_3: _,
+            page_1_1,
+            page_1_2,
+            page_1_3,
+            page_1_1_1,
+        },
+        mut tx,
+    ) = setup().await?;
 
-    // InternalPageRepository::remove(&page_1_1.id, &mut tx).await?;
+    InternalPageRepository::remove(&page_1_3.id, &mut tx).await?;
 
-    // TODO
+    let page_relationships_map = get_page_relationships_map(&mut tx).await?;
+    assert_eq!(
+        &HashSet::from([page_1.id, page_1_1.id, page_1_2.id, page_1_1_1.id]),
+        page_relationships_map.get(&page_1.id).unwrap()
+    );
+    let page_sibling_relationships_map = get_page_sibling_relationships_map(&mut tx).await?;
+    assert_eq!(
+        &HashSet::from([page_1_1.id, page_1_2.id]),
+        page_sibling_relationships_map.get(&page_1_1.id).unwrap()
+    );
 
-    // teardown(tx).await?;
+    teardown(tx).await?;
 
     Ok(())
 }
