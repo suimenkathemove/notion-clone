@@ -22,7 +22,7 @@ async fn teardown(tx: Transaction<'_, Postgres>) -> anyhow::Result<()> {
     Ok(())
 }
 
-async fn _get_page_relationships_map<'e, 'c: 'e, E>(
+async fn get_page_relationships_map<'e, 'c: 'e, E>(
     executor: E,
 ) -> anyhow::Result<HashMap<models::notion::page::PageId, HashSet<models::notion::page::PageId>>>
 where
@@ -48,7 +48,7 @@ where
     Ok(page_relationships_map)
 }
 
-async fn _get_page_sibling_relationships_map<'e, 'c: 'e, E>(
+async fn get_page_sibling_relationships_map<'e, 'c: 'e, E>(
     executor: E,
 ) -> anyhow::Result<HashMap<models::notion::page::PageId, HashSet<models::notion::page::PageId>>>
 where
@@ -212,22 +212,37 @@ async fn find_descendants_should_success() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn add_should_success() -> anyhow::Result<()> {
-    // let (
-    //     InsertMockResponse {
-    //         page_1,
-    //         page_2,
-    //         page_3,
-    //         page_1_1,
-    //         page_1_2,
-    //         page_1_3,
-    //         page_1_1_1,
-    //     },
-    //     mut tx,
-    // ) = setup().await?;
+    let (
+        InsertMockResponse {
+            page_1,
+            page_2,
+            page_3,
+            page_1_1,
+            page_1_2,
+            page_1_3,
+            page_1_1_1,
+        },
+        mut tx,
+    ) = setup().await?;
 
-    // TODO
+    let page_relationships_map = get_page_relationships_map(&mut tx).await?;
+    assert_eq!(
+        &HashSet::from([
+            page_1.id,
+            page_1_1.id,
+            page_1_2.id,
+            page_1_3.id,
+            page_1_1_1.id
+        ]),
+        page_relationships_map.get(&page_1.id).unwrap()
+    );
+    let page_sibling_relationships_map = get_page_sibling_relationships_map(&mut tx).await?;
+    assert_eq!(
+        &HashSet::from([page_1.id, page_2.id, page_3.id]),
+        page_sibling_relationships_map.get(&page_1.id).unwrap()
+    );
 
-    // teardown(tx).await?;
+    teardown(tx).await?;
 
     Ok(())
 }
