@@ -17,43 +17,73 @@ pub(super) async fn insert_mock(
 ) -> anyhow::Result<InsertMockResponse> {
     let page_1 = InternalPageRepository::add(
         &None::<models::notion::page::PageId>,
-        "1".to_string(),
-        "".to_string(),
+        models::notion::page::PageContent {
+            title: "1".to_string(),
+            ..Default::default()
+        },
         tx,
     )
     .await?;
 
     let page_2 = InternalPageRepository::add(
         &None::<models::notion::page::PageId>,
-        "2".to_string(),
-        "".to_string(),
+        models::notion::page::PageContent {
+            title: "2".to_string(),
+            ..Default::default()
+        },
         tx,
     )
     .await?;
 
     let page_3 = InternalPageRepository::add(
         &None::<models::notion::page::PageId>,
-        "3".to_string(),
-        "".to_string(),
+        models::notion::page::PageContent {
+            title: "3".to_string(),
+            ..Default::default()
+        },
         tx,
     )
     .await?;
 
-    let page_1_1 =
-        InternalPageRepository::add(&Some(page_1.id), "1-1".to_string(), "".to_string(), tx)
-            .await?;
+    let page_1_1 = InternalPageRepository::add(
+        &Some(page_1.id),
+        models::notion::page::PageContent {
+            title: "1-1".to_string(),
+            ..Default::default()
+        },
+        tx,
+    )
+    .await?;
 
-    let page_1_2 =
-        InternalPageRepository::add(&Some(page_1.id), "1-2".to_string(), "".to_string(), tx)
-            .await?;
+    let page_1_2 = InternalPageRepository::add(
+        &Some(page_1.id),
+        models::notion::page::PageContent {
+            title: "1-2".to_string(),
+            ..Default::default()
+        },
+        tx,
+    )
+    .await?;
 
-    let page_1_3 =
-        InternalPageRepository::add(&Some(page_1.id), "1-3".to_string(), "".to_string(), tx)
-            .await?;
+    let page_1_3 = InternalPageRepository::add(
+        &Some(page_1.id),
+        models::notion::page::PageContent {
+            title: "1-3".to_string(),
+            ..Default::default()
+        },
+        tx,
+    )
+    .await?;
 
-    let page_1_1_1 =
-        InternalPageRepository::add(&Some(page_1_1.id), "1-1-1".to_string(), "".to_string(), tx)
-            .await?;
+    let page_1_1_1 = InternalPageRepository::add(
+        &Some(page_1_1.id),
+        models::notion::page::PageContent {
+            title: "1-1-1".to_string(),
+            ..Default::default()
+        },
+        tx,
+    )
+    .await?;
 
     Ok(InsertMockResponse {
         page_1,

@@ -1,6 +1,6 @@
 use super::super::{common::DateTimeUtc, error::GraphQLError};
 use crate::use_cases::notion::page::PageUseCase;
-use async_graphql::{Context, Object, SimpleObject};
+use async_graphql::{Context, InputObject, Object, SimpleObject};
 
 define_id!(PageId, models::notion::page::PageId);
 
@@ -111,7 +111,24 @@ define_result!(ListDescendantPagesResult, PageTree);
 
 define_result!(GetPageResult, Page);
 
+#[derive(InputObject)]
+struct PageContent {
+    title: String,
+    text: String,
+}
+
+impl Into<models::notion::page::PageContent> for PageContent {
+    fn into(self) -> models::notion::page::PageContent {
+        models::notion::page::PageContent {
+            title: self.title,
+            text: self.text,
+        }
+    }
+}
+
 define_result!(AddPageResult, Page);
+
+define_result!(UpdatePageResult, Page);
 
 #[derive(SimpleObject)]
 struct RemovePage {
@@ -197,16 +214,29 @@ impl PageMutation {
         &self,
         ctx: &Context<'_>,
         parent_id: Option<PageId>,
-        title: String,
-        text: String,
+        content: PageContent,
     ) -> AddPageResult {
         let page_use_case = ctx.data_unchecked::<PageUseCase>();
         let result = page_use_case
-            .add(&parent_id.map(Into::into), title, text)
+            .add(&parent_id.map(Into::into), content.into())
             .await;
         match result {
             Ok(page) => AddPageResult::Ok(page.into()),
             Err(error) => AddPageResult::Err(GraphQLError { code: error.into() }),
+        }
+    }
+
+    async fn update_page(
+        &self,
+        ctx: &Context<'_>,
+        id: PageId,
+        content: PageContent,
+    ) -> UpdatePageResult {
+        let page_use_case = ctx.data_unchecked::<PageUseCase>();
+        let result = page_use_case.update(&id.into(), content.into()).await;
+        match result {
+            Ok(page) => UpdatePageResult::Ok(page.into()),
+            Err(error) => UpdatePageResult::Err(GraphQLError { code: error.into() }),
         }
     }
 

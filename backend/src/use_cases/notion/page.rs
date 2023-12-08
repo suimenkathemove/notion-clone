@@ -61,10 +61,19 @@ impl PageUseCase {
     pub async fn add(
         &self,
         parent_id: &Option<models::notion::page::PageId>,
-        title: String,
-        text: String,
+        content: models::notion::page::PageContent,
     ) -> Result<models::notion::page::Page, UseCaseError> {
-        let page = self.page_repository.add(parent_id, title, text).await?;
+        let page = self.page_repository.add(parent_id, content).await?;
+
+        Ok(page)
+    }
+
+    pub async fn update(
+        &self,
+        id: &models::notion::page::PageId,
+        content: models::notion::page::PageContent,
+    ) -> Result<models::notion::page::Page, UseCaseError> {
+        let page = self.page_repository.update(id, content).await?;
 
         Ok(page)
     }

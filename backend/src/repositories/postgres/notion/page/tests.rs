@@ -248,6 +248,38 @@ async fn add_should_success() -> anyhow::Result<()> {
 }
 
 #[tokio::test]
+async fn update_should_success() -> anyhow::Result<()> {
+    let (
+        InsertMockResponse {
+            page_1,
+            page_2: _,
+            page_3: _,
+            page_1_1: _,
+            page_1_2: _,
+            page_1_3: _,
+            page_1_1_1: _,
+        },
+        mut tx,
+    ) = setup().await?;
+
+    let page = InternalPageRepository::update(
+        &page_1.id,
+        models::notion::page::PageContent {
+            title: "new title".to_string(),
+            text: "new text".to_string(),
+        },
+        &mut tx,
+    )
+    .await?;
+    assert_eq!("new title", page.title);
+    assert_eq!("new text", page.text);
+
+    teardown(tx).await?;
+
+    Ok(())
+}
+
+#[tokio::test]
 async fn remove_should_success() -> anyhow::Result<()> {
     let (
         InsertMockResponse {

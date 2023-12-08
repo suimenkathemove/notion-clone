@@ -34,8 +34,13 @@ pub trait IPageRepository: Send + Sync {
     async fn add(
         &self,
         parent_id: &Option<models::notion::page::PageId>,
-        title: String,
-        text: String,
+        content: models::notion::page::PageContent,
+    ) -> Result<models::notion::page::Page, RepositoryError>;
+
+    async fn update(
+        &self,
+        id: &models::notion::page::PageId,
+        content: models::notion::page::PageContent,
     ) -> Result<models::notion::page::Page, RepositoryError>;
 
     async fn remove(&self, id: &models::notion::page::PageId) -> Result<(), RepositoryError>;

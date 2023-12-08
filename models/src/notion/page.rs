@@ -12,6 +12,12 @@ pub struct Page {
     pub updated_at: DateTimeUtc,
 }
 
+#[derive(Debug, Default)]
+pub struct PageContent {
+    pub title: String,
+    pub text: String,
+}
+
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub struct PageRelationship {
     pub ancestor: PageId,
