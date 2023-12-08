@@ -211,6 +211,29 @@ async fn find_descendants_should_success() -> anyhow::Result<()> {
 }
 
 #[tokio::test]
+async fn find_by_id_should_success() -> anyhow::Result<()> {
+    let (
+        InsertMockResponse {
+            page_1,
+            page_2: _,
+            page_3: _,
+            page_1_1: _,
+            page_1_2: _,
+            page_1_3: _,
+            page_1_1_1: _,
+        },
+        mut tx,
+    ) = setup().await?;
+
+    let page = InternalPageRepository::find_by_id(&page_1.id, &mut tx).await?;
+    assert_eq!(page_1.id, page.id);
+
+    teardown(tx).await?;
+
+    Ok(())
+}
+
+#[tokio::test]
 async fn add_should_success() -> anyhow::Result<()> {
     let (
         InsertMockResponse {
