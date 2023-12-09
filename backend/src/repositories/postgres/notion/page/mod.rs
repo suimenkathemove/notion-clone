@@ -427,9 +427,9 @@ impl InternalPageRepository {
         to_sibling_parent_id: &models::notion::page::PageId,
         acquire: impl Acquire<'_, Database = Postgres>,
     ) -> Result<(), RepositoryError> {
-        let mut acquire = acquire.acquire().await?;
+        let mut tx = acquire.begin().await?;
 
-        query(
+        let result = query(
             "
             DELETE FROM notion.page_relationships
             WHERE ancestor IN (
@@ -446,8 +446,12 @@ impl InternalPageRepository {
             ",
         )
         .bind(id.0)
-        .execute(&mut *acquire)
-        .await?;
+        .execute(&mut *tx)
+        .await;
+        if let Err(e) = result {
+            tx.rollback().await?;
+            return Err(e.into());
+        }
         let to_parent_id = query_as::<_, Page>(
             "
             WITH parent AS (
@@ -463,11 +467,11 @@ impl InternalPageRepository {
             ",
         )
         .bind(to_sibling_parent_id.0)
-        .fetch_optional(&mut *acquire)
+        .fetch_optional(&mut *tx)
         .await?
         .map(|p| p.id);
         if let Some(to_parent_id) = to_parent_id {
-            query(
+            let result = query(
                 "
                 INSERT INTO notion.page_relationships (ancestor, descendant, weight)
                 SELECT parent.ancestor, child.descendant, parent.weight + child.weight + 1
@@ -479,11 +483,15 @@ impl InternalPageRepository {
             )
             .bind(to_parent_id)
             .bind(id.0)
-            .execute(&mut *acquire)
-            .await?;
+            .execute(&mut *tx)
+            .await;
+            if let Err(e) = result {
+                tx.rollback().await?;
+                return Err(e.into());
+            }
         }
 
-        query(
+        let result = query(
             "
             DELETE FROM notion.page_sibling_relationships
             WHERE (ancestor = $1 OR descendant = $1)
@@ -491,9 +499,13 @@ impl InternalPageRepository {
             ",
         )
         .bind(id.0)
-        .execute(&mut *acquire)
-        .await?;
-        query(
+        .execute(&mut *tx)
+        .await;
+        if let Err(e) = result {
+            tx.rollback().await?;
+            return Err(e.into());
+        }
+        let result = query(
             "
             INSERT INTO notion.page_sibling_relationships (ancestor, descendant, weight)
             SELECT ancestor, $2, weight + 1
@@ -503,8 +515,14 @@ impl InternalPageRepository {
         )
         .bind(to_sibling_parent_id.0)
         .bind(id.0)
-        .execute(&mut *acquire)
-        .await?;
+        .execute(&mut *tx)
+        .await;
+        if let Err(e) = result {
+            tx.rollback().await?;
+            return Err(e.into());
+        }
+
+        tx.commit().await?;
 
         Ok(())
     }
