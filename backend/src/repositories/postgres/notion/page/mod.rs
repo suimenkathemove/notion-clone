@@ -6,7 +6,7 @@ use super::super::{
     common::DateTimeUtc,
 };
 use async_trait::async_trait;
-use sqlx::{query, query_as, FromRow, PgConnection, PgPool};
+use sqlx::{query, query_as, Acquire, FromRow, PgPool, Postgres};
 use std::sync::Arc;
 
 define_id!(PageId, models::notion::page::PageId);
@@ -54,8 +54,10 @@ struct InternalPageRepository;
 
 impl InternalPageRepository {
     async fn find_roots(
-        conn: &mut PgConnection,
+        acquire: impl Acquire<'_, Database = Postgres>,
     ) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
+        let mut acquire = acquire.acquire().await?;
+
         let pages = query_as::<_, Page>(
             "
             WITH roots AS (
@@ -78,7 +80,7 @@ impl InternalPageRepository {
             ORDER BY sibling_descendant_counts.count
             ",
         )
-        .fetch_all(&mut *conn)
+        .fetch_all(&mut *acquire)
         .await?;
 
         Ok(pages.into_iter().map(Into::into).collect())
@@ -86,8 +88,10 @@ impl InternalPageRepository {
 
     async fn find_children(
         id: &models::notion::page::PageId,
-        conn: &mut PgConnection,
+        acquire: impl Acquire<'_, Database = Postgres>,
     ) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
+        let mut acquire = acquire.acquire().await?;
+
         let pages = query_as::<_, Page>(
             "
             WITH children AS (
@@ -111,7 +115,7 @@ impl InternalPageRepository {
             ",
         )
         .bind(id.0)
-        .fetch_all(&mut *conn)
+        .fetch_all(&mut *acquire)
         .await?;
 
         Ok(pages.into_iter().map(Into::into).collect())
@@ -119,8 +123,10 @@ impl InternalPageRepository {
 
     async fn find_ancestors(
         id: &models::notion::page::PageId,
-        conn: &mut PgConnection,
+        acquire: impl Acquire<'_, Database = Postgres>,
     ) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
+        let mut acquire = acquire.acquire().await?;
+
         let pages = query_as::<_, Page>(
             "
             SELECT id, title, text, created_at, updated_at
@@ -133,7 +139,7 @@ impl InternalPageRepository {
             ",
         )
         .bind(id.0)
-        .fetch_all(&mut *conn)
+        .fetch_all(&mut *acquire)
         .await?;
 
         Ok(pages.into_iter().map(Into::into).collect())
@@ -141,7 +147,7 @@ impl InternalPageRepository {
 
     async fn find_descendants(
         id: &models::notion::page::PageId,
-        conn: &mut PgConnection,
+        acquire: impl Acquire<'_, Database = Postgres>,
     ) -> Result<
         (
             Vec<models::notion::page::Page>,
@@ -149,6 +155,8 @@ impl InternalPageRepository {
         ),
         RepositoryError,
     > {
+        let mut acquire = acquire.acquire().await?;
+
         let pages = query_as::<_, Page>(
             "
             WITH ancestors AS (
@@ -180,7 +188,7 @@ impl InternalPageRepository {
             ",
         )
         .bind(id.0)
-        .fetch_all(&mut *conn)
+        .fetch_all(&mut *acquire)
         .await?;
 
         let page_relationships = query_as::<_, PageRelationship>(
@@ -216,7 +224,7 @@ impl InternalPageRepository {
             ",
         )
         .bind(id.0)
-        .fetch_all(&mut *conn)
+        .fetch_all(&mut *acquire)
         .await?;
 
         Ok((
@@ -227,8 +235,10 @@ impl InternalPageRepository {
 
     async fn find_by_id(
         id: &models::notion::page::PageId,
-        conn: &mut PgConnection,
+        acquire: impl Acquire<'_, Database = Postgres>,
     ) -> Result<models::notion::page::Page, RepositoryError> {
+        let mut acquire = acquire.acquire().await?;
+
         let page = query_as::<_, Page>(
             "
             SELECT id, title, text, created_at, updated_at
@@ -237,7 +247,7 @@ impl InternalPageRepository {
             ",
         )
         .bind(id.0)
-        .fetch_one(&mut *conn)
+        .fetch_one(&mut *acquire)
         .await?;
 
         Ok(page.into())
@@ -246,8 +256,10 @@ impl InternalPageRepository {
     async fn add(
         parent_id: &Option<models::notion::page::PageId>,
         content: models::notion::page::PageContent,
-        conn: &mut PgConnection,
+        acquire: impl Acquire<'_, Database = Postgres>,
     ) -> Result<models::notion::page::Page, RepositoryError> {
+        let mut acquire = acquire.acquire().await?;
+
         let page = query_as::<_, Page>(
             "
             INSERT INTO notion.pages (title, text)
@@ -257,7 +269,7 @@ impl InternalPageRepository {
         )
         .bind(content.title)
         .bind(content.text)
-        .fetch_one(&mut *conn)
+        .fetch_one(&mut *acquire)
         .await?;
 
         query(
@@ -272,7 +284,7 @@ impl InternalPageRepository {
         )
         .bind(parent_id.as_ref().map(|p| p.0))
         .bind(&page.id)
-        .execute(&mut *conn)
+        .execute(&mut *acquire)
         .await?;
 
         let sibling_parent_id: Option<PageId> = match parent_id {
@@ -299,7 +311,7 @@ impl InternalPageRepository {
                 ",
             )
             .bind(parent_id.0)
-            .fetch_optional(&mut *conn)
+            .fetch_optional(&mut *acquire)
             .await?
             .map(|p| p.id),
             None => query_as::<_, Page>(
@@ -324,7 +336,7 @@ impl InternalPageRepository {
                 ON notion.pages.id = sibling_leaves.id
                 ",
             )
-            .fetch_optional(&mut *conn)
+            .fetch_optional(&mut *acquire)
             .await?
             .map(|p| p.id),
         };
@@ -340,7 +352,7 @@ impl InternalPageRepository {
         )
         .bind(sibling_parent_id)
         .bind(&page.id)
-        .execute(&mut *conn)
+        .execute(&mut *acquire)
         .await?;
 
         Ok(page.into())
@@ -349,8 +361,10 @@ impl InternalPageRepository {
     async fn update(
         id: &models::notion::page::PageId,
         content: models::notion::page::PageContent,
-        conn: &mut PgConnection,
+        acquire: impl Acquire<'_, Database = Postgres>,
     ) -> Result<models::notion::page::Page, RepositoryError> {
+        let mut acquire = acquire.acquire().await?;
+
         let page = query_as::<_, Page>(
             "
             UPDATE notion.pages
@@ -362,7 +376,7 @@ impl InternalPageRepository {
         .bind(id.0)
         .bind(content.title)
         .bind(content.text)
-        .fetch_one(&mut *conn)
+        .fetch_one(&mut *acquire)
         .await?;
 
         Ok(page.into())
@@ -370,8 +384,10 @@ impl InternalPageRepository {
 
     async fn remove(
         id: &models::notion::page::PageId,
-        conn: &mut PgConnection,
+        acquire: impl Acquire<'_, Database = Postgres>,
     ) -> Result<(), RepositoryError> {
+        let mut acquire = acquire.acquire().await?;
+
         query(
             "
             DELETE FROM notion.pages
@@ -383,7 +399,7 @@ impl InternalPageRepository {
             ",
         )
         .bind(id.0)
-        .execute(&mut *conn)
+        .execute(&mut *acquire)
         .await?;
 
         Ok(())
@@ -392,8 +408,10 @@ impl InternalPageRepository {
     async fn move_(
         id: &models::notion::page::PageId,
         to_sibling_parent_id: &models::notion::page::PageId,
-        conn: &mut PgConnection,
+        acquire: impl Acquire<'_, Database = Postgres>,
     ) -> Result<(), RepositoryError> {
+        let mut acquire = acquire.acquire().await?;
+
         query(
             "
             DELETE FROM notion.page_relationships
@@ -411,7 +429,7 @@ impl InternalPageRepository {
             ",
         )
         .bind(id.0)
-        .execute(&mut *conn)
+        .execute(&mut *acquire)
         .await?;
         let to_parent_id = query_as::<_, Page>(
             "
@@ -428,7 +446,7 @@ impl InternalPageRepository {
             ",
         )
         .bind(to_sibling_parent_id.0)
-        .fetch_optional(&mut *conn)
+        .fetch_optional(&mut *acquire)
         .await?
         .map(|p| p.id);
         if let Some(to_parent_id) = to_parent_id {
@@ -444,7 +462,7 @@ impl InternalPageRepository {
             )
             .bind(to_parent_id)
             .bind(id.0)
-            .execute(&mut *conn)
+            .execute(&mut *acquire)
             .await?;
         }
 
@@ -456,7 +474,7 @@ impl InternalPageRepository {
             ",
         )
         .bind(id.0)
-        .execute(&mut *conn)
+        .execute(&mut *acquire)
         .await?;
         query(
             "
@@ -468,7 +486,7 @@ impl InternalPageRepository {
         )
         .bind(to_sibling_parent_id.0)
         .bind(id.0)
-        .execute(&mut *conn)
+        .execute(&mut *acquire)
         .await?;
 
         Ok(())
@@ -488,8 +506,7 @@ impl PageRepository {
 #[async_trait]
 impl IPageRepository for PageRepository {
     async fn find_roots(&self) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
-        let mut conn = self.pool.acquire().await?;
-        let pages = InternalPageRepository::find_roots(&mut conn).await?;
+        let pages = InternalPageRepository::find_roots(&*self.pool).await?;
 
         Ok(pages)
     }
@@ -498,8 +515,7 @@ impl IPageRepository for PageRepository {
         &self,
         id: &models::notion::page::PageId,
     ) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
-        let mut conn = self.pool.acquire().await?;
-        let pages = InternalPageRepository::find_children(id, &mut conn).await?;
+        let pages = InternalPageRepository::find_children(id, &*self.pool).await?;
 
         Ok(pages)
     }
@@ -508,8 +524,7 @@ impl IPageRepository for PageRepository {
         &self,
         id: &models::notion::page::PageId,
     ) -> Result<Vec<models::notion::page::Page>, RepositoryError> {
-        let mut conn = self.pool.acquire().await?;
-        let pages = InternalPageRepository::find_ancestors(id, &mut conn).await?;
+        let pages = InternalPageRepository::find_ancestors(id, &*self.pool).await?;
 
         Ok(pages)
     }
@@ -524,8 +539,7 @@ impl IPageRepository for PageRepository {
         ),
         RepositoryError,
     > {
-        let mut conn = self.pool.acquire().await?;
-        let response = InternalPageRepository::find_descendants(id, &mut conn).await?;
+        let response = InternalPageRepository::find_descendants(id, &*self.pool).await?;
 
         Ok(response)
     }
@@ -534,8 +548,7 @@ impl IPageRepository for PageRepository {
         &self,
         id: &models::notion::page::PageId,
     ) -> Result<models::notion::page::Page, RepositoryError> {
-        let mut conn = self.pool.acquire().await?;
-        let page = InternalPageRepository::find_by_id(id, &mut conn).await?;
+        let page = InternalPageRepository::find_by_id(id, &*self.pool).await?;
 
         Ok(page)
     }
@@ -545,8 +558,7 @@ impl IPageRepository for PageRepository {
         parent_id: &Option<models::notion::page::PageId>,
         content: models::notion::page::PageContent,
     ) -> Result<models::notion::page::Page, RepositoryError> {
-        let mut conn = self.pool.acquire().await?;
-        let page = InternalPageRepository::add(parent_id, content, &mut conn).await?;
+        let page = InternalPageRepository::add(parent_id, content, &*self.pool).await?;
 
         Ok(page)
     }
@@ -556,15 +568,13 @@ impl IPageRepository for PageRepository {
         id: &models::notion::page::PageId,
         content: models::notion::page::PageContent,
     ) -> Result<models::notion::page::Page, RepositoryError> {
-        let mut conn = self.pool.acquire().await?;
-        let page = InternalPageRepository::update(id, content, &mut conn).await?;
+        let page = InternalPageRepository::update(id, content, &*self.pool).await?;
 
         Ok(page)
     }
 
     async fn remove(&self, id: &models::notion::page::PageId) -> Result<(), RepositoryError> {
-        let mut conn = self.pool.acquire().await?;
-        InternalPageRepository::remove(id, &mut conn).await?;
+        InternalPageRepository::remove(id, &*self.pool).await?;
 
         Ok(())
     }
@@ -574,8 +584,7 @@ impl IPageRepository for PageRepository {
         id: &models::notion::page::PageId,
         to_sibling_parent_id: &models::notion::page::PageId,
     ) -> Result<(), RepositoryError> {
-        let mut conn = self.pool.acquire().await?;
-        InternalPageRepository::move_(id, to_sibling_parent_id, &mut conn).await?;
+        InternalPageRepository::move_(id, to_sibling_parent_id, &*self.pool).await?;
 
         Ok(())
     }

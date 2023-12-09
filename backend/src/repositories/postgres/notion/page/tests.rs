@@ -1,7 +1,6 @@
 #![cfg(test)]
 
 use super::{
-    super::super::create_pool,
     mock::{insert_mock, InsertMockResponse},
     *,
 };
@@ -9,9 +8,7 @@ use sqlx::{Executor, Postgres, Transaction};
 use std::collections::{HashMap, HashSet};
 
 async fn setup<'a>() -> anyhow::Result<(InsertMockResponse, Transaction<'a, Postgres>)> {
-    let mut tx = create_pool().await.begin().await?;
-
-    let insert_mock_response = insert_mock(&mut tx).await?;
+    let (insert_mock_response, tx) = insert_mock().await?;
 
     Ok((insert_mock_response, tx))
 }
