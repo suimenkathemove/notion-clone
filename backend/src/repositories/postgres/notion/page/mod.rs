@@ -260,7 +260,7 @@ impl InternalPageRepository {
     ) -> Result<models::notion::page::Page, RepositoryError> {
         let mut tx = acquire.begin().await?;
 
-        let result = query_as::<_, Page>(
+        let page = query_as::<_, Page>(
             "
             INSERT INTO notion.pages (title, text)
             VALUES ($1, $2)
@@ -270,16 +270,9 @@ impl InternalPageRepository {
         .bind(content.title)
         .bind(content.text)
         .fetch_one(&mut *tx)
-        .await;
-        let page = match result {
-            Ok(p) => p,
-            Err(e) => {
-                tx.rollback().await?;
-                return Err(e.into());
-            }
-        };
+        .await?;
 
-        let result = query(
+        query(
             "
             INSERT INTO notion.page_relationships (ancestor, descendant, weight)
             SELECT ancestor, $2, weight + 1
@@ -292,11 +285,7 @@ impl InternalPageRepository {
         .bind(parent_id.as_ref().map(|p| p.0))
         .bind(&page.id)
         .execute(&mut *tx)
-        .await;
-        if let Err(e) = result {
-            tx.rollback().await?;
-            return Err(e.into());
-        }
+        .await?;
 
         let sibling_parent_id: Option<PageId> = match parent_id {
             Some(parent_id) => query_as::<_, Page>(
@@ -351,7 +340,7 @@ impl InternalPageRepository {
             .await?
             .map(|p| p.id),
         };
-        let result = query(
+        query(
             "
             INSERT INTO notion.page_sibling_relationships (ancestor, descendant, weight)
             SELECT ancestor, $2, weight + 1
@@ -364,11 +353,7 @@ impl InternalPageRepository {
         .bind(sibling_parent_id)
         .bind(&page.id)
         .execute(&mut *tx)
-        .await;
-        if let Err(e) = result {
-            tx.rollback().await?;
-            return Err(e.into());
-        }
+        .await?;
 
         tx.commit().await?;
 
@@ -429,7 +414,7 @@ impl InternalPageRepository {
     ) -> Result<(), RepositoryError> {
         let mut tx = acquire.begin().await?;
 
-        let result = query(
+        query(
             "
             DELETE FROM notion.page_relationships
             WHERE ancestor IN (
@@ -447,11 +432,7 @@ impl InternalPageRepository {
         )
         .bind(id.0)
         .execute(&mut *tx)
-        .await;
-        if let Err(e) = result {
-            tx.rollback().await?;
-            return Err(e.into());
-        }
+        .await?;
         let to_parent_id = query_as::<_, Page>(
             "
             WITH parent AS (
@@ -471,7 +452,7 @@ impl InternalPageRepository {
         .await?
         .map(|p| p.id);
         if let Some(to_parent_id) = to_parent_id {
-            let result = query(
+            query(
                 "
                 INSERT INTO notion.page_relationships (ancestor, descendant, weight)
                 SELECT parent.ancestor, child.descendant, parent.weight + child.weight + 1
@@ -484,14 +465,10 @@ impl InternalPageRepository {
             .bind(to_parent_id)
             .bind(id.0)
             .execute(&mut *tx)
-            .await;
-            if let Err(e) = result {
-                tx.rollback().await?;
-                return Err(e.into());
-            }
+            .await?;
         }
 
-        let result = query(
+        query(
             "
             DELETE FROM notion.page_sibling_relationships
             WHERE (ancestor = $1 OR descendant = $1)
@@ -500,12 +477,8 @@ impl InternalPageRepository {
         )
         .bind(id.0)
         .execute(&mut *tx)
-        .await;
-        if let Err(e) = result {
-            tx.rollback().await?;
-            return Err(e.into());
-        }
-        let result = query(
+        .await?;
+        query(
             "
             INSERT INTO notion.page_sibling_relationships (ancestor, descendant, weight)
             SELECT ancestor, $2, weight + 1
@@ -516,11 +489,7 @@ impl InternalPageRepository {
         .bind(to_sibling_parent_id.0)
         .bind(id.0)
         .execute(&mut *tx)
-        .await;
-        if let Err(e) = result {
-            tx.rollback().await?;
-            return Err(e.into());
-        }
+        .await?;
 
         tx.commit().await?;
 
