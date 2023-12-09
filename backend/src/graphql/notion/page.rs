@@ -117,11 +117,11 @@ struct PageContent {
     text: String,
 }
 
-impl Into<models::notion::page::PageContent> for PageContent {
-    fn into(self) -> models::notion::page::PageContent {
-        models::notion::page::PageContent {
-            title: self.title,
-            text: self.text,
+impl From<PageContent> for models::notion::page::PageContent {
+    fn from(value: PageContent) -> Self {
+        Self {
+            title: value.title,
+            text: value.text,
         }
     }
 }
