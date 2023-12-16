@@ -1,6 +1,6 @@
 use super::super::{common::DateTimeUtc, error::GraphQLError};
 use crate::use_cases::notion::page::PageUseCase;
-use async_graphql::{Context, InputObject, Object, SimpleObject};
+use async_graphql::{Context, Enum, InputObject, Object, SimpleObject};
 
 define_id!(PageId, models::notion::page::PageId);
 
@@ -137,6 +137,37 @@ struct RemovePage {
 
 define_result!(RemovePageResult, RemovePage);
 
+#[derive(Clone, Copy, PartialEq, Eq, Enum)]
+enum MoveTargetType {
+    Root,
+    Parent,
+    SiblingParent,
+    SiblingChild,
+}
+
+#[derive(InputObject)]
+struct MoveTarget {
+    type_: MoveTargetType,
+    id: PageId,
+}
+
+impl From<MoveTarget> for models::notion::page::MoveTarget {
+    fn from(value: MoveTarget) -> Self {
+        match value.type_ {
+            MoveTargetType::Root => models::notion::page::MoveTarget::Parent(None),
+            MoveTargetType::Parent => {
+                models::notion::page::MoveTarget::Parent(Some(value.id.into()))
+            }
+            MoveTargetType::SiblingParent => models::notion::page::MoveTarget::Sibling(
+                models::notion::page::MoveTargetSibling::Parent(value.id.into()),
+            ),
+            MoveTargetType::SiblingChild => models::notion::page::MoveTarget::Sibling(
+                models::notion::page::MoveTargetSibling::Child(value.id.into()),
+            ),
+        }
+    }
+}
+
 #[derive(SimpleObject)]
 struct MovePage {
     id: PageId,
@@ -249,16 +280,9 @@ impl PageMutation {
         }
     }
 
-    async fn move_page(
-        &self,
-        ctx: &Context<'_>,
-        id: PageId,
-        to_sibling_parent_id: PageId,
-    ) -> MovePageResult {
+    async fn move_page(&self, ctx: &Context<'_>, id: PageId, target: MoveTarget) -> MovePageResult {
         let page_use_case = ctx.data_unchecked::<PageUseCase>();
-        let result = page_use_case
-            .move_(&id.into(), &to_sibling_parent_id.into())
-            .await;
+        let result = page_use_case.move_(&id.into(), &target.into()).await;
         match result {
             Ok(_) => MovePageResult::Ok(MovePage { id }),
             Err(error) => MovePageResult::Err(GraphQLError { code: error.into() }),

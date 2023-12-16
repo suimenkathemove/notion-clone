@@ -26,6 +26,15 @@ pub struct PageRelationship {
     pub weight: i32,
 }
 
+#[derive(Debug, PartialEq, Eq, Hash)]
+pub struct SimplePageRelationship(pub PageId, pub PageId, pub i32);
+
+impl From<PageRelationship> for SimplePageRelationship {
+    fn from(value: PageRelationship) -> Self {
+        Self(value.ancestor, value.descendant, value.weight)
+    }
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub struct PageTree {
     pub id: PageId,
@@ -170,4 +179,14 @@ mod tests {
             PageTree::build_from_page_relationships(pages, &page_relationships, &page_1_id);
         assert_eq!(expected, actual);
     }
+}
+
+pub enum MoveTargetSibling {
+    Parent(PageId),
+    Child(PageId),
+}
+
+pub enum MoveTarget {
+    Parent(Option<PageId>),
+    Sibling(MoveTargetSibling),
 }

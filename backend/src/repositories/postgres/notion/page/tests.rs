@@ -4,8 +4,9 @@ use super::{
     mock::{insert_mock, InsertMockResponse},
     *,
 };
+use models::notion::page::SimplePageRelationship;
 use sqlx::{Executor, Postgres, Transaction};
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
 async fn setup<'a>() -> anyhow::Result<(InsertMockResponse, Transaction<'a, Postgres>)> {
     let (insert_mock_response, tx) = insert_mock().await?;
@@ -19,9 +20,9 @@ async fn teardown(tx: Transaction<'_, Postgres>) -> anyhow::Result<()> {
     Ok(())
 }
 
-async fn get_page_relationships_map<'e, 'c: 'e, E>(
+async fn get_page_relationships<'e, 'c: 'e, E>(
     executor: E,
-) -> anyhow::Result<HashMap<models::notion::page::PageId, HashSet<models::notion::page::PageId>>>
+) -> anyhow::Result<HashSet<SimplePageRelationship>>
 where
     E: 'e + Executor<'c, Database = Postgres>,
 {
@@ -31,23 +32,17 @@ where
             .await?
             .into_iter()
             .map(Into::into)
-            .collect::<Vec<models::notion::page::PageRelationship>>();
-    let page_relationships_map =
-        page_relationships
-            .iter()
-            .fold(HashMap::new(), |mut acc, page_relationship| {
-                acc.entry(page_relationship.ancestor)
-                    .or_insert_with(HashSet::new)
-                    .insert(page_relationship.descendant);
-                acc
-            });
+            .collect::<HashSet<models::notion::page::PageRelationship>>()
+            .into_iter()
+            .map(Into::into)
+            .collect::<_>();
 
-    Ok(page_relationships_map)
+    Ok(page_relationships)
 }
 
-async fn get_page_sibling_relationships_map<'e, 'c: 'e, E>(
+async fn get_page_sibling_relationships<'e, 'c: 'e, E>(
     executor: E,
-) -> anyhow::Result<HashMap<models::notion::page::PageId, HashSet<models::notion::page::PageId>>>
+) -> anyhow::Result<HashSet<SimplePageRelationship>>
 where
     E: 'e + Executor<'c, Database = Postgres>,
 {
@@ -57,18 +52,12 @@ where
             .await?
             .into_iter()
             .map(Into::into)
-            .collect::<Vec<models::notion::page::PageRelationship>>();
-    let page_sibling_relationships_map = page_sibling_relationships.iter().fold(
-        HashMap::new(),
-        |mut acc, page_sibling_relationship| {
-            acc.entry(page_sibling_relationship.ancestor)
-                .or_insert_with(HashSet::new)
-                .insert(page_sibling_relationship.descendant);
-            acc
-        },
-    );
+            .collect::<HashSet<models::notion::page::PageRelationship>>()
+            .into_iter()
+            .map(Into::into)
+            .collect::<_>();
 
-    Ok(page_sibling_relationships_map)
+    Ok(page_sibling_relationships)
 }
 
 #[tokio::test]
@@ -245,21 +234,42 @@ async fn add_should_success() -> anyhow::Result<()> {
         mut tx,
     ) = setup().await?;
 
-    let page_relationships_map = get_page_relationships_map(&mut tx).await?;
+    let page_relationships = get_page_relationships(&mut tx).await?;
     assert_eq!(
-        &HashSet::from([
-            page_1.id,
-            page_1_1.id,
-            page_1_2.id,
-            page_1_3.id,
-            page_1_1_1.id
+        HashSet::from([
+            SimplePageRelationship(page_1.id, page_1.id, 0),
+            SimplePageRelationship(page_1.id, page_1_1.id, 1),
+            SimplePageRelationship(page_1.id, page_1_2.id, 1),
+            SimplePageRelationship(page_1.id, page_1_3.id, 1),
+            SimplePageRelationship(page_1.id, page_1_1_1.id, 2),
+            SimplePageRelationship(page_2.id, page_2.id, 0),
+            SimplePageRelationship(page_3.id, page_3.id, 0),
+            SimplePageRelationship(page_1_1.id, page_1_1.id, 0),
+            SimplePageRelationship(page_1_1.id, page_1_1_1.id, 1),
+            SimplePageRelationship(page_1_2.id, page_1_2.id, 0),
+            SimplePageRelationship(page_1_3.id, page_1_3.id, 0),
+            SimplePageRelationship(page_1_1_1.id, page_1_1_1.id, 0)
         ]),
-        page_relationships_map.get(&page_1.id).unwrap()
+        page_relationships
     );
-    let page_sibling_relationships_map = get_page_sibling_relationships_map(&mut tx).await?;
+    let page_sibling_relationships = get_page_sibling_relationships(&mut tx).await?;
     assert_eq!(
-        &HashSet::from([page_1.id, page_2.id, page_3.id]),
-        page_sibling_relationships_map.get(&page_1.id).unwrap()
+        HashSet::from([
+            SimplePageRelationship(page_1.id, page_1.id, 0),
+            SimplePageRelationship(page_1.id, page_2.id, 1),
+            SimplePageRelationship(page_1.id, page_3.id, 2),
+            SimplePageRelationship(page_2.id, page_2.id, 0),
+            SimplePageRelationship(page_2.id, page_3.id, 1),
+            SimplePageRelationship(page_3.id, page_3.id, 0),
+            SimplePageRelationship(page_1_1.id, page_1_1.id, 0),
+            SimplePageRelationship(page_1_1.id, page_1_2.id, 1),
+            SimplePageRelationship(page_1_1.id, page_1_3.id, 2),
+            SimplePageRelationship(page_1_2.id, page_1_2.id, 0),
+            SimplePageRelationship(page_1_2.id, page_1_3.id, 1),
+            SimplePageRelationship(page_1_3.id, page_1_3.id, 0),
+            SimplePageRelationship(page_1_1_1.id, page_1_1_1.id, 0)
+        ]),
+        page_sibling_relationships
     );
 
     teardown(tx).await?;
@@ -304,27 +314,45 @@ async fn remove_should_success() -> anyhow::Result<()> {
     let (
         InsertMockResponse {
             page_1,
-            page_2: _,
-            page_3: _,
+            page_2,
+            page_3,
             page_1_1,
             page_1_2,
             page_1_3,
-            page_1_1_1,
+            page_1_1_1: _,
         },
         mut tx,
     ) = setup().await?;
 
-    InternalPageRepository::remove(&page_1_3.id, &mut tx).await?;
+    InternalPageRepository::remove(&page_1_1.id, &mut tx).await?;
 
-    let page_relationships_map = get_page_relationships_map(&mut tx).await?;
+    let page_relationships = get_page_relationships(&mut tx).await?;
     assert_eq!(
-        &HashSet::from([page_1.id, page_1_1.id, page_1_2.id, page_1_1_1.id]),
-        page_relationships_map.get(&page_1.id).unwrap()
+        HashSet::from([
+            SimplePageRelationship(page_1.id, page_1.id, 0),
+            SimplePageRelationship(page_1.id, page_1_2.id, 1),
+            SimplePageRelationship(page_1.id, page_1_3.id, 1),
+            SimplePageRelationship(page_2.id, page_2.id, 0),
+            SimplePageRelationship(page_3.id, page_3.id, 0),
+            SimplePageRelationship(page_1_2.id, page_1_2.id, 0),
+            SimplePageRelationship(page_1_3.id, page_1_3.id, 0)
+        ]),
+        page_relationships
     );
-    let page_sibling_relationships_map = get_page_sibling_relationships_map(&mut tx).await?;
+    let page_sibling_relationships = get_page_sibling_relationships(&mut tx).await?;
     assert_eq!(
-        &HashSet::from([page_1_1.id, page_1_2.id]),
-        page_sibling_relationships_map.get(&page_1_1.id).unwrap()
+        HashSet::from([
+            SimplePageRelationship(page_1.id, page_1.id, 0),
+            SimplePageRelationship(page_1.id, page_2.id, 1),
+            SimplePageRelationship(page_1.id, page_3.id, 2),
+            SimplePageRelationship(page_2.id, page_2.id, 0),
+            SimplePageRelationship(page_2.id, page_3.id, 1),
+            SimplePageRelationship(page_3.id, page_3.id, 0),
+            SimplePageRelationship(page_1_2.id, page_1_2.id, 0),
+            SimplePageRelationship(page_1_2.id, page_1_3.id, 1),
+            SimplePageRelationship(page_1_3.id, page_1_3.id, 0)
+        ]),
+        page_sibling_relationships
     );
 
     teardown(tx).await?;
@@ -345,22 +373,53 @@ mod move_ {
                 page_1_1,
                 page_1_2,
                 page_1_3,
-                page_1_1_1: _,
+                page_1_1_1,
             },
             mut tx,
         ) = setup().await?;
 
-        InternalPageRepository::move_(&page_1_1.id, &page_1.id, &mut tx).await?;
+        InternalPageRepository::move_(
+            &page_1_1.id,
+            &models::notion::page::MoveTarget::Parent(None),
+            &mut tx,
+        )
+        .await?;
 
-        let page_relationships_map = get_page_relationships_map(&mut tx).await?;
+        let page_relationships = get_page_relationships(&mut tx).await?;
         assert_eq!(
-            &HashSet::from([page_1.id, page_1_2.id, page_1_3.id]),
-            page_relationships_map.get(&page_1.id).unwrap()
+            HashSet::from([
+                SimplePageRelationship(page_1.id, page_1.id, 0),
+                SimplePageRelationship(page_1.id, page_1_2.id, 1),
+                SimplePageRelationship(page_1.id, page_1_3.id, 1),
+                SimplePageRelationship(page_2.id, page_2.id, 0),
+                SimplePageRelationship(page_3.id, page_3.id, 0),
+                SimplePageRelationship(page_1_1.id, page_1_1.id, 0),
+                SimplePageRelationship(page_1_1.id, page_1_1_1.id, 1),
+                SimplePageRelationship(page_1_2.id, page_1_2.id, 0),
+                SimplePageRelationship(page_1_3.id, page_1_3.id, 0),
+                SimplePageRelationship(page_1_1_1.id, page_1_1_1.id, 0)
+            ]),
+            page_relationships
         );
-        let page_sibling_relationships_map = get_page_sibling_relationships_map(&mut tx).await?;
+        let page_sibling_relationships = get_page_sibling_relationships(&mut tx).await?;
         assert_eq!(
-            &HashSet::from([page_1.id, page_2.id, page_3.id, page_1_1.id]),
-            page_sibling_relationships_map.get(&page_1.id).unwrap()
+            HashSet::from([
+                SimplePageRelationship(page_1.id, page_1.id, 0),
+                SimplePageRelationship(page_1.id, page_2.id, 1),
+                SimplePageRelationship(page_1.id, page_3.id, 2),
+                SimplePageRelationship(page_1.id, page_1_1.id, 3),
+                SimplePageRelationship(page_2.id, page_2.id, 0),
+                SimplePageRelationship(page_2.id, page_3.id, 1),
+                SimplePageRelationship(page_2.id, page_1_1.id, 2),
+                SimplePageRelationship(page_3.id, page_3.id, 0),
+                SimplePageRelationship(page_3.id, page_1_1.id, 1),
+                SimplePageRelationship(page_1_1.id, page_1_1.id, 0),
+                SimplePageRelationship(page_1_2.id, page_1_2.id, 0),
+                SimplePageRelationship(page_1_2.id, page_1_3.id, 1),
+                SimplePageRelationship(page_1_3.id, page_1_3.id, 0),
+                SimplePageRelationship(page_1_1_1.id, page_1_1_1.id, 0)
+            ]),
+            page_sibling_relationships
         );
 
         teardown(tx).await?;
@@ -373,8 +432,8 @@ mod move_ {
         let (
             InsertMockResponse {
                 page_1,
-                page_2: _,
-                page_3: _,
+                page_2,
+                page_3,
                 page_1_1,
                 page_1_2,
                 page_1_3,
@@ -383,23 +442,181 @@ mod move_ {
             mut tx,
         ) = setup().await?;
 
-        InternalPageRepository::move_(&page_1_1.id, &page_1_2.id, &mut tx).await?;
+        InternalPageRepository::move_(
+            &page_1_1.id,
+            &models::notion::page::MoveTarget::Parent(Some(page_1.id)),
+            &mut tx,
+        )
+        .await?;
 
-        let page_relationships_map = get_page_relationships_map(&mut tx).await?;
+        let page_relationships = get_page_relationships(&mut tx).await?;
         assert_eq!(
-            &HashSet::from([
-                page_1.id,
-                page_1_1.id,
-                page_1_2.id,
-                page_1_3.id,
-                page_1_1_1.id
+            HashSet::from([
+                SimplePageRelationship(page_1.id, page_1.id, 0),
+                SimplePageRelationship(page_1.id, page_1_2.id, 1),
+                SimplePageRelationship(page_1.id, page_1_3.id, 1),
+                SimplePageRelationship(page_1.id, page_1_1.id, 1),
+                SimplePageRelationship(page_1.id, page_1_1_1.id, 2),
+                SimplePageRelationship(page_2.id, page_2.id, 0),
+                SimplePageRelationship(page_3.id, page_3.id, 0),
+                SimplePageRelationship(page_1_2.id, page_1_2.id, 0),
+                SimplePageRelationship(page_1_3.id, page_1_3.id, 0),
+                SimplePageRelationship(page_1_1.id, page_1_1.id, 0),
+                SimplePageRelationship(page_1_1.id, page_1_1_1.id, 1),
+                SimplePageRelationship(page_1_1_1.id, page_1_1_1.id, 0)
             ]),
-            page_relationships_map.get(&page_1.id).unwrap()
+            page_relationships
         );
-        let page_sibling_relationships_map = get_page_sibling_relationships_map(&mut tx).await?;
+        let page_sibling_relationships = get_page_sibling_relationships(&mut tx).await?;
         assert_eq!(
-            &HashSet::from([page_1_1.id, page_1_2.id, page_1_3.id]),
-            page_sibling_relationships_map.get(&page_1_2.id).unwrap()
+            HashSet::from([
+                SimplePageRelationship(page_1.id, page_1.id, 0),
+                SimplePageRelationship(page_1.id, page_2.id, 1),
+                SimplePageRelationship(page_1.id, page_3.id, 2),
+                SimplePageRelationship(page_2.id, page_2.id, 0),
+                SimplePageRelationship(page_2.id, page_3.id, 1),
+                SimplePageRelationship(page_3.id, page_3.id, 0),
+                SimplePageRelationship(page_1_2.id, page_1_2.id, 0),
+                SimplePageRelationship(page_1_2.id, page_1_3.id, 1),
+                SimplePageRelationship(page_1_2.id, page_1_1.id, 2),
+                SimplePageRelationship(page_1_3.id, page_1_3.id, 0),
+                SimplePageRelationship(page_1_3.id, page_1_1.id, 1),
+                SimplePageRelationship(page_1_1.id, page_1_1.id, 0),
+                SimplePageRelationship(page_1_1_1.id, page_1_1_1.id, 0)
+            ]),
+            page_sibling_relationships
+        );
+
+        teardown(tx).await?;
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn move_to_sibling_parent_should_success() -> anyhow::Result<()> {
+        let (
+            InsertMockResponse {
+                page_1,
+                page_2,
+                page_3,
+                page_1_1,
+                page_1_2,
+                page_1_3,
+                page_1_1_1,
+            },
+            mut tx,
+        ) = setup().await?;
+
+        InternalPageRepository::move_(
+            &page_1_1.id,
+            &models::notion::page::MoveTarget::Sibling(
+                models::notion::page::MoveTargetSibling::Parent(page_2.id),
+            ),
+            &mut tx,
+        )
+        .await?;
+
+        let page_relationships = get_page_relationships(&mut tx).await?;
+        assert_eq!(
+            HashSet::from([
+                SimplePageRelationship(page_1.id, page_1.id, 0),
+                SimplePageRelationship(page_1.id, page_1_2.id, 1),
+                SimplePageRelationship(page_1.id, page_1_3.id, 1),
+                SimplePageRelationship(page_2.id, page_2.id, 0),
+                SimplePageRelationship(page_1_1.id, page_1_1.id, 0),
+                SimplePageRelationship(page_1_1.id, page_1_1_1.id, 1),
+                SimplePageRelationship(page_3.id, page_3.id, 0),
+                SimplePageRelationship(page_1_2.id, page_1_2.id, 0),
+                SimplePageRelationship(page_1_3.id, page_1_3.id, 0),
+                SimplePageRelationship(page_1_1_1.id, page_1_1_1.id, 0)
+            ]),
+            page_relationships
+        );
+        let page_sibling_relationships = get_page_sibling_relationships(&mut tx).await?;
+        assert_eq!(
+            HashSet::from([
+                SimplePageRelationship(page_1.id, page_1.id, 0),
+                SimplePageRelationship(page_1.id, page_2.id, 1),
+                SimplePageRelationship(page_1.id, page_1_1.id, 2),
+                SimplePageRelationship(page_1.id, page_3.id, 3),
+                SimplePageRelationship(page_2.id, page_2.id, 0),
+                SimplePageRelationship(page_2.id, page_1_1.id, 1),
+                SimplePageRelationship(page_2.id, page_3.id, 2),
+                SimplePageRelationship(page_1_1.id, page_1_1.id, 0),
+                SimplePageRelationship(page_1_1.id, page_3.id, 1),
+                SimplePageRelationship(page_3.id, page_3.id, 0),
+                SimplePageRelationship(page_1_2.id, page_1_2.id, 0),
+                SimplePageRelationship(page_1_2.id, page_1_3.id, 1),
+                SimplePageRelationship(page_1_3.id, page_1_3.id, 0),
+                SimplePageRelationship(page_1_1_1.id, page_1_1_1.id, 0)
+            ]),
+            page_sibling_relationships
+        );
+
+        teardown(tx).await?;
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn move_to_sibling_child_should_success() -> anyhow::Result<()> {
+        let (
+            InsertMockResponse {
+                page_1,
+                page_2,
+                page_3,
+                page_1_1,
+                page_1_2,
+                page_1_3,
+                page_1_1_1,
+            },
+            mut tx,
+        ) = setup().await?;
+
+        InternalPageRepository::move_(
+            &page_1_1.id,
+            &models::notion::page::MoveTarget::Sibling(
+                models::notion::page::MoveTargetSibling::Child(page_2.id),
+            ),
+            &mut tx,
+        )
+        .await?;
+
+        let page_relationships = get_page_relationships(&mut tx).await?;
+        assert_eq!(
+            HashSet::from([
+                SimplePageRelationship(page_1.id, page_1.id, 0),
+                SimplePageRelationship(page_1.id, page_1_2.id, 1),
+                SimplePageRelationship(page_1.id, page_1_3.id, 1),
+                SimplePageRelationship(page_1_1.id, page_1_1.id, 0),
+                SimplePageRelationship(page_1_1.id, page_1_1_1.id, 1),
+                SimplePageRelationship(page_2.id, page_2.id, 0),
+                SimplePageRelationship(page_3.id, page_3.id, 0),
+                SimplePageRelationship(page_1_2.id, page_1_2.id, 0),
+                SimplePageRelationship(page_1_3.id, page_1_3.id, 0),
+                SimplePageRelationship(page_1_1_1.id, page_1_1_1.id, 0)
+            ]),
+            page_relationships
+        );
+        let page_sibling_relationships = get_page_sibling_relationships(&mut tx).await?;
+        assert_eq!(
+            HashSet::from([
+                SimplePageRelationship(page_1.id, page_1.id, 0),
+                SimplePageRelationship(page_1.id, page_1_1.id, 1),
+                SimplePageRelationship(page_1.id, page_2.id, 2),
+                SimplePageRelationship(page_1.id, page_3.id, 3),
+                SimplePageRelationship(page_1_1.id, page_1_1.id, 0),
+                SimplePageRelationship(page_1_1.id, page_2.id, 1),
+                SimplePageRelationship(page_1_1.id, page_3.id, 2),
+                SimplePageRelationship(page_2.id, page_2.id, 0),
+                SimplePageRelationship(page_2.id, page_3.id, 1),
+                SimplePageRelationship(page_3.id, page_3.id, 0),
+                SimplePageRelationship(page_1_2.id, page_1_2.id, 0),
+                SimplePageRelationship(page_1_2.id, page_1_3.id, 1),
+                SimplePageRelationship(page_1_3.id, page_1_3.id, 0),
+                SimplePageRelationship(page_1_1_1.id, page_1_1_1.id, 0)
+            ]),
+            page_sibling_relationships
         );
 
         teardown(tx).await?;

@@ -48,6 +48,6 @@ pub trait IPageRepository: Send + Sync {
     async fn move_(
         &self,
         id: &models::notion::page::PageId,
-        to_sibling_parent_id: &models::notion::page::PageId,
+        target: &models::notion::page::MoveTarget,
     ) -> Result<(), RepositoryError>;
 }
