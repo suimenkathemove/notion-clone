@@ -13,7 +13,7 @@
   "typescript.tsdk": "./node_modules/typescript/lib",
   "[markdown]": {
     "editor.codeActionsOnSave": {
-      "source.fixAll.markdownlint": true
+      "source.fixAll.markdownlint": "explicit"
     },
     "editor.defaultFormatter": "yzhang.markdown-all-in-one",
     "editor.tabSize": 2
@@ -27,8 +27,8 @@
   },
   "[javascript][javascriptreact][typescript][typescriptreact]": {
     "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": true,
-      "source.fixAll.stylelint": true
+      "source.fixAll.eslint": "explicit",
+      "source.fixAll.stylelint": "explicit"
     },
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.tabSize": 2
