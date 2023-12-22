@@ -112,7 +112,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn build_tree_from_relationships_should_success() {
+    fn build_tree_from_relationships_should_succeed() {
         let page_1_id = PageId::new();
         let page_1_1_id = PageId::new();
         let page_1_1_1_id = PageId::new();

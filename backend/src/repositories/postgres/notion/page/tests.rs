@@ -61,7 +61,7 @@ where
 }
 
 #[tokio::test]
-async fn find_roots_should_success() -> anyhow::Result<()> {
+async fn find_roots_should_succeed() -> anyhow::Result<()> {
     let (
         InsertMockResponse {
             page_1,
@@ -87,7 +87,7 @@ async fn find_roots_should_success() -> anyhow::Result<()> {
 }
 
 #[tokio::test]
-async fn find_children_should_success() -> anyhow::Result<()> {
+async fn find_children_should_succeed() -> anyhow::Result<()> {
     let (
         InsertMockResponse {
             page_1,
@@ -113,7 +113,7 @@ async fn find_children_should_success() -> anyhow::Result<()> {
 }
 
 #[tokio::test]
-async fn find_ancestors_should_success() -> anyhow::Result<()> {
+async fn find_ancestors_should_succeed() -> anyhow::Result<()> {
     let (
         InsertMockResponse {
             page_1,
@@ -139,7 +139,7 @@ async fn find_ancestors_should_success() -> anyhow::Result<()> {
 }
 
 #[tokio::test]
-async fn find_descendants_should_success() -> anyhow::Result<()> {
+async fn find_descendants_should_succeed() -> anyhow::Result<()> {
     let (
         InsertMockResponse {
             page_1,
@@ -197,7 +197,7 @@ async fn find_descendants_should_success() -> anyhow::Result<()> {
 }
 
 #[tokio::test]
-async fn find_by_id_should_success() -> anyhow::Result<()> {
+async fn find_by_id_should_succeed() -> anyhow::Result<()> {
     let (
         InsertMockResponse {
             page_1,
@@ -220,7 +220,7 @@ async fn find_by_id_should_success() -> anyhow::Result<()> {
 }
 
 #[tokio::test]
-async fn add_should_success() -> anyhow::Result<()> {
+async fn add_should_succeed() -> anyhow::Result<()> {
     let (
         InsertMockResponse {
             page_1,
@@ -278,7 +278,7 @@ async fn add_should_success() -> anyhow::Result<()> {
 }
 
 #[tokio::test]
-async fn update_should_success() -> anyhow::Result<()> {
+async fn update_should_succeed() -> anyhow::Result<()> {
     let (
         InsertMockResponse {
             page_1,
@@ -310,7 +310,7 @@ async fn update_should_success() -> anyhow::Result<()> {
 }
 
 #[tokio::test]
-async fn remove_should_success() -> anyhow::Result<()> {
+async fn remove_should_succeed() -> anyhow::Result<()> {
     let (
         InsertMockResponse {
             page_1,
@@ -364,7 +364,7 @@ mod move_ {
     use super::*;
 
     #[tokio::test]
-    async fn move_to_root_should_success() -> anyhow::Result<()> {
+    async fn move_to_root_should_succeed() -> anyhow::Result<()> {
         let (
             InsertMockResponse {
                 page_1,
@@ -428,7 +428,7 @@ mod move_ {
     }
 
     #[tokio::test]
-    async fn move_to_non_root_should_success() -> anyhow::Result<()> {
+    async fn move_to_non_root_should_succeed() -> anyhow::Result<()> {
         let (
             InsertMockResponse {
                 page_1,
@@ -493,7 +493,7 @@ mod move_ {
     }
 
     #[tokio::test]
-    async fn move_to_sibling_parent_should_success() -> anyhow::Result<()> {
+    async fn move_to_sibling_parent_should_succeed() -> anyhow::Result<()> {
         let (
             InsertMockResponse {
                 page_1,
@@ -559,7 +559,7 @@ mod move_ {
     }
 
     #[tokio::test]
-    async fn move_to_sibling_child_should_success() -> anyhow::Result<()> {
+    async fn move_to_sibling_child_should_succeed() -> anyhow::Result<()> {
         let (
             InsertMockResponse {
                 page_1,
