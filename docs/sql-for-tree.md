@@ -100,7 +100,73 @@ CREATE TABLE node_sibling_relationships (
 
 ## ルートの一覧の取得
 
-<!-- TODO -->
+先の木構造で考えると、期待する結果は以下のようになる。
+
+| name |
+| ---- |
+| 1    |
+| 2    |
+| 3    |
+
+ルートは、子孫を持たないノードである。
+閉包テーブルでは自身と自身の関係も含めるので、子孫を1つしか持たないノードということになる。
+よって、ルートのidを取得するSQLは以下のようになる。
+
+```sql
+SELECT
+  descendant AS id
+FROM
+  node_relationships
+GROUP BY
+  descendant
+HAVING
+  COUNT(*) = 1
+```
+
+これを長男から順に並べ替えるには、node_sibling_relationshipsテーブルで、descendantごとにグループ化し、descendantの数が少ない順に並べ替えればよい。
+descendantの数を取得するSQLは以下のようになる。
+
+```sql
+SELECT
+  descendant,
+  COUNT(*) AS count
+FROM
+  node_sibling_relationships
+GROUP BY
+  descendant
+```
+
+これらを組み合わせると、ルートの一覧を取得するSQLは以下のようになる。
+
+```sql
+WITH roots AS (
+  SELECT
+    descendant AS id
+  FROM
+    node_relationships
+  GROUP BY
+    descendant
+  HAVING
+    COUNT(*) = 1
+),
+sibling_descendant_counts AS (
+  SELECT
+    descendant,
+    COUNT(*) AS count
+  FROM
+    node_sibling_relationships
+  GROUP BY
+    descendant
+)
+SELECT
+  name
+FROM
+  nodes
+  JOIN roots ON nodes.id = roots.id
+  JOIN sibling_descendant_counts ON nodes.id = sibling_descendant_counts.descendant
+ORDER BY
+  sibling_descendant_counts.count
+```
 
 ## 子の一覧の取得
 
