@@ -110,7 +110,7 @@ CREATE TABLE node_sibling_relationships (
 
 ルートは、子孫を持たないノードである。
 閉包テーブルでは自身と自身の関係も含めるので、子孫を1つしか持たないノードということになる。
-よって、ルートのidを取得するSQLは以下のようになる。
+よって、ルートの一覧のidを取得するSQLは以下のようになる。
 
 ```sql
 SELECT
@@ -170,7 +170,61 @@ ORDER BY
 
 ## 子の一覧の取得
 
-<!-- TODO -->
+例えば`1`のノードの子の一覧の場合、期待する結果は以下のようになる。
+
+| name |
+| ---- |
+| 1-1  |
+| 1-2  |
+| 1-3  |
+
+子は、ancestorが親のidで、weightが1の、descendantのノードである。
+よって、子の一覧のidを取得するSQLは以下のようになる。
+
+```sql
+SELECT
+  descendant AS id
+FROM
+  node_relationships
+WHERE
+  ancestor = $1
+  AND weight = 1
+```
+
+※$1は親のid
+
+これを使うと、子の一覧を取得するSQLは以下のようになる。
+
+```sql
+WITH children AS (
+  SELECT
+    descendant AS id
+  FROM
+    node_relationships
+  WHERE
+    ancestor = $1
+    AND weight = 1
+),
+sibling_descendant_counts AS (
+  SELECT
+    descendant,
+    COUNT(*) AS count
+  FROM
+    node_sibling_relationships
+  GROUP BY
+    descendant
+)
+SELECT
+  name
+FROM
+  nodes
+  JOIN children ON nodes.id = children.id
+  JOIN sibling_descendant_counts ON nodes.id = sibling_descendant_counts.descendant
+ORDER BY
+  sibling_descendant_counts.count
+```
+
+※$1は親のid
 
 ## 先祖の一覧の取得
 
