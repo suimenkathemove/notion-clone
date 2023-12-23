@@ -189,17 +189,17 @@ impl InternalPageRepository {
         .fetch_all(&mut *acquire)
         .await?;
 
-        let page_relationships = query_as::<_, PageRelationship>(
+        let parent_child_relationships = query_as::<_, PageRelationship>(
             "
-            WITH RECURSIVE descendant_relationships AS (
+            WITH RECURSIVE parent_child_relationships AS (
                 SELECT ancestor, descendant, weight
                 FROM notion.page_relationships
                 WHERE ancestor = $1 AND weight = 1
                 UNION ALL
                 SELECT child.ancestor, child.descendant, child.weight
-                FROM descendant_relationships
+                FROM parent_child_relationships
                 JOIN notion.page_relationships AS child
-                ON descendant_relationships.descendant = child.ancestor
+                ON parent_child_relationships.descendant = child.ancestor
                 WHERE child.weight = 1
             ),
             descendant_counts AS (
@@ -212,12 +212,12 @@ impl InternalPageRepository {
                 FROM notion.page_sibling_relationships
                 GROUP BY descendant
             )
-            SELECT descendant_relationships.ancestor, descendant_relationships.descendant, descendant_relationships.weight
-            FROM descendant_relationships
+            SELECT parent_child_relationships.ancestor, parent_child_relationships.descendant, parent_child_relationships.weight
+            FROM parent_child_relationships
             JOIN descendant_counts
-            ON descendant_relationships.descendant = descendant_counts.descendant
+            ON parent_child_relationships.descendant = descendant_counts.descendant
             JOIN sibling_descendant_counts
-            ON descendant_relationships.descendant = sibling_descendant_counts.descendant
+            ON parent_child_relationships.descendant = sibling_descendant_counts.descendant
             ORDER BY descendant_counts.count, sibling_descendant_counts.count
             ",
         )
@@ -227,7 +227,10 @@ impl InternalPageRepository {
 
         Ok((
             pages.into_iter().map(Into::into).collect(),
-            page_relationships.into_iter().map(Into::into).collect(),
+            parent_child_relationships
+                .into_iter()
+                .map(Into::into)
+                .collect(),
         ))
     }
 

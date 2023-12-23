@@ -39,12 +39,9 @@ impl PageUseCase {
         &self,
         id: &models::notion::page::PageId,
     ) -> Result<models::notion::page::PageTree, UseCaseError> {
-        let (pages, page_relationships) = self.page_repository.find_descendants(id).await?;
-        let page_tree = models::notion::page::PageTree::build_from_page_relationships(
-            pages,
-            &page_relationships,
-            id,
-        );
+        let (pages, parent_child_relationships) = self.page_repository.find_descendants(id).await?;
+        let page_tree =
+            models::notion::page::PageTree::build(pages, &parent_child_relationships, id);
 
         Ok(page_tree)
     }

@@ -46,15 +46,15 @@ pub struct PageTree {
 }
 
 impl PageTree {
-    pub fn build_from_page_relationships(
+    pub fn build(
         pages: Vec<Page>,
-        page_relationships: &[PageRelationship],
+        parent_child_relationships: &[PageRelationship],
         root_id: &PageId,
     ) -> PageTree {
         let page_tree_map: HashMap<PageId, Rc<RefCell<MutablePageTree>>> =
             pages.into_iter().map(|p| (p.id, p.into())).collect();
 
-        page_relationships.iter().for_each(|r| {
+        parent_child_relationships.iter().for_each(|r| {
             assert_eq!(1, r.weight);
 
             let parent = page_tree_map.get(&r.ancestor).unwrap();
@@ -112,7 +112,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn build_tree_from_relationships_should_succeed() {
+    fn page_tree_build_should_succeed() {
         let page_1_id = PageId::new();
         let page_1_1_id = PageId::new();
         let page_1_2_id = PageId::new();
@@ -156,7 +156,7 @@ mod tests {
                 updated_at: date_time_utc,
             },
         ];
-        let page_relationships = vec![
+        let parent_child_relationships = vec![
             PageRelationship {
                 ancestor: page_1_id,
                 descendant: page_1_1_id,
@@ -219,8 +219,7 @@ mod tests {
                 },
             ],
         };
-        let actual =
-            PageTree::build_from_page_relationships(pages, &page_relationships, &page_1_id);
+        let actual = PageTree::build(pages, &parent_child_relationships, &page_1_id);
         assert_eq!(expected, actual);
     }
 }
