@@ -115,6 +115,8 @@ mod tests {
     fn build_tree_from_relationships_should_succeed() {
         let page_1_id = PageId::new();
         let page_1_1_id = PageId::new();
+        let page_1_2_id = PageId::new();
+        let page_1_3_id = PageId::new();
         let page_1_1_1_id = PageId::new();
         let date_time_utc = DateTimeUtc::new();
         let pages = vec![
@@ -127,6 +129,20 @@ mod tests {
             },
             Page {
                 id: page_1_1_id,
+                title: String::new(),
+                text: String::new(),
+                created_at: date_time_utc,
+                updated_at: date_time_utc,
+            },
+            Page {
+                id: page_1_2_id,
+                title: String::new(),
+                text: String::new(),
+                created_at: date_time_utc,
+                updated_at: date_time_utc,
+            },
+            Page {
+                id: page_1_3_id,
                 title: String::new(),
                 text: String::new(),
                 created_at: date_time_utc,
@@ -147,6 +163,16 @@ mod tests {
                 weight: 1,
             },
             PageRelationship {
+                ancestor: page_1_id,
+                descendant: page_1_2_id,
+                weight: 1,
+            },
+            PageRelationship {
+                ancestor: page_1_id,
+                descendant: page_1_3_id,
+                weight: 1,
+            },
+            PageRelationship {
                 ancestor: page_1_1_id,
                 descendant: page_1_1_1_id,
                 weight: 1,
@@ -159,21 +185,39 @@ mod tests {
             text: String::new(),
             created_at: date_time_utc,
             updated_at: date_time_utc,
-            children: vec![PageTree {
-                id: page_1_1_id,
-                title: String::new(),
-                text: String::new(),
-                created_at: date_time_utc,
-                updated_at: date_time_utc,
-                children: vec![PageTree {
-                    id: page_1_1_1_id,
+            children: vec![
+                PageTree {
+                    id: page_1_1_id,
+                    title: String::new(),
+                    text: String::new(),
+                    created_at: date_time_utc,
+                    updated_at: date_time_utc,
+                    children: vec![PageTree {
+                        id: page_1_1_1_id,
+                        title: String::new(),
+                        text: String::new(),
+                        created_at: date_time_utc,
+                        updated_at: date_time_utc,
+                        children: Vec::new(),
+                    }],
+                },
+                PageTree {
+                    id: page_1_2_id,
                     title: String::new(),
                     text: String::new(),
                     created_at: date_time_utc,
                     updated_at: date_time_utc,
                     children: Vec::new(),
-                }],
-            }],
+                },
+                PageTree {
+                    id: page_1_3_id,
+                    title: String::new(),
+                    text: String::new(),
+                    created_at: date_time_utc,
+                    updated_at: date_time_utc,
+                    children: Vec::new(),
+                },
+            ],
         };
         let actual =
             PageTree::build_from_page_relationships(pages, &page_relationships, &page_1_id);
