@@ -160,13 +160,9 @@ impl InternalPageRepository {
         let pages = query_as::<_, Page>(
             "
             WITH descendants AS (
-                SELECT id, title, text, created_at, updated_at
-                FROM notion.pages
-                WHERE id IN (
-                    SELECT descendant
-                    FROM notion.page_relationships
-                    WHERE ancestor = $1
-                )
+                SELECT descendant
+                FROM notion.page_relationships
+                WHERE ancestor = $1
             ),
             descendant_counts AS (
                 SELECT descendant, COUNT(*) AS count
@@ -179,11 +175,13 @@ impl InternalPageRepository {
                 GROUP BY descendant
             )
             SELECT id, title, text, created_at, updated_at
-            FROM descendants
+            FROM notion.pages
+            JOIN descendants
+            ON notion.pages.id = descendants.descendant
             JOIN descendant_counts
-            ON descendants.id = descendant_counts.descendant
+            ON notion.pages.id = descendant_counts.descendant
             JOIN sibling_descendant_counts
-            ON descendants.id = sibling_descendant_counts.descendant
+            ON notion.pages.id = sibling_descendant_counts.descendant
             ORDER BY descendant_counts.count, sibling_descendant_counts.count
             ",
         )
