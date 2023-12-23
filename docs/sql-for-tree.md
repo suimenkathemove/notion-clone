@@ -191,7 +191,7 @@ WHERE
   AND weight = 1
 ```
 
-※$1は親のid
+※$1は任意のノードのid
 
 これを使うと、子の一覧を取得するSQLは以下のようになる。
 
@@ -224,11 +224,32 @@ ORDER BY
   sibling_descendant_counts.count
 ```
 
-※$1は親のid
+※$1は任意のノードのid
 
 ## 先祖の一覧の取得
 
-<!-- TODO -->
+例えば`1-1-1`のノードの先祖の一覧の場合、期待する結果は以下のようになる。
+
+| name |
+| ---- |
+| 1    |
+| 1-1  |
+
+先祖の一覧を取得するSQLは以下のようになる。
+
+```sql
+SELECT
+  name
+FROM
+  nodes
+  JOIN node_relationships ON nodes.id = node_relationships.ancestor
+  AND node_relationships.descendant = $1
+  AND node_relationships.ancestor != $1
+ORDER BY
+  node_relationships.weight DESC
+```
+
+※$1は任意のノードのid
 
 ## 子孫の一覧の取得
 
