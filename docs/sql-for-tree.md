@@ -616,6 +616,94 @@ SELECT
 ルートに追加する場合はルートの末っ子、追加先のノードがある場合は追加先のノードの子の末っ子を親として追加すればよい。
 具体的には、`3`のノードを追加する場合は`2`のノードを、`1-3`のノードを追加する場合は`1-2`のノードを親として追加する。
 
+ルートの末っ子のidを取得するSQLは以下のようになる。
+
+```sql
+WITH roots AS (
+  SELECT
+    descendant AS id
+  FROM
+    node_relationships
+  GROUP BY
+    descendant
+  HAVING
+    COUNT(*) = 1
+),
+sibling_leaves AS (
+  SELECT
+    ancestor AS id
+  FROM
+    node_sibling_relationships
+  GROUP BY
+    ancestor
+  HAVING
+    COUNT(*) = 1
+)
+SELECT
+  nodes.id,
+  name
+FROM
+  nodes
+  JOIN roots ON nodes.id = roots.id
+  JOIN sibling_leaves ON nodes.id = sibling_leaves.id
+```
+
+追加先のノードの子の末っ子のidを取得するSQLは以下のようになる。
+
+```sql
+WITH children AS (
+  SELECT
+    descendant AS id
+  FROM
+    node_relationships
+  WHERE
+    ancestor = $1
+    AND weight = 1
+),
+sibling_leaves AS (
+  SELECT
+    ancestor AS id
+  FROM
+    node_sibling_relationships
+  GROUP BY
+    ancestor
+  HAVING
+    COUNT(*) = 1
+)
+SELECT
+  nodes.id,
+  name
+FROM
+  nodes
+  JOIN children ON nodes.id = children.id
+  JOIN sibling_leaves ON nodes.id = sibling_leaves.id
+```
+
+※$1は追加先のノードのid
+
+これらで取得したidのノードを親として追加するSQLは以下のようになる。
+
+```sql
+INSERT INTO
+  node_sibling_relationships (ancestor, descendant, weight)
+SELECT
+  ancestor,
+  $2,
+  weight + 1
+FROM
+  node_sibling_relationships
+WHERE
+  descendant = $1
+UNION
+ALL
+SELECT
+  $2,
+  $2,
+  0
+```
+
+※$1は取得したid、$2は追加するノードのid
+
 ## 削除
 
 <!-- TODO -->
