@@ -706,7 +706,26 @@ SELECT
 
 ## 削除
 
-<!-- TODO -->
+任意のノードを削除する場合は、そのノードの子孫もすべて削除する必要がある。
+よって、SQLは以下のようになる。
+
+```sql
+DELETE FROM
+  nodes
+WHERE
+  id IN (
+    SELECT
+      descendant
+    FROM
+      node_relationships
+    WHERE
+      ancestor = $1
+  )
+```
+
+※$1は任意のノードのid
+
+node_relationshipsとnode_sibling_relationshipsに関しては、`ON DELETE CASCADE`を設定しているので自動的に削除される。
 
 ## 先祖-子孫間、兄弟間の移動
 
