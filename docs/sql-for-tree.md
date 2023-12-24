@@ -562,6 +562,20 @@ node_sibling_relationships
 | 1-3      | 1-3        | 0      |
 | 1-1-1    | 1-1-1      | 0      |
 
+### nodes
+
+まず、nodesテーブルにデータを挿入する。
+
+```sql
+INSERT INTO
+  nodes (name)
+VALUES
+  ($1) RETURNING id,
+  name
+```
+
+※$1はname
+
 ## 削除
 
 <!-- TODO -->
