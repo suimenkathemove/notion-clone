@@ -339,6 +339,171 @@ ORDER BY
 }
 ```
 
+任意のノードからリーフまでの親子関係が必要になる。
+具体的には以下のようなデータである(実際には、idにはそれぞれuuidが入る)。
+
+| ancestor | descendant | weight |
+| -------- | ---------- | ------ |
+| 1        | 1-1        | 1      |
+| 1        | 1-2        | 1      |
+| 1        | 1-3        | 1      |
+| 1-1      | 1-1-1      | 1      |
+
+これを取得するには、以下の2つの方法がある。
+
+```sql
+WITH descendants AS (
+  SELECT
+    descendant AS id
+  FROM
+    node_relationships
+  WHERE
+    ancestor = $1
+),
+parent_child_relationships AS (
+  SELECT
+    ancestor,
+    descendant,
+    weight
+  FROM
+    node_relationships
+  WHERE
+    ancestor IN (
+      SELECT
+        id
+      FROM
+        descendants
+    )
+    AND weight = 1
+)
+```
+
+※$1は任意のノードのid
+
+```sql
+WITH RECURSIVE parent_child_relationships AS (
+  SELECT
+    ancestor,
+    descendant,
+    weight
+  FROM
+    node_relationships
+  WHERE
+    ancestor = $1
+    AND weight = 1
+  UNION
+  ALL
+  SELECT
+    child.ancestor,
+    child.descendant,
+    child.weight
+  FROM
+    parent_child_relationships
+    JOIN node_relationships AS child ON parent_child_relationships.descendant = child.ancestor
+    AND child.weight = 1
+)
+```
+
+※$1は任意のノードのid
+
+1つ目の方法は、任意のノードの子孫の一覧を取得し、その子孫のそれぞれの子の一覧を取得している。
+2つ目の方法は、任意のノードの子の一覧を取得し、`WITH RECURSIVE`を使用して再帰的にまたその子の一覧を取得している。
+よって、任意のノードからリーフまでの親子関係を取得するSQLは以下のようになる。
+
+```sql
+WITH RECURSIVE parent_child_relationships AS (
+  SELECT
+    ancestor,
+    descendant,
+    weight
+  FROM
+    node_relationships
+  WHERE
+    ancestor = $1
+    AND weight = 1
+  UNION
+  ALL
+  SELECT
+    child.ancestor,
+    child.descendant,
+    child.weight
+  FROM
+    parent_child_relationships
+    JOIN node_relationships AS child ON parent_child_relationships.descendant = child.ancestor
+    AND child.weight = 1
+),
+descendant_counts AS (
+  SELECT
+    descendant,
+    COUNT(*) AS count
+  FROM
+    node_relationships
+  GROUP BY
+    descendant
+),
+sibling_descendant_counts AS (
+  SELECT
+    descendant,
+    COUNT(*) AS count
+  FROM
+    node_sibling_relationships
+  GROUP BY
+    descendant
+)
+SELECT
+  parent_child_relationships.ancestor,
+  parent_child_relationships.descendant,
+  parent_child_relationships.weight
+FROM
+  parent_child_relationships
+  JOIN descendant_counts ON parent_child_relationships.descendant = descendant_counts.descendant
+  JOIN sibling_descendant_counts ON parent_child_relationships.descendant = sibling_descendant_counts.descendant
+ORDER BY
+  descendant_counts.count,
+  sibling_descendant_counts.count
+```
+
+※$1は任意のノードのid
+
+これらのSQLで取得したデータからツリーを組み立てるTypeScriptのコードは以下のようになる。
+
+```ts
+interface Node {
+  id: string;
+  name: string;
+}
+
+interface NodeRelationship {
+  ancestor: string;
+  descendant: string;
+  weight: number;
+}
+
+interface Tree {
+  id: string;
+  name: string;
+  children: Tree[];
+}
+
+const buildTree = (
+  nodes: Node[],
+  parentChildRelationships: NodeRelationship[],
+  rootId: string,
+): Tree => {
+  const treeMap = new Map<string, Tree>(
+    nodes.map((n) => [n.id, { ...n, children: [] }]),
+  );
+
+  parentChildRelationships.forEach((r) => {
+    const parent = treeMap.get(r.ancestor)!;
+    const child = treeMap.get(r.descendant)!;
+    parent.children.push(child);
+  });
+
+  return treeMap.get(rootId)!;
+};
+```
+
 ## 追加
 
 <!-- TODO -->
