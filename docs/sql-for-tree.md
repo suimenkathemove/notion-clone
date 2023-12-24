@@ -729,4 +729,9 @@ node_relationshipsとnode_sibling_relationshipsに関しては、`ON DELETE CASC
 
 ## 先祖-子孫間、兄弟間の移動
 
-<!-- TODO -->
+移動先の指定は、以下の4つのどれかを指定すれば、どの場所にも移動できる。
+
+- ルート
+- 親のノード
+- 兄のノード
+- 弟のノード
