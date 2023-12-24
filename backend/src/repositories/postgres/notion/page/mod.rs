@@ -189,18 +189,35 @@ impl InternalPageRepository {
         .fetch_all(&mut *acquire)
         .await?;
 
+        // 以下でも可能
+        // WITH descendants AS (
+        //     SELECT descendant AS id
+        //     FROM notion.page_relationships
+        //     WHERE ancestor = $1
+        // ),
+        // parent_child_relationships AS (
+        //     SELECT ancestor, descendant, weight
+        //     FROM notion.page_relationships
+        //     WHERE ancestor IN (
+        //         SELECT id
+        //         FROM descendants
+        //     )
+        //     AND weight = 1
+        // ),
+
         let parent_child_relationships = query_as::<_, PageRelationship>(
             "
             WITH RECURSIVE parent_child_relationships AS (
                 SELECT ancestor, descendant, weight
                 FROM notion.page_relationships
-                WHERE ancestor = $1 AND weight = 1
+                WHERE ancestor = $1
+                AND weight = 1
                 UNION ALL
                 SELECT child.ancestor, child.descendant, child.weight
                 FROM parent_child_relationships
                 JOIN notion.page_relationships AS child
                 ON parent_child_relationships.descendant = child.ancestor
-                WHERE child.weight = 1
+                AND child.weight = 1
             ),
             descendant_counts AS (
                 SELECT descendant, COUNT(*) AS count
