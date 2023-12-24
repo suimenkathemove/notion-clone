@@ -506,7 +506,203 @@ const buildTree = (
 
 ## 追加
 
-<!-- TODO -->
+例えば以下のような木構造を作る場合、
+
+- 1
+  - 1-1
+    - 1-1-1
+  - 1-2
+  - 1-3
+- 2
+- 3
+
+nodesテーブル、node_relationshipsテーブル、node_sibling_relationshipsテーブルのデータはそれぞれ以下のようになる。
+
+nodes
+| id    | name  |
+| ----- | ----- |
+| 1     | 1     |
+| 2     | 2     |
+| 3     | 3     |
+| 1-1   | 1-1   |
+| 1-2   | 1-2   |
+| 1-3   | 1-3   |
+| 1-1-1 | 1-1-1 |
+
+node_relationships
+| ancestor | descendant | weight |
+| -------- | ---------- | ------ |
+| 1        | 1          | 0      |
+| 1        | 1-1        | 1      |
+| 1        | 1-2        | 1      |
+| 1        | 1-3        | 1      |
+| 1        | 1-1-1      | 2      |
+| 2        | 2          | 0      |
+| 3        | 3          | 0      |
+| 1-1      | 1-1        | 0      |
+| 1-1      | 1-1-1      | 1      |
+| 1-2      | 1-2        | 0      |
+| 1-3      | 1-3        | 0      |
+| 1-1-1    | 1-1-1      | 0      |
+
+node_sibling_relationships
+| ancestor | descendant | weight |
+| -------- | ---------- | ------ |
+| 1        | 1          | 0      |
+| 1        | 2          | 1      |
+| 1        | 3          | 2      |
+| 2        | 2          | 0      |
+| 2        | 3          | 1      |
+| 3        | 3          | 0      |
+| 1-1      | 1-1        | 0      |
+| 1-1      | 1-2        | 1      |
+| 1-1      | 1-3        | 2      |
+| 1-2      | 1-2        | 0      |
+| 1-2      | 1-3        | 1      |
+| 1-3      | 1-3        | 0      |
+| 1-1-1    | 1-1-1      | 0      |
+
+### nodes
+
+まず、nodesテーブルにデータを挿入する。
+
+```sql
+INSERT INTO
+  nodes (name)
+VALUES
+  ($1) RETURNING id,
+  name
+```
+
+※$1はname
+
+### node_relationships
+
+次に、node_relationshipsテーブルにデータを挿入する。
+挿入するデータは、「追加するノード」自身の関係と、「追加先のノード」の祖先と「追加するノード」の関係である。
+例えば、`1-1-1`のノードを`1-1`のノードに追加する場合を考える。
+追加する`1-1-1`のノード自身の関係は(1-1-1, 1-1-1, 0)である。
+追加先の`1-1`のノードの祖先は、`1`のノード、`1-1`のノードである。
+これらと、追加する`1-1-1`のノードの関係は、(1, 1-1-1)、(1-1, 1-1-1)になる。
+重みに関しては、追加先の`1-1`のノードの子になるので、追加先のノードの祖先と追加先のノードの関係のweightをインクリメントした値になる。
+具体的には、(1, 1-1, 1)、(1-1, 1-1, 0)をインクリメントした値になるので、(1, 1-1-1, 2)、(1-1, 1-1-1, 1)になる。
+最終的に挿入するデータは、(1, 1-1-1, 2)、(1-1, 1-1-1, 1)、(1-1-1, 1-1-1, 0)になる。
+よって、SQLは以下のようになる。
+
+```sql
+INSERT INTO
+  node_relationships (ancestor, descendant, weight)
+SELECT
+  ancestor,
+  $2,
+  weight + 1
+FROM
+  node_relationships
+WHERE
+  descendant = $1
+UNION
+ALL
+SELECT
+  $2,
+  $2,
+  0
+```
+
+※$1は追加先のノードのid、$2は追加するノードのid
+
+### node_sibling_relationships
+
+最後に、node_sibling_relationshipsテーブルにデータを挿入する。
+ルートに追加する場合はルートの末っ子、追加先のノードがある場合は追加先のノードの子の末っ子を親として追加すればよい。
+具体的には、`3`のノードを追加する場合は`2`のノードを、`1-3`のノードを追加する場合は`1-2`のノードを親として追加する。
+
+ルートの末っ子のidを取得するSQLは以下のようになる。
+
+```sql
+WITH roots AS (
+  SELECT
+    descendant AS id
+  FROM
+    node_relationships
+  GROUP BY
+    descendant
+  HAVING
+    COUNT(*) = 1
+),
+sibling_leaves AS (
+  SELECT
+    ancestor AS id
+  FROM
+    node_sibling_relationships
+  GROUP BY
+    ancestor
+  HAVING
+    COUNT(*) = 1
+)
+SELECT
+  nodes.id,
+  name
+FROM
+  nodes
+  JOIN roots ON nodes.id = roots.id
+  JOIN sibling_leaves ON nodes.id = sibling_leaves.id
+```
+
+追加先のノードの子の末っ子のidを取得するSQLは以下のようになる。
+
+```sql
+WITH children AS (
+  SELECT
+    descendant AS id
+  FROM
+    node_relationships
+  WHERE
+    ancestor = $1
+    AND weight = 1
+),
+sibling_leaves AS (
+  SELECT
+    ancestor AS id
+  FROM
+    node_sibling_relationships
+  GROUP BY
+    ancestor
+  HAVING
+    COUNT(*) = 1
+)
+SELECT
+  nodes.id,
+  name
+FROM
+  nodes
+  JOIN children ON nodes.id = children.id
+  JOIN sibling_leaves ON nodes.id = sibling_leaves.id
+```
+
+※$1は追加先のノードのid
+
+これらで取得したidのノードを親として追加するSQLは以下のようになる。
+
+```sql
+INSERT INTO
+  node_sibling_relationships (ancestor, descendant, weight)
+SELECT
+  ancestor,
+  $2,
+  weight + 1
+FROM
+  node_sibling_relationships
+WHERE
+  descendant = $1
+UNION
+ALL
+SELECT
+  $2,
+  $2,
+  0
+```
+
+※$1は取得したid、$2は追加するノードのid
 
 ## 削除
 
