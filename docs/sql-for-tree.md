@@ -253,7 +253,59 @@ ORDER BY
 
 ## 子孫の一覧の取得
 
-<!-- TODO -->
+例えば`1`のノードの子孫の一覧の場合、期待する結果は以下のようになる。
+今回はそのノード自身も含めることにする。
+
+| name  |
+| ----- |
+| 1     |
+| 1-1   |
+| 1-2   |
+| 1-3   |
+| 1-1-1 |
+
+子の一覧の取得を応用すると、子孫の一覧を取得するSQLは以下のようになる。
+
+```sql
+WITH descendants AS (
+  SELECT
+    descendant AS id
+  FROM
+    node_relationships
+  WHERE
+    ancestor = $1
+),
+descendant_counts AS (
+  SELECT
+    descendant,
+    COUNT(*) AS count
+  FROM
+    node_relationships
+  GROUP BY
+    descendant
+),
+sibling_descendant_counts AS (
+  SELECT
+    descendant,
+    COUNT(*) AS count
+  FROM
+    node_sibling_relationships
+  GROUP BY
+    descendant
+)
+SELECT
+  name
+FROM
+  nodes
+  JOIN descendants ON nodes.id = descendants.id
+  JOIN descendant_counts ON nodes.id = descendant_counts.descendant
+  JOIN sibling_descendant_counts ON nodes.id = sibling_descendant_counts.descendant
+ORDER BY
+  descendant_counts.count,
+  sibling_descendant_counts.count
+```
+
+※$1は任意のノードのid
 
 ## 追加
 
