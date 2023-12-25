@@ -109,7 +109,7 @@ CREATE TABLE node_sibling_relationships (
 | 3    |
 
 ルートは、子孫を持たないノードである。
-閉包テーブルでは自身と自身の関係も含むので、子孫を1つしか持たないノードということになる。
+閉包テーブルでは自身と自身との関係も含むので、子孫を1つしか持たないノードということになる。
 よって、ルートの一覧のidを取得するSQLは以下のようになる。
 
 ```sql
@@ -579,12 +579,12 @@ VALUES
 ### node_relationships
 
 次に、node_relationshipsテーブルにデータを挿入する。
-挿入するデータは、「追加するノード」自身の関係と、「追加先のノード」の祖先と「追加するノード」の関係である。
+挿入するデータは、「追加するノード」自身との関係と、「追加先のノード」の先祖と「追加するノード」との関係である。
 例えば、`1-1-1`のノードを`1-1`のノードに追加する場合を考える。
-追加する`1-1-1`のノード自身の関係は(1-1-1, 1-1-1, 0)である。
-追加先の`1-1`のノードの祖先は、`1`のノード、`1-1`のノードである。
-これらと、追加する`1-1-1`のノードの関係は、(1, 1-1-1)、(1-1, 1-1-1)になる。
-重みに関しては、追加先の`1-1`のノードの子になるので、追加先のノードの祖先と追加先のノードの関係のweightをインクリメントした値になる。
+追加する`1-1-1`のノード自身との関係は(1-1-1, 1-1-1, 0)である。
+追加先の`1-1`のノードの先祖は、`1`のノード、`1-1`のノードである。
+これらと、追加する`1-1-1`のノードとの関係は、(1, 1-1-1)、(1-1, 1-1-1)になる。
+重みに関しては、追加先の`1-1`のノードの子になるので、追加先のノードの先祖と追加先のノードとの関係のweightをインクリメントした値になる。
 具体的には、(1, 1-1, 1)、(1-1, 1-1, 0)をインクリメントした値になるので、(1, 1-1-1, 2)、(1-1, 1-1-1, 1)になる。
 最終的に挿入するデータは、(1, 1-1-1, 2)、(1-1, 1-1-1, 1)、(1-1-1, 1-1-1, 0)になる。
 よって、SQLは以下のようになる。
@@ -729,4 +729,345 @@ node_relationshipsとnode_sibling_relationshipsに関しては、`ON DELETE CASC
 
 ## 先祖-子孫間、兄弟間の移動
 
-<!-- TODO -->
+以下の移動先の指定方法のどれかを指定すれば、どの場所にも移動できる。
+
+- ルート
+- 親のノード
+- 兄のノード
+- 弟のノード
+
+### node_relationships
+
+どの指定方法でも、まずは移動するノードのサブツリーを先祖から外す必要がある。
+例えば以下のような木構造がある場合、
+
+- 1
+  - 1-1
+    - 1-1-1
+
+node_relationshipsテーブルは以下のようになる。
+
+| ancestor | descendant | weight |
+| -------- | ---------- | ------ |
+| 1        | 1          | 0      |
+| 1        | 1-1        | 1      |
+| 1        | 1-1-1      | 2      |
+| 1-1      | 1-1        | 0      |
+| 1-1      | 1-1-1      | 1      |
+| 1-1-1    | 1-1-1      | 0      |
+
+`1-1`のノードを移動する場合、削除する関係は(1, 1-1)、(1, 1-1-1)である。
+つまり、ancestorは「移動するノード」以外の「移動するノード」の先祖で、descendantは移動するノードの子孫、の関係を削除すればよい。
+よって、SQLは以下のようになる。
+
+```sql
+DELETE FROM
+  node_relationships
+WHERE
+  ancestor IN (
+    SELECT
+      ancestor
+    FROM
+      node_relationships
+    WHERE
+      descendant = $1
+      AND ancestor != $1
+  )
+  AND descendant IN (
+    SELECT
+      descendant
+    FROM
+      node_relationships
+    WHERE
+      ancestor = $1
+  )
+```
+
+※$1は任意のノードのid
+
+次に、外したサブツリーを、移動先のノードを親として追加する。
+例えば、先ほど外した`1-1`のサブツリーを、`1-2`のノードを親として追加する場合を考える。
+追加前は以下のようになる。
+
+- 1
+  - 1-2
+- 1-1
+  - 1-1-1
+
+| ancestor | descendant | weight |
+| -------- | ---------- | ------ |
+| 1        | 1          | 0      |
+| 1        | 1-2        | 1      |
+| 1-2      | 1-2        | 0      |
+| 1-1      | 1-1        | 0      |
+| 1-1      | 1-1-1      | 1      |
+| 1-1-1    | 1-1-1      | 0      |
+
+追加後は以下のようになる。
+
+- 1
+  - 1-2
+    - 1-1
+      - 1-1-1
+
+| ancestor | descendant | weight |
+| -------- | ---------- | ------ |
+| 1        | 1          | 0      |
+| 1        | 1-2        | 1      |
+| 1        | 1-1        | 2      |
+| 1        | 1-1-1      | 3      |
+| 1-2      | 1-2        | 0      |
+| 1-2      | 1-1        | 1      |
+| 1-2      | 1-1-1      | 2      |
+| 1-1      | 1-1        | 0      |
+| 1-1      | 1-1-1      | 1      |
+| 1-1-1    | 1-1-1      | 0      |
+
+よって、追加する関係は、(1, 1-1, 2)、(1, 1-1-1, 3)、(1-2, 1-1, 1)、(1-2, 1-1-1, 2)になる。
+つまり、追加する関係は、ancestorは移動先のノードの先祖、descendantは移動するノードの子孫になる。
+weightに関しては、例えば`1`のノードと`1-1-1`のノード間を考える。
+これを並べると、`1`-`1-2`-`1-1`-`1-1-1`になる。
+`1`-`1-2`間の重みは1、`1-1`-`1-1-1`間の重みは1、`1-2`-`1-1`間の重みは1である。
+つまり、追加する関係のweightは以下のようになる。
+
+```
+「移動先のノード」の先祖と「移動先のノード」との重み + 「移動するノード」の子孫と「移動するノード」との重み + 1(移動先のノードと移動するノードとの重み)
+```
+
+よって、SQLは以下のようになる。
+
+```sql
+INSERT INTO
+  node_relationships (ancestor, descendant, weight)
+SELECT
+  parent.ancestor,
+  child.descendant,
+  parent.weight + child.weight + 1
+FROM
+  node_relationships AS parent
+  JOIN node_relationships AS child ON parent.descendant = $1
+  AND child.ancestor = $2
+```
+
+※$1は移動先のノードのid、$2は移動するノードのid
+
+### node_sibling_relationships
+
+どの指定方法でも、まずは移動するノードを先祖と子孫から外す必要がある。
+例えば以下のような木構造がある場合、
+
+- 1
+  - 2
+    - 3
+
+node_sibling_relationshipsテーブルは以下のようになる。
+
+| ancestor | descendant | weight |
+| -------- | ---------- | ------ |
+| 1        | 1          | 0      |
+| 1        | 2          | 1      |
+| 1        | 3          | 2      |
+| 2        | 2          | 0      |
+| 2        | 3          | 1      |
+| 3        | 3          | 0      |
+
+`2`のノードを移動する場合、削除する関係は(1, 2)、(2, 3)である。
+つまり、ancestorは移動するノードの先祖で、descendantは移動するノードの子孫、の関係を削除すればよい(ただし、移動するノード自身との関係は除く)。
+よって、SQLは以下のようになる。
+
+```sql
+DELETE FROM
+  node_sibling_relationships
+WHERE
+  (
+    ancestor = $1
+    OR descendant = $1
+  )
+  AND ancestor != descendant
+```
+
+※$1は任意のノードのid
+
+そのまま削除すると`1`-`3`間のweightが2のままになってしまうので、削除する前に、移動するノードの先祖(自身を除く)と移動するノードの子孫(自身を除く)間のweightをデクリメントする必要がある。
+よって、削除する前に以下のSQLを実行する必要がある。
+
+```sql
+UPDATE
+  node_sibling_relationships
+SET
+  weight = weight - 1
+WHERE
+  ancestor IN (
+    SELECT
+      ancestor
+    FROM
+      node_sibling_relationships
+    WHERE
+      descendant = $1
+      AND ancestor != $1
+  )
+  AND descendant IN (
+    SELECT
+      descendant
+    FROM
+      node_sibling_relationships
+    WHERE
+      ancestor = $1
+      AND descendant != $1
+  )
+```
+
+※$1は任意のノードのid
+
+次に、外したノードを、移動先のノードを親として追加する。
+追加する方法は、以下の3つのパターンに分けられる。
+
+- ルート、親のノード
+- 兄のノード
+- 弟のノード
+
+ルートの場合はルートの末っ子を、親のノードの場合は親のノードの子の末っ子を親として追加することにする。
+追加先のノードを取得した後は、以下のSQLで追加する。
+
+```sql
+INSERT INTO
+  node_sibling_relationships (ancestor, descendant, weight)
+SELECT
+  ancestor,
+  $2,
+  weight + 1
+FROM
+  node_sibling_relationships
+WHERE
+  descendant = $1
+```
+
+※$1は追加先のノードのid、$2は追加するノードのid
+
+次は、兄のノードの場合を考える。
+例えば以下のような木構造がある場合、
+
+- 1
+  - 2
+    - 3
+
+node_sibling_relationshipsテーブルは以下のようになる。
+
+| ancestor | descendant | weight |
+| -------- | ---------- | ------ |
+| 1        | 1          | 0      |
+| 1        | 2          | 1      |
+| 1        | 3          | 2      |
+| 2        | 2          | 0      |
+| 2        | 3          | 1      |
+| 3        | 3          | 0      |
+
+`1-1`のノードを、`2`のノードを兄として移動した場合は以下のようになる。
+
+- 1
+  - 2
+    - 1-1
+      - 3
+
+| ancestor | descendant | weight |
+| -------- | ---------- | ------ |
+| 1        | 1          | 0      |
+| 1        | 2          | 1      |
+| 1        | 1-1        | 2      |
+| 1        | 3          | 3      |
+| 2        | 2          | 0      |
+| 2        | 1-1        | 1      |
+| 2        | 3          | 2      |
+| 1-1      | 1-1        | 0      |
+| 1-1      | 3          | 1      |
+| 3        | 3          | 0      |
+
+よって、追加する関係は、(1, 1-1, 2)、(2, 1-1, 1)、(1-1, 3, 1)になる。
+ノードの移動機能と、ノードの追加機能の違いは、途中に割り込ませるところである。
+具体的には、(1-1, 3, 1)の関係を追加する部分である。
+これは追加先のノード(自身を除く)の子孫である。
+よって、SQLは以下のようになる。
+
+```sql
+INSERT INTO
+  node_sibling_relationships (ancestor, descendant, weight)
+SELECT
+  ancestor,
+  $2,
+  weight + 1
+FROM
+  node_sibling_relationships
+WHERE
+  descendant = $1
+UNION
+ALL
+SELECT
+  $2,
+  descendant,
+  weight
+FROM
+  node_sibling_relationships
+WHERE
+  ancestor = $1
+  AND descendant != $1
+```
+
+※$1は移動先のノードのid、$2は移動するノードのid
+
+弟のノードの場合は、これを逆にしたようなSQLになる。
+
+```sql
+INSERT INTO
+  node_sibling_relationships (ancestor, descendant, weight)
+SELECT
+  ancestor,
+  $2,
+  weight
+FROM
+  node_sibling_relationships
+WHERE
+  descendant = $1
+  AND ancestor != $1
+UNION
+ALL
+SELECT
+  $2,
+  descendant,
+  weight + 1
+FROM
+  node_sibling_relationships
+WHERE
+  ancestor = $1
+```
+
+※$1は移動先のノードのid、$2は移動するノードのid
+
+追加後は、先ほどのデクリメントの処理のインクリメント版の処理を行う必要がある。
+
+```sql
+UPDATE
+  node_sibling_relationships
+SET
+  weight = weight + 1
+WHERE
+  ancestor IN (
+    SELECT
+      ancestor
+    FROM
+      node_sibling_relationships
+    WHERE
+      descendant = $1
+      AND ancestor != $1
+  )
+  AND descendant IN (
+    SELECT
+      descendant
+    FROM
+      node_sibling_relationships
+    WHERE
+      ancestor = $1
+      AND descendant != $1
+  )
+```
+
+※$1は任意のノードのid
