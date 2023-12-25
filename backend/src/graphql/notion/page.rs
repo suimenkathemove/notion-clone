@@ -154,16 +154,14 @@ struct MoveTarget {
 impl From<MoveTarget> for models::notion::page::MoveTarget {
     fn from(value: MoveTarget) -> Self {
         match value.type_ {
-            MoveTargetType::Root => models::notion::page::MoveTarget::Parent(None),
-            MoveTargetType::Parent => {
-                models::notion::page::MoveTarget::Parent(Some(value.id.into()))
+            MoveTargetType::Root => models::notion::page::MoveTarget::Root,
+            MoveTargetType::Parent => models::notion::page::MoveTarget::Parent(value.id.into()),
+            MoveTargetType::SiblingParent => {
+                models::notion::page::MoveTarget::SiblingParent(value.id.into())
             }
-            MoveTargetType::SiblingParent => models::notion::page::MoveTarget::Sibling(
-                models::notion::page::MoveTargetSibling::Parent(value.id.into()),
-            ),
-            MoveTargetType::SiblingChild => models::notion::page::MoveTarget::Sibling(
-                models::notion::page::MoveTargetSibling::Child(value.id.into()),
-            ),
+            MoveTargetType::SiblingChild => {
+                models::notion::page::MoveTarget::SiblingChild(value.id.into())
+            }
         }
     }
 }
