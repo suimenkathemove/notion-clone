@@ -452,35 +452,27 @@ impl InternalPageRepository {
         .execute(&mut *tx)
         .await?;
         let to_parent_id: Option<models::notion::page::PageId> = match target {
-            models::notion::page::MoveTarget::Parent(to_parent_id) => to_parent_id.map(Into::into),
-            models::notion::page::MoveTarget::Sibling(move_target_sibling) => {
-                let to_sibling_id = match move_target_sibling {
-                    models::notion::page::MoveTargetSibling::Parent(to_sibling_parent_id) => {
-                        to_sibling_parent_id
-                    }
-                    models::notion::page::MoveTargetSibling::Child(to_sibling_child_id) => {
-                        to_sibling_child_id
-                    }
-                };
-                query_as::<_, Page>(
-                    "
-                    WITH parent AS (
-                        SELECT ancestor AS id
-                        FROM notion.page_relationships
-                        WHERE descendant = $1
-                        AND weight = 1
-                    )
-                    SELECT notion.pages.id, title, text, created_at, updated_at
-                    FROM notion.pages
-                    JOIN parent
-                    ON notion.pages.id = parent.id
-                    ",
+            models::notion::page::MoveTarget::Root => None,
+            models::notion::page::MoveTarget::Parent(to_parent_id) => Some(*to_parent_id),
+            models::notion::page::MoveTarget::SiblingParent(to_sibling_id)
+            | models::notion::page::MoveTarget::SiblingChild(to_sibling_id) => query_as::<_, Page>(
+                "
+                WITH parent AS (
+                    SELECT ancestor AS id
+                    FROM notion.page_relationships
+                    WHERE descendant = $1
+                    AND weight = 1
                 )
-                .bind(to_sibling_id.0)
-                .fetch_optional(&mut *tx)
-                .await?
-                .map(|p| p.id.into())
-            }
+                SELECT notion.pages.id, title, text, created_at, updated_at
+                FROM notion.pages
+                JOIN parent
+                ON notion.pages.id = parent.id
+                ",
+            )
+            .bind(to_sibling_id.0)
+            .fetch_optional(&mut *tx)
+            .await?
+            .map(|p| p.id.into()),
         };
         if let Some(to_parent_id) = to_parent_id {
             query(
@@ -510,9 +502,37 @@ impl InternalPageRepository {
         .execute(&mut *tx)
         .await?;
         match target {
-            models::notion::page::MoveTarget::Parent(to_parent_id) => match to_parent_id {
-                Some(to_parent_id) => {
-                    let sibling_leave_id_of_to_parent = query_as::<_, Page>(
+            models::notion::page::MoveTarget::Root
+            | models::notion::page::MoveTarget::Parent(_) => {
+                let sibling_leave_id_of_to_parent = match target {
+                    models::notion::page::MoveTarget::Root => query_as::<_, Page>(
+                        "
+                        WITH roots AS (
+                            SELECT descendant AS id
+                            FROM notion.page_relationships
+                            GROUP BY descendant
+                            HAVING COUNT(*) = 1
+                        ),
+                        sibling_leaves AS (
+                            SELECT ancestor AS id
+                            FROM notion.page_sibling_relationships
+                            GROUP BY ancestor
+                            HAVING COUNT(*) = 1
+                        )
+                        SELECT notion.pages.id, title, text, created_at, updated_at
+                        FROM notion.pages
+                        JOIN roots
+                        ON notion.pages.id = roots.id
+                        JOIN sibling_leaves
+                        ON notion.pages.id = sibling_leaves.id
+                        WHERE notion.pages.id != $1
+                        ",
+                    )
+                    .bind(id.0)
+                    .fetch_optional(&mut *tx)
+                    .await?
+                    .map(|p| p.id),
+                    models::notion::page::MoveTarget::Parent(to_parent_id) => query_as::<_, Page>(
                         "
                         WITH children AS (
                             SELECT descendant AS id
@@ -539,134 +559,84 @@ impl InternalPageRepository {
                     .bind(id.0)
                     .fetch_optional(&mut *tx)
                     .await?
-                    .map(|p| p.id);
-                    if let Some(sibling_leave_id_of_to_parent) = sibling_leave_id_of_to_parent {
-                        query(
-                            "
-                            INSERT INTO notion.page_sibling_relationships (ancestor, descendant, weight)
-                            SELECT ancestor, $2, weight + 1
-                            FROM notion.page_sibling_relationships
-                            WHERE descendant = $1
-                            ",
-                        )
-                        .bind(sibling_leave_id_of_to_parent)
-                        .bind(id.0)
-                        .execute(&mut *tx)
-                        .await?;
-                    }
-                }
-                None => {
-                    let sibling_leave_id_of_to_parent = query_as::<_, Page>(
+                    .map(|p| p.id),
+                    _ => unreachable!(),
+                };
+                if let Some(sibling_leave_id_of_to_parent) = sibling_leave_id_of_to_parent {
+                    query(
                         "
-                        WITH roots AS (
-                            SELECT descendant AS id
-                            FROM notion.page_relationships
-                            GROUP BY descendant
-                            HAVING COUNT(*) = 1
-                        ),
-                        sibling_leaves AS (
-                            SELECT ancestor AS id
-                            FROM notion.page_sibling_relationships
-                            GROUP BY ancestor
-                            HAVING COUNT(*) = 1
-                        )
-                        SELECT notion.pages.id, title, text, created_at, updated_at
-                        FROM notion.pages
-                        JOIN roots
-                        ON notion.pages.id = roots.id
-                        JOIN sibling_leaves
-                        ON notion.pages.id = sibling_leaves.id
-                        WHERE notion.pages.id != $1
-                        ",
-                    )
-                    .bind(id.0)
-                    .fetch_optional(&mut *tx)
-                    .await?
-                    .map(|p| p.id);
-                    match sibling_leave_id_of_to_parent {
-                        Some(sibling_leave_id_of_to_parent) => {
-                            query(
-                                "
-                                INSERT INTO notion.page_sibling_relationships (ancestor, descendant, weight)
-                                SELECT ancestor, $2, weight + 1
-                                FROM notion.page_sibling_relationships
-                                WHERE descendant = $1
-                                ",
-                            )
-                            .bind(sibling_leave_id_of_to_parent)
-                            .bind(id.0)
-                            .execute(&mut *tx)
-                            .await?;
-                        }
-                        // TODO: assertion error
-                        None => return Err(RepositoryError::Unknown),
-                    }
-                }
-            },
-            models::notion::page::MoveTarget::Sibling(move_target_sibling) => {
-                match move_target_sibling {
-                    models::notion::page::MoveTargetSibling::Parent(to_sibling_parent_id) => {
-                        query(
-                            "
-                            INSERT INTO notion.page_sibling_relationships (ancestor, descendant, weight)
-                            SELECT ancestor, $2, weight + 1
-                            FROM notion.page_sibling_relationships
-                            WHERE descendant = $1
-                            UNION ALL
-                            SELECT $2, descendant, weight
-                            FROM notion.page_sibling_relationships
-                            WHERE ancestor = $1
-                            AND descendant != $1
-                            ",
-                        )
-                        .bind(to_sibling_parent_id.0)
-                        .bind(id.0)
-                        .execute(&mut *tx)
-                        .await?;
-                    }
-                    models::notion::page::MoveTargetSibling::Child(to_sibling_child_id) => {
-                        query(
-                            "
-                            INSERT INTO notion.page_sibling_relationships (ancestor, descendant, weight)
-                            SELECT ancestor, $2, weight
-                            FROM notion.page_sibling_relationships
-                            WHERE descendant = $1
-                            AND ancestor != $1
-                            UNION ALL
-                            SELECT $2, descendant, weight + 1
-                            FROM notion.page_sibling_relationships
-                            WHERE ancestor = $1
-                            ",
-                        )
-                        .bind(to_sibling_child_id.0)
-                        .bind(id.0)
-                        .execute(&mut *tx)
-                        .await?;
-                    }
-                }
-                query(
-                    "
-                    UPDATE notion.page_sibling_relationships
-                    SET weight = weight + 1
-                    WHERE ancestor IN (
-                        SELECT ancestor
+                        INSERT INTO notion.page_sibling_relationships (ancestor, descendant, weight)
+                        SELECT ancestor, $2, weight + 1
                         FROM notion.page_sibling_relationships
                         WHERE descendant = $1
-                        AND ancestor != $1
+                        ",
                     )
-                    AND descendant IN (
-                        SELECT descendant
-                        FROM notion.page_sibling_relationships
-                        WHERE ancestor = $1
-                        AND descendant != $1
-                    )
+                    .bind(sibling_leave_id_of_to_parent)
+                    .bind(id.0)
+                    .execute(&mut *tx)
+                    .await?;
+                }
+            }
+            models::notion::page::MoveTarget::SiblingParent(to_sibling_parent_id) => {
+                query(
+                    "
+                    INSERT INTO notion.page_sibling_relationships (ancestor, descendant, weight)
+                    SELECT ancestor, $2, weight + 1
+                    FROM notion.page_sibling_relationships
+                    WHERE descendant = $1
+                    UNION ALL
+                    SELECT $2, descendant, weight
+                    FROM notion.page_sibling_relationships
+                    WHERE ancestor = $1
+                    AND descendant != $1
                     ",
                 )
+                .bind(to_sibling_parent_id.0)
+                .bind(id.0)
+                .execute(&mut *tx)
+                .await?;
+            }
+            models::notion::page::MoveTarget::SiblingChild(to_sibling_child_id) => {
+                query(
+                    "
+                    INSERT INTO notion.page_sibling_relationships (ancestor, descendant, weight)
+                    SELECT ancestor, $2, weight
+                    FROM notion.page_sibling_relationships
+                    WHERE descendant = $1
+                    AND ancestor != $1
+                    UNION ALL
+                    SELECT $2, descendant, weight + 1
+                    FROM notion.page_sibling_relationships
+                    WHERE ancestor = $1
+                    ",
+                )
+                .bind(to_sibling_child_id.0)
                 .bind(id.0)
                 .execute(&mut *tx)
                 .await?;
             }
         }
+        query(
+            "
+            UPDATE notion.page_sibling_relationships
+            SET weight = weight + 1
+            WHERE ancestor IN (
+                SELECT ancestor
+                FROM notion.page_sibling_relationships
+                WHERE descendant = $1
+                AND ancestor != $1
+            )
+            AND descendant IN (
+                SELECT descendant
+                FROM notion.page_sibling_relationships
+                WHERE ancestor = $1
+                AND descendant != $1
+            )
+            ",
+        )
+        .bind(id.0)
+        .execute(&mut *tx)
+        .await?;
 
         tx.commit().await?;
 

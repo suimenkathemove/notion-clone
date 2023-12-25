@@ -224,12 +224,9 @@ mod tests {
     }
 }
 
-pub enum MoveTargetSibling {
-    Parent(PageId),
-    Child(PageId),
-}
-
 pub enum MoveTarget {
-    Parent(Option<PageId>),
-    Sibling(MoveTargetSibling),
+    Root,
+    Parent(PageId),
+    SiblingParent(PageId),
+    SiblingChild(PageId),
 }

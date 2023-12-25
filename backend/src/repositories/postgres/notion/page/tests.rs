@@ -380,7 +380,7 @@ mod move_ {
 
         InternalPageRepository::move_(
             &page_1_1.id,
-            &models::notion::page::MoveTarget::Parent(None),
+            &models::notion::page::MoveTarget::Root,
             &mut tx,
         )
         .await?;
@@ -444,7 +444,7 @@ mod move_ {
 
         InternalPageRepository::move_(
             &page_1_1.id,
-            &models::notion::page::MoveTarget::Parent(Some(page_1.id)),
+            &models::notion::page::MoveTarget::Parent(page_1.id),
             &mut tx,
         )
         .await?;
@@ -509,9 +509,7 @@ mod move_ {
 
         InternalPageRepository::move_(
             &page_1_1.id,
-            &models::notion::page::MoveTarget::Sibling(
-                models::notion::page::MoveTargetSibling::Parent(page_2.id),
-            ),
+            &models::notion::page::MoveTarget::SiblingParent(page_2.id),
             &mut tx,
         )
         .await?;
@@ -575,9 +573,7 @@ mod move_ {
 
         InternalPageRepository::move_(
             &page_1_1.id,
-            &models::notion::page::MoveTarget::Sibling(
-                models::notion::page::MoveTargetSibling::Child(page_2.id),
-            ),
+            &models::notion::page::MoveTarget::SiblingChild(page_2.id),
             &mut tx,
         )
         .await?;
