@@ -493,6 +493,27 @@ impl InternalPageRepository {
 
         query(
             "
+            UPDATE notion.page_sibling_relationships
+            SET weight = weight - 1
+            WHERE ancestor IN (
+                SELECT ancestor
+                FROM notion.page_sibling_relationships
+                WHERE descendant = $1
+                AND ancestor != $1
+            )
+            AND descendant IN (
+                SELECT descendant
+                FROM notion.page_sibling_relationships
+                WHERE ancestor = $1
+                AND descendant != $1
+            )
+            ",
+        )
+        .bind(id.0)
+        .execute(&mut *tx)
+        .await?;
+        query(
+            "
             DELETE FROM notion.page_sibling_relationships
             WHERE (ancestor = $1 OR descendant = $1)
             AND ancestor != descendant
