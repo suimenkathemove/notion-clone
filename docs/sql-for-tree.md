@@ -943,3 +943,101 @@ WHERE
 ```
 
 ※$1は追加先のノードのid、$2は追加するノードのid
+
+次は、兄のノードの場合を考える。
+例えば以下のような木構造がある場合、
+
+- 1
+  - 2
+    - 3
+
+node_sibling_relationshipsテーブルは以下のようになる。
+
+| ancestor | descendant | weight |
+| -------- | ---------- | ------ |
+| 1        | 1          | 0      |
+| 1        | 2          | 1      |
+| 1        | 3          | 2      |
+| 2        | 2          | 0      |
+| 2        | 3          | 1      |
+| 3        | 3          | 0      |
+
+`1-1`のノードを、`2`のノードを兄として移動した場合は以下のようになる。
+
+- 1
+  - 2
+    - 1-1
+      - 3
+
+| ancestor | descendant | weight |
+| -------- | ---------- | ------ |
+| 1        | 1          | 0      |
+| 1        | 2          | 1      |
+| 1        | 1-1        | 2      |
+| 1        | 3          | 3      |
+| 2        | 2          | 0      |
+| 2        | 1-1        | 1      |
+| 2        | 3          | 2      |
+| 1-1      | 1-1        | 0      |
+| 1-1      | 3          | 1      |
+| 3        | 3          | 0      |
+
+よって、追加する関係は、(1, 1-1, 2)、(2, 1-1, 1)、(1-1, 3, 1)になる。
+ノードの移動機能と、ノードの追加機能の違いは、途中に割り込ませるところである。
+具体的には、(1-1, 3, 1)の関係を追加する部分である。
+これは追加先のノード(自身を除く)の子孫である。
+よって、SQLは以下のようになる。
+
+```sql
+INSERT INTO
+  node_sibling_relationships (ancestor, descendant, weight)
+SELECT
+  ancestor,
+  $2,
+  weight + 1
+FROM
+  node_sibling_relationships
+WHERE
+  descendant = $1
+UNION
+ALL
+SELECT
+  $2,
+  descendant,
+  weight
+FROM
+  node_sibling_relationships
+WHERE
+  ancestor = $1
+  AND descendant != $1
+```
+
+※$1は移動先のノードのid、$2は移動するノードのid
+
+弟のノードの場合は、これを逆にしたようなSQLになる。
+
+```sql
+INSERT INTO
+  node_sibling_relationships (ancestor, descendant, weight)
+SELECT
+  ancestor,
+  $2,
+  weight
+FROM
+  node_sibling_relationships
+WHERE
+  descendant = $1
+  AND ancestor != $1
+UNION
+ALL
+SELECT
+  $2,
+  descendant,
+  weight + 1
+FROM
+  node_sibling_relationships
+WHERE
+  ancestor = $1
+```
+
+※$1は移動先のノードのid、$2は移動するノードのid
