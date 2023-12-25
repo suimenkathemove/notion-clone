@@ -1073,7 +1073,11 @@ WHERE
 
 ※$1は任意のノードのid
 
+## 最後に
+
+この方法で、Notionアプリのページ機能の一部を実装した。
+<https://github.com/suimenkathemove/monorepo-sandbox/blob/da4f67c58418f4b9f48ee60f34e481f96bb8a47e/backend/src/repositories/postgres/notion/page/mod.rs>
+
 ## 参考
 
 - SQLアンチパターン 2.5.3
-- <https://github.com/suimenkathemove/monorepo-sandbox/blob/da4f67c58418f4b9f48ee60f34e481f96bb8a47e/backend/src/repositories/postgres/notion/page/mod.rs>
