@@ -1041,3 +1041,33 @@ WHERE
 ```
 
 ※$1は移動先のノードのid、$2は移動するノードのid
+
+追加後は、先ほどのデクリメントの処理のインクリメント版の処理を行う必要がある。
+
+```sql
+UPDATE
+  node_sibling_relationships
+SET
+  weight = weight + 1
+WHERE
+  ancestor IN (
+    SELECT
+      ancestor
+    FROM
+      node_sibling_relationships
+    WHERE
+      descendant = $1
+      AND ancestor != $1
+  )
+  AND descendant IN (
+    SELECT
+      descendant
+    FROM
+      node_sibling_relationships
+    WHERE
+      ancestor = $1
+      AND descendant != $1
+  )
+```
+
+※$1は任意のノードのid
