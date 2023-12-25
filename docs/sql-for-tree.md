@@ -918,3 +918,28 @@ WHERE
 ```
 
 ※$1は任意のノードのid
+
+次に、外したノードを、移動先のノードを親として追加する。
+追加する方法は、以下の3つのパターンに分けられる。
+
+- ルート、親のノード
+- 兄のノード
+- 弟のノード
+
+ルートの場合はルートの末っ子を、親のノードの場合は親のノードの子の末っ子を親として追加することにする。
+追加先のノードを取得した後は、以下のSQLで追加する。
+
+```sql
+INSERT INTO
+  node_sibling_relationships (ancestor, descendant, weight)
+SELECT
+  ancestor,
+  $2,
+  weight + 1
+FROM
+  node_sibling_relationships
+WHERE
+  descendant = $1
+```
+
+※$1は追加先のノードのid、$2は追加するノードのid
