@@ -739,3 +739,48 @@ node_relationshipsとnode_sibling_relationshipsに関しては、`ON DELETE CASC
 ### node_relationships
 
 どの指定方法でも、まずは移動するノードのサブツリーを先祖から外す必要がある。
+例えば以下のような木構造がある場合、
+
+- 1
+  - 1-1
+    - 1-1-1
+
+page_relationshipsテーブルは以下のようになる。
+
+| ancestor | descendant | weight |
+| -------- | ---------- | ------ |
+| 1        | 1          | 0      |
+| 1        | 1-1        | 1      |
+| 1        | 1-1-1      | 2      |
+| 1-1      | 1-1        | 0      |
+| 1-1      | 1-1-1      | 1      |
+| 1-1-1    | 1-1-1      | 0      |
+
+`1-1`のノードを移動する場合、削除する関係は(1, 1-1)、(1, 1-1-1)である。
+つまり、ancestorは`1-1`のノード以外の`1-1`のノードの先祖で、descendantは`1-1`の子孫の関係を削除すればよい。
+よって、SQLは以下のようになる。
+
+```sql
+DELETE FROM
+  node_relationships
+WHERE
+  ancestor IN (
+    SELECT
+      ancestor
+    FROM
+      node_relationships
+    WHERE
+      descendant = $1
+      AND ancestor != $1
+  )
+  AND descendant IN (
+    SELECT
+      descendant
+    FROM
+      node_relationships
+    WHERE
+      ancestor = $1
+  )
+```
+
+※$1は任意のノードのid
