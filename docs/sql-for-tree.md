@@ -745,7 +745,7 @@ node_relationshipsとnode_sibling_relationshipsに関しては、`ON DELETE CASC
   - 1-1
     - 1-1-1
 
-page_relationshipsテーブルは以下のようになる。
+node_relationshipsテーブルは以下のようになる。
 
 | ancestor | descendant | weight |
 | -------- | ---------- | ------ |
@@ -850,3 +850,71 @@ FROM
 ```
 
 ※$1は移動先のノードのid、$2は移動するノードのid
+
+### node_sibling_relationships
+
+どの指定方法でも、まずは移動するノードを先祖と子孫から外す必要がある。
+例えば以下のような木構造がある場合、
+
+- 1
+  - 2
+    - 3
+
+node_sibling_relationshipsテーブルは以下のようになる。
+
+| ancestor | descendant | weight |
+| -------- | ---------- | ------ |
+| 1        | 1          | 0      |
+| 1        | 2          | 1      |
+| 1        | 3          | 2      |
+| 2        | 2          | 0      |
+| 2        | 3          | 1      |
+| 3        | 3          | 0      |
+
+`2`のノードを移動する場合、削除する関係は(1, 2)、(2, 3)である。
+つまり、ancestorは移動するノードの先祖で、descendantは移動するノードの子孫、の関係を削除すればよい(ただし、移動するノード自身との関係は除く)。
+よって、SQLは以下のようになる。
+
+```sql
+DELETE FROM
+  node_sibling_relationships
+WHERE
+  (
+    ancestor = $1
+    OR descendant = $1
+  )
+  AND ancestor != descendant
+```
+
+※$1は任意のノードのid
+
+そのまま削除すると`1`-`3`間のweightが2のままになってしまうので、削除する前に、移動するノードの先祖(自身を除く)と移動するノードの子孫(自身を除く)間のweightをデクリメントする必要がある。
+よって、削除する前に以下のSQLを実行する必要がある。
+
+```sql
+UPDATE
+  node_sibling_relationships
+SET
+  weight = weight - 1
+WHERE
+  ancestor IN (
+    SELECT
+      ancestor
+    FROM
+      node_sibling_relationships
+    WHERE
+      descendant = $1
+      AND ancestor != $1
+  )
+  AND descendant IN (
+    SELECT
+      descendant
+    FROM
+      node_sibling_relationships
+    WHERE
+      ancestor = $1
+      AND descendant != $1
+  )
+```
+
+※$1は任意のノードのid
