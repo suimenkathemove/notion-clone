@@ -360,6 +360,61 @@ async fn remove_should_succeed() -> anyhow::Result<()> {
     Ok(())
 }
 
+#[tokio::test]
+async fn remove_middle_should_succeed() -> anyhow::Result<()> {
+    let (
+        InsertMockResponse {
+            page_1,
+            page_2,
+            page_3,
+            page_1_1,
+            page_1_2,
+            page_1_3,
+            page_1_1_1,
+        },
+        mut tx,
+    ) = setup().await?;
+
+    InternalPageRepository::remove(&page_1_2.id, &mut tx).await?;
+
+    let page_relationships = get_page_relationships(&mut tx).await?;
+    assert_eq!(
+        HashSet::from([
+            SimplePageRelationship(page_1.id, page_1.id, 0),
+            SimplePageRelationship(page_1.id, page_1_1.id, 1),
+            SimplePageRelationship(page_1.id, page_1_3.id, 1),
+            SimplePageRelationship(page_1.id, page_1_1_1.id, 2),
+            SimplePageRelationship(page_2.id, page_2.id, 0),
+            SimplePageRelationship(page_3.id, page_3.id, 0),
+            SimplePageRelationship(page_1_1.id, page_1_1.id, 0),
+            SimplePageRelationship(page_1_1.id, page_1_1_1.id, 1),
+            SimplePageRelationship(page_1_3.id, page_1_3.id, 0),
+            SimplePageRelationship(page_1_1_1.id, page_1_1_1.id, 0)
+        ]),
+        page_relationships
+    );
+    let page_sibling_relationships = get_page_sibling_relationships(&mut tx).await?;
+    assert_eq!(
+        HashSet::from([
+            SimplePageRelationship(page_1.id, page_1.id, 0),
+            SimplePageRelationship(page_1.id, page_2.id, 1),
+            SimplePageRelationship(page_1.id, page_3.id, 2),
+            SimplePageRelationship(page_2.id, page_2.id, 0),
+            SimplePageRelationship(page_2.id, page_3.id, 1),
+            SimplePageRelationship(page_3.id, page_3.id, 0),
+            SimplePageRelationship(page_1_1.id, page_1_1.id, 0),
+            SimplePageRelationship(page_1_1.id, page_1_3.id, 1),
+            SimplePageRelationship(page_1_3.id, page_1_3.id, 0),
+            SimplePageRelationship(page_1_1_1.id, page_1_1_1.id, 0)
+        ]),
+        page_sibling_relationships
+    );
+
+    teardown(tx).await?;
+
+    Ok(())
+}
+
 mod move_ {
     use super::*;
 
