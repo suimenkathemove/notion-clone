@@ -16,8 +16,8 @@ export const ListRootPages = gql`
 `;
 
 export const AddPage = gql`
-  mutation AddPage($title: String!, $text: String!) {
-    addPage(title: $title, text: $text) {
+  mutation AddPage($parentId: PageId, $content: PageContent!) {
+    addPage(parentId: $parentId, content: $content) {
       ... on Page {
         id
         title

@@ -5,48 +5,50 @@ export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
+export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 const defaultOptions = {} as const;
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: string;
-  String: string;
-  Boolean: boolean;
-  Int: number;
-  Float: number;
-  ChannelId: any;
-  ChannelName: any;
-  DateTimeUtc: any;
-  MessageId: any;
-  PageId: any;
-  ThreadId: any;
+  ID: { input: string; output: string; }
+  String: { input: string; output: string; }
+  Boolean: { input: boolean; output: boolean; }
+  Int: { input: number; output: number; }
+  Float: { input: number; output: number; }
+  ChannelId: { input: any; output: any; }
+  ChannelName: { input: any; output: any; }
+  DateTimeUtc: { input: any; output: any; }
+  MessageId: { input: any; output: any; }
+  PageId: { input: any; output: any; }
+  ThreadId: { input: any; output: any; }
 };
 
 export type AddPageResult = GraphQlError | Page;
 
 export type Channel = {
   __typename?: 'Channel';
-  createdAt: Scalars['DateTimeUtc'];
-  description: Scalars['String'];
-  id: Scalars['ChannelId'];
-  name: Scalars['ChannelName'];
-  private: Scalars['Boolean'];
+  createdAt: Scalars['DateTimeUtc']['output'];
+  description: Scalars['String']['output'];
+  id: Scalars['ChannelId']['output'];
+  name: Scalars['ChannelName']['output'];
+  private: Scalars['Boolean']['output'];
   threads: Array<Thread>;
-  updatedAt: Scalars['DateTimeUtc'];
+  updatedAt: Scalars['DateTimeUtc']['output'];
 };
 
 export type DeleteChannelOutput = {
   __typename?: 'DeleteChannelOutput';
-  id: Scalars['ChannelId'];
+  id: Scalars['ChannelId']['output'];
 };
 
 export type DeleteMessageOutput = {
   __typename?: 'DeleteMessageOutput';
-  id: Scalars['MessageId'];
+  id: Scalars['MessageId']['output'];
 };
 
 export type DeleteThreadOutput = {
   __typename?: 'DeleteThreadOutput';
-  id: Scalars['ThreadId'];
+  id: Scalars['ThreadId']['output'];
 };
 
 export type GetPageResult = GraphQlError | Page;
@@ -65,31 +67,41 @@ export type ListAncestorPagesResult = GraphQlError | ListPages;
 
 export type ListChildrenPagesResult = GraphQlError | ListPages;
 
-export type ListDescendantPagesResult = GraphQlError | ListPages;
+export type ListDescendantPagesResult = GraphQlError | PageTree;
 
 export type ListPages = {
   __typename?: 'ListPages';
   items: Array<Page>;
 };
 
-export type ListPagesResult = GraphQlError | ListPages;
-
 export type ListRootPagesResult = GraphQlError | ListPages;
 
 export type Message = {
   __typename?: 'Message';
-  createdAt: Scalars['DateTimeUtc'];
-  id: Scalars['MessageId'];
-  text: Scalars['String'];
-  updatedAt: Scalars['DateTimeUtc'];
+  createdAt: Scalars['DateTimeUtc']['output'];
+  id: Scalars['MessageId']['output'];
+  text: Scalars['String']['output'];
+  updatedAt: Scalars['DateTimeUtc']['output'];
 };
 
 export type MovePage = {
   __typename?: 'MovePage';
-  id: Scalars['PageId'];
+  id: Scalars['PageId']['output'];
 };
 
 export type MovePageResult = GraphQlError | MovePage;
+
+export type MoveTarget = {
+  id: Scalars['PageId']['input'];
+  type: MoveTargetType;
+};
+
+export enum MoveTargetType {
+  Parent = 'PARENT',
+  Root = 'ROOT',
+  SiblingChild = 'SIBLING_CHILD',
+  SiblingParent = 'SIBLING_PARENT'
+}
 
 export type MutationRoot = {
   __typename?: 'MutationRoot';
@@ -101,62 +113,83 @@ export type MutationRoot = {
   movePage: MovePageResult;
   removePage: RemovePageResult;
   reply: Message;
+  updatePage: UpdatePageResult;
 };
 
 
 export type MutationRootAddMessageArgs = {
-  channelId: Scalars['ChannelId'];
-  text: Scalars['String'];
+  channelId: Scalars['ChannelId']['input'];
+  text: Scalars['String']['input'];
 };
 
 
 export type MutationRootAddPageArgs = {
-  parentId?: InputMaybe<Scalars['PageId']>;
-  text: Scalars['String'];
-  title: Scalars['String'];
+  content: PageContent;
+  parentId?: InputMaybe<Scalars['PageId']['input']>;
 };
 
 
 export type MutationRootCreateChannelArgs = {
-  description: Scalars['String'];
-  name: Scalars['ChannelName'];
-  private: Scalars['Boolean'];
+  description: Scalars['String']['input'];
+  name: Scalars['ChannelName']['input'];
+  private: Scalars['Boolean']['input'];
 };
 
 
 export type MutationRootDeleteChannelArgs = {
-  id: Scalars['ChannelId'];
+  id: Scalars['ChannelId']['input'];
 };
 
 
 export type MutationRootDeleteMessageArgs = {
-  id: Scalars['MessageId'];
+  id: Scalars['MessageId']['input'];
 };
 
 
 export type MutationRootMovePageArgs = {
-  id: Scalars['PageId'];
-  toParentId: Scalars['PageId'];
+  id: Scalars['PageId']['input'];
+  target: MoveTarget;
 };
 
 
 export type MutationRootRemovePageArgs = {
-  id: Scalars['PageId'];
+  id: Scalars['PageId']['input'];
 };
 
 
 export type MutationRootReplyArgs = {
-  text: Scalars['String'];
-  threadId: Scalars['ThreadId'];
+  text: Scalars['String']['input'];
+  threadId: Scalars['ThreadId']['input'];
+};
+
+
+export type MutationRootUpdatePageArgs = {
+  content: PageContent;
+  id: Scalars['PageId']['input'];
 };
 
 export type Page = {
   __typename?: 'Page';
-  createdAt: Scalars['DateTimeUtc'];
-  id: Scalars['PageId'];
-  text: Scalars['String'];
-  title: Scalars['String'];
-  updatedAt: Scalars['DateTimeUtc'];
+  createdAt: Scalars['DateTimeUtc']['output'];
+  id: Scalars['PageId']['output'];
+  text: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTimeUtc']['output'];
+};
+
+export type PageContent = {
+  text: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+};
+
+export type PageTree = {
+  __typename?: 'PageTree';
+  children: Array<PageTree>;
+  createdAt: Scalars['DateTimeUtc']['output'];
+  id: Scalars['PageId']['output'];
+  text: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTimeUtc']['output'];
 };
 
 export type QueryRoot = {
@@ -165,71 +198,76 @@ export type QueryRoot = {
   getChannel: Channel;
   getPage: GetPageResult;
   getThread: Thread;
-  healthCheck: Scalars['String'];
-  helloWorld: Scalars['String'];
+  healthCheck: Scalars['String']['output'];
   listAncestorPages: ListAncestorPagesResult;
   listChannel: Array<Channel>;
   listChildrenPages: ListChildrenPagesResult;
   listDescendantPages: ListDescendantPagesResult;
-  listPages: ListPagesResult;
   listRootPages: ListRootPagesResult;
   listThreadByChannelId: Array<Thread>;
 };
 
 
 export type QueryRootDeleteThreadArgs = {
-  id: Scalars['ThreadId'];
+  id: Scalars['ThreadId']['input'];
 };
 
 
 export type QueryRootGetChannelArgs = {
-  id: Scalars['ChannelId'];
+  id: Scalars['ChannelId']['input'];
 };
 
 
 export type QueryRootGetPageArgs = {
-  id: Scalars['PageId'];
+  id: Scalars['PageId']['input'];
 };
 
 
 export type QueryRootGetThreadArgs = {
-  id: Scalars['ThreadId'];
+  id: Scalars['ThreadId']['input'];
 };
 
 
 export type QueryRootListAncestorPagesArgs = {
-  id: Scalars['PageId'];
+  id: Scalars['PageId']['input'];
 };
 
 
 export type QueryRootListChildrenPagesArgs = {
-  id: Scalars['PageId'];
+  id: Scalars['PageId']['input'];
 };
 
 
 export type QueryRootListDescendantPagesArgs = {
-  id: Scalars['PageId'];
+  id: Scalars['PageId']['input'];
 };
 
 
 export type QueryRootListThreadByChannelIdArgs = {
-  channelId: Scalars['ChannelId'];
+  channelId: Scalars['ChannelId']['input'];
 };
 
 export type RemovePage = {
   __typename?: 'RemovePage';
-  id: Scalars['PageId'];
+  id: Scalars['PageId']['output'];
 };
 
 export type RemovePageResult = GraphQlError | RemovePage;
 
 export type Thread = {
   __typename?: 'Thread';
-  createdAt: Scalars['DateTimeUtc'];
-  id: Scalars['ThreadId'];
+  createdAt: Scalars['DateTimeUtc']['output'];
+  id: Scalars['ThreadId']['output'];
   messages: Array<Message>;
-  updatedAt: Scalars['DateTimeUtc'];
+  updatedAt: Scalars['DateTimeUtc']['output'];
 };
+
+export type UpdatePageResult = GraphQlError | Page;
+
+export type HealthCheckQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type HealthCheckQuery = { __typename?: 'QueryRoot', healthCheck: string };
 
 export type ListRootPagesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -237,29 +275,29 @@ export type ListRootPagesQueryVariables = Exact<{ [key: string]: never; }>;
 export type ListRootPagesQuery = { __typename?: 'QueryRoot', listRootPages: { __typename: 'GraphQLError' } | { __typename: 'ListPages', items: Array<{ __typename?: 'Page', id: any, title: string, text: string }> } };
 
 export type AddPageMutationVariables = Exact<{
-  title: Scalars['String'];
-  text: Scalars['String'];
+  parentId?: InputMaybe<Scalars['PageId']['input']>;
+  content: PageContent;
 }>;
 
 
 export type AddPageMutation = { __typename?: 'MutationRoot', addPage: { __typename?: 'GraphQLError' } | { __typename?: 'Page', id: any, title: string } };
 
 export type RemovePageMutationVariables = Exact<{
-  id: Scalars['PageId'];
+  id: Scalars['PageId']['input'];
 }>;
 
 
 export type RemovePageMutation = { __typename?: 'MutationRoot', removePage: { __typename?: 'GraphQLError' } | { __typename?: 'RemovePage', id: any } };
 
 export type GetPageInPagePageQueryVariables = Exact<{
-  id: Scalars['PageId'];
+  id: Scalars['PageId']['input'];
 }>;
 
 
 export type GetPageInPagePageQuery = { __typename?: 'QueryRoot', getPage: { __typename: 'GraphQLError' } | { __typename: 'Page', id: any, title: string, text: string } };
 
 export type ListAncestorPagesQueryVariables = Exact<{
-  id: Scalars['PageId'];
+  id: Scalars['PageId']['input'];
 }>;
 
 
@@ -271,41 +309,73 @@ export type ListChannelQueryVariables = Exact<{ [key: string]: never; }>;
 export type ListChannelQuery = { __typename?: 'QueryRoot', listChannel: Array<{ __typename?: 'Channel', id: any, name: any }> };
 
 export type GetChannelQueryVariables = Exact<{
-  id: Scalars['ChannelId'];
+  id: Scalars['ChannelId']['input'];
 }>;
 
 
 export type GetChannelQuery = { __typename?: 'QueryRoot', getChannel: { __typename?: 'Channel', id: any, name: any, threads: Array<{ __typename?: 'Thread', id: any, messages: Array<{ __typename?: 'Message', id: any, text: string }> }> } };
 
 export type AddMessageMutationVariables = Exact<{
-  channelId: Scalars['ChannelId'];
-  text: Scalars['String'];
+  channelId: Scalars['ChannelId']['input'];
+  text: Scalars['String']['input'];
 }>;
 
 
 export type AddMessageMutation = { __typename?: 'MutationRoot', addMessage: { __typename?: 'Message', id: any, text: string } };
 
 export type GetThreadQueryVariables = Exact<{
-  id: Scalars['ThreadId'];
+  id: Scalars['ThreadId']['input'];
 }>;
 
 
 export type GetThreadQuery = { __typename?: 'QueryRoot', getThread: { __typename?: 'Thread', id: any, messages: Array<{ __typename?: 'Message', id: any, text: string }> } };
 
 export type ReplyMutationVariables = Exact<{
-  threadId: Scalars['ThreadId'];
-  text: Scalars['String'];
+  threadId: Scalars['ThreadId']['input'];
+  text: Scalars['String']['input'];
 }>;
 
 
 export type ReplyMutation = { __typename?: 'MutationRoot', reply: { __typename?: 'Message', id: any, text: string } };
 
-export type HealthCheckQueryVariables = Exact<{ [key: string]: never; }>;
 
+export const HealthCheckDocument = gql`
+    query healthCheck {
+  healthCheck
+}
+    `;
 
-export type HealthCheckQuery = { __typename?: 'QueryRoot', healthCheck: string };
-
-
+/**
+ * __useHealthCheckQuery__
+ *
+ * To run a query within a React component, call `useHealthCheckQuery` and pass it any options that fit your needs.
+ * When your component renders, `useHealthCheckQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useHealthCheckQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useHealthCheckQuery(baseOptions?: Apollo.QueryHookOptions<HealthCheckQuery, HealthCheckQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<HealthCheckQuery, HealthCheckQueryVariables>(HealthCheckDocument, options);
+      }
+export function useHealthCheckLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<HealthCheckQuery, HealthCheckQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<HealthCheckQuery, HealthCheckQueryVariables>(HealthCheckDocument, options);
+        }
+export function useHealthCheckSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<HealthCheckQuery, HealthCheckQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<HealthCheckQuery, HealthCheckQueryVariables>(HealthCheckDocument, options);
+        }
+export type HealthCheckQueryHookResult = ReturnType<typeof useHealthCheckQuery>;
+export type HealthCheckLazyQueryHookResult = ReturnType<typeof useHealthCheckLazyQuery>;
+export type HealthCheckSuspenseQueryHookResult = ReturnType<typeof useHealthCheckSuspenseQuery>;
+export type HealthCheckQueryResult = Apollo.QueryResult<HealthCheckQuery, HealthCheckQueryVariables>;
 export const ListRootPagesDocument = gql`
     query ListRootPages {
   listRootPages {
@@ -344,12 +414,17 @@ export function useListRootPagesLazyQuery(baseOptions?: Apollo.LazyQueryHookOpti
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<ListRootPagesQuery, ListRootPagesQueryVariables>(ListRootPagesDocument, options);
         }
+export function useListRootPagesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListRootPagesQuery, ListRootPagesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListRootPagesQuery, ListRootPagesQueryVariables>(ListRootPagesDocument, options);
+        }
 export type ListRootPagesQueryHookResult = ReturnType<typeof useListRootPagesQuery>;
 export type ListRootPagesLazyQueryHookResult = ReturnType<typeof useListRootPagesLazyQuery>;
+export type ListRootPagesSuspenseQueryHookResult = ReturnType<typeof useListRootPagesSuspenseQuery>;
 export type ListRootPagesQueryResult = Apollo.QueryResult<ListRootPagesQuery, ListRootPagesQueryVariables>;
 export const AddPageDocument = gql`
-    mutation AddPage($title: String!, $text: String!) {
-  addPage(title: $title, text: $text) {
+    mutation AddPage($parentId: PageId, $content: PageContent!) {
+  addPage(parentId: $parentId, content: $content) {
     ... on Page {
       id
       title
@@ -372,8 +447,8 @@ export type AddPageMutationFn = Apollo.MutationFunction<AddPageMutation, AddPage
  * @example
  * const [addPageMutation, { data, loading, error }] = useAddPageMutation({
  *   variables: {
- *      title: // value for 'title'
- *      text: // value for 'text'
+ *      parentId: // value for 'parentId'
+ *      content: // value for 'content'
  *   },
  * });
  */
@@ -456,8 +531,13 @@ export function useGetPageInPagePageLazyQuery(baseOptions?: Apollo.LazyQueryHook
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetPageInPagePageQuery, GetPageInPagePageQueryVariables>(GetPageInPagePageDocument, options);
         }
+export function useGetPageInPagePageSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPageInPagePageQuery, GetPageInPagePageQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetPageInPagePageQuery, GetPageInPagePageQueryVariables>(GetPageInPagePageDocument, options);
+        }
 export type GetPageInPagePageQueryHookResult = ReturnType<typeof useGetPageInPagePageQuery>;
 export type GetPageInPagePageLazyQueryHookResult = ReturnType<typeof useGetPageInPagePageLazyQuery>;
+export type GetPageInPagePageSuspenseQueryHookResult = ReturnType<typeof useGetPageInPagePageSuspenseQuery>;
 export type GetPageInPagePageQueryResult = Apollo.QueryResult<GetPageInPagePageQuery, GetPageInPagePageQueryVariables>;
 export const ListAncestorPagesDocument = gql`
     query ListAncestorPages($id: PageId!) {
@@ -497,8 +577,13 @@ export function useListAncestorPagesLazyQuery(baseOptions?: Apollo.LazyQueryHook
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<ListAncestorPagesQuery, ListAncestorPagesQueryVariables>(ListAncestorPagesDocument, options);
         }
+export function useListAncestorPagesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListAncestorPagesQuery, ListAncestorPagesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListAncestorPagesQuery, ListAncestorPagesQueryVariables>(ListAncestorPagesDocument, options);
+        }
 export type ListAncestorPagesQueryHookResult = ReturnType<typeof useListAncestorPagesQuery>;
 export type ListAncestorPagesLazyQueryHookResult = ReturnType<typeof useListAncestorPagesLazyQuery>;
+export type ListAncestorPagesSuspenseQueryHookResult = ReturnType<typeof useListAncestorPagesSuspenseQuery>;
 export type ListAncestorPagesQueryResult = Apollo.QueryResult<ListAncestorPagesQuery, ListAncestorPagesQueryVariables>;
 export const ListChannelDocument = gql`
     query listChannel {
@@ -532,8 +617,13 @@ export function useListChannelLazyQuery(baseOptions?: Apollo.LazyQueryHookOption
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<ListChannelQuery, ListChannelQueryVariables>(ListChannelDocument, options);
         }
+export function useListChannelSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListChannelQuery, ListChannelQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListChannelQuery, ListChannelQueryVariables>(ListChannelDocument, options);
+        }
 export type ListChannelQueryHookResult = ReturnType<typeof useListChannelQuery>;
 export type ListChannelLazyQueryHookResult = ReturnType<typeof useListChannelLazyQuery>;
+export type ListChannelSuspenseQueryHookResult = ReturnType<typeof useListChannelSuspenseQuery>;
 export type ListChannelQueryResult = Apollo.QueryResult<ListChannelQuery, ListChannelQueryVariables>;
 export const GetChannelDocument = gql`
     query getChannel($id: ChannelId!) {
@@ -575,8 +665,13 @@ export function useGetChannelLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetChannelQuery, GetChannelQueryVariables>(GetChannelDocument, options);
         }
+export function useGetChannelSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetChannelQuery, GetChannelQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetChannelQuery, GetChannelQueryVariables>(GetChannelDocument, options);
+        }
 export type GetChannelQueryHookResult = ReturnType<typeof useGetChannelQuery>;
 export type GetChannelLazyQueryHookResult = ReturnType<typeof useGetChannelLazyQuery>;
+export type GetChannelSuspenseQueryHookResult = ReturnType<typeof useGetChannelSuspenseQuery>;
 export type GetChannelQueryResult = Apollo.QueryResult<GetChannelQuery, GetChannelQueryVariables>;
 export const AddMessageDocument = gql`
     mutation addMessage($channelId: ChannelId!, $text: String!) {
@@ -649,8 +744,13 @@ export function useGetThreadLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetThreadQuery, GetThreadQueryVariables>(GetThreadDocument, options);
         }
+export function useGetThreadSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetThreadQuery, GetThreadQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetThreadQuery, GetThreadQueryVariables>(GetThreadDocument, options);
+        }
 export type GetThreadQueryHookResult = ReturnType<typeof useGetThreadQuery>;
 export type GetThreadLazyQueryHookResult = ReturnType<typeof useGetThreadLazyQuery>;
+export type GetThreadSuspenseQueryHookResult = ReturnType<typeof useGetThreadSuspenseQuery>;
 export type GetThreadQueryResult = Apollo.QueryResult<GetThreadQuery, GetThreadQueryVariables>;
 export const ReplyDocument = gql`
     mutation reply($threadId: ThreadId!, $text: String!) {
@@ -687,35 +787,3 @@ export function useReplyMutation(baseOptions?: Apollo.MutationHookOptions<ReplyM
 export type ReplyMutationHookResult = ReturnType<typeof useReplyMutation>;
 export type ReplyMutationResult = Apollo.MutationResult<ReplyMutation>;
 export type ReplyMutationOptions = Apollo.BaseMutationOptions<ReplyMutation, ReplyMutationVariables>;
-export const HealthCheckDocument = gql`
-    query healthCheck {
-  healthCheck
-}
-    `;
-
-/**
- * __useHealthCheckQuery__
- *
- * To run a query within a React component, call `useHealthCheckQuery` and pass it any options that fit your needs.
- * When your component renders, `useHealthCheckQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useHealthCheckQuery({
- *   variables: {
- *   },
- * });
- */
-export function useHealthCheckQuery(baseOptions?: Apollo.QueryHookOptions<HealthCheckQuery, HealthCheckQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<HealthCheckQuery, HealthCheckQueryVariables>(HealthCheckDocument, options);
-      }
-export function useHealthCheckLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<HealthCheckQuery, HealthCheckQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<HealthCheckQuery, HealthCheckQueryVariables>(HealthCheckDocument, options);
-        }
-export type HealthCheckQueryHookResult = ReturnType<typeof useHealthCheckQuery>;
-export type HealthCheckLazyQueryHookResult = ReturnType<typeof useHealthCheckLazyQuery>;
-export type HealthCheckQueryResult = Apollo.QueryResult<HealthCheckQuery, HealthCheckQueryVariables>;
