@@ -13,7 +13,9 @@ export const PageList: React.FC = () => {
 
   const [addPage] = useAddPageMutation();
   const onClickAddPage = useCallback(() => {
-    addPage({ variables: { title: "", text: "" } });
+    addPage({
+      variables: { parentId: null, content: { title: "", text: "" } },
+    });
   }, [addPage]);
 
   const [removePage] = useRemovePageMutation();

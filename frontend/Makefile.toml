@@ -1,0 +1,4 @@
+[tasks.serve]
+script = '''
+docker compose up --build
+'''
