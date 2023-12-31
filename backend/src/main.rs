@@ -1,9 +1,9 @@
-mod graphql;
+mod apis;
 mod repositories;
 mod use_cases;
 
 use crate::{
-    graphql::{
+    apis::{
         handlers::{graphql_handler::graphql_handler, graphql_playground::graphql_playground},
         MutationRoot, QueryRoot,
     },

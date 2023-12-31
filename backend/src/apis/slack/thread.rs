@@ -1,6 +1,6 @@
 use super::{channel::ChannelId, message::Message};
 use crate::{
-    graphql::common::DateTimeUtc,
+    apis::common::DateTimeUtc,
     use_cases::slack::{message::MessageUseCase, thread::ThreadUseCase},
 };
 use async_graphql::{Context, Object, SimpleObject};
