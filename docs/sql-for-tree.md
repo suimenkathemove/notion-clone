@@ -723,7 +723,43 @@ WHERE
 
 ※$1は任意のノードのid
 
-node_relationshipsとnode_sibling_relationshipsに関しては、`ON DELETE CASCADE`を設定しているので自動的に削除される。
+### node_relationships
+
+`ON DELETE CASCADE`を設定しているので自動的に削除される。
+
+### node_sibling_relationships
+
+`ON DELETE CASCADE`を設定しているので自動的に削除される。
+だが、長男でも末っ子でもない間のノードを削除する場合は、削除する前に、移動するノードの先祖(自身を除く)と移動するノードの子孫(自身を除く)間のweightをデクリメントする必要がある。
+よって、削除する前に以下のSQLを実行する必要がある。
+
+```sql
+UPDATE
+  node_sibling_relationships
+SET
+  weight = weight - 1
+WHERE
+  ancestor IN (
+    SELECT
+      ancestor
+    FROM
+      node_sibling_relationships
+    WHERE
+      descendant = $1
+      AND ancestor != $1
+  )
+  AND descendant IN (
+    SELECT
+      descendant
+    FROM
+      node_sibling_relationships
+    WHERE
+      ancestor = $1
+      AND descendant != $1
+  )
+```
+
+※$1は任意のノードのid
 
 ## 移動
 
