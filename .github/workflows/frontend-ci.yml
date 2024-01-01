@@ -13,7 +13,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Cache pnpm
-        uses: ./.github/actions/pnpm-cache
+        uses: suimenkathemove/pnpm-cache-action@v1.0.0
       - name: Install dependencies
         run: pnpm install
       - name: Check
@@ -25,7 +25,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Cache pnpm
-        uses: ./.github/actions/pnpm-cache
+        uses: suimenkathemove/pnpm-cache-action@v1.0.0
       - name: Install dependencies
         run: pnpm install
       - name: Build
