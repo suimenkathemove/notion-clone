@@ -30,3 +30,15 @@ jobs:
         run: pnpm install
       - name: Build
         run: pnpm build
+
+  build-storybook:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Cache pnpm
+        uses: suimenkathemove/pnpm-cache-action@v1.0.0
+      - name: Install dependencies
+        run: pnpm install
+      - name: Build Storybook
+        run: pnpm build-storybook

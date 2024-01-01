@@ -7,13 +7,10 @@ module.exports = {
     "@storybook/addon-essentials",
     "@storybook/addon-interactions",
   ],
-  framework: "@storybook/react",
+  framework: "@storybook/nextjs",
   webpackFinal: async (config) => {
     config.resolve.alias["@"] = path.resolve(__dirname, "../src");
 
     return config;
-  },
-  core: {
-    builder: "@storybook/builder-webpack5",
   },
 };
