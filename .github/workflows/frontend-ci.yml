@@ -18,3 +18,15 @@ jobs:
         run: pnpm install
       - name: Check
         run: pnpm tsc
+
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Cache pnpm
+        uses: ./.github/actions/pnpm-cache
+      - name: Install dependencies
+        run: pnpm install
+      - name: Build
+        run: pnpm build
