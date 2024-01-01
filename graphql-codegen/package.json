@@ -4,6 +4,7 @@
   "license": "MIT",
   "scripts": {
     "postinstall": "typesync",
+    "tsc": "tsc --noEmit",
     "codegen": "graphql-codegen --config codegen.ts"
   },
   "dependencies": {
