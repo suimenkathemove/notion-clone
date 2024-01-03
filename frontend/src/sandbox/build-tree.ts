@@ -79,5 +79,6 @@ export const logBuildTree = () => {
     },
   ];
   const tree = buildTree(nodes, parentChildRelationships, "1");
+  // eslint-disable-next-line no-console
   console.log(JSON.stringify(tree, null, 2));
 };

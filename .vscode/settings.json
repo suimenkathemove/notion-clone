@@ -42,5 +42,6 @@
   },
   "[sql]": {
     "editor.defaultFormatter": "adpyke.vscode-sql-formatter"
-  }
+  },
+  "eslint.workingDirectories": [{ "mode": "auto" }]
 }

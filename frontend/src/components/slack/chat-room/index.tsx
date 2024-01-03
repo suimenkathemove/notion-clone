@@ -62,8 +62,8 @@ export const ChatRoom: React.FC<ChatRoomProps> = (props) => {
               <li key={t.id}>
                 <span>{t.firstMessage.text}</span>
                 <button
-                  onClick={() => {
-                    props.onOpenThread(t.id);
+                  onClick={async () => {
+                    await props.onOpenThread(t.id);
                   }}
                 >
                   replies
@@ -100,8 +100,8 @@ export const ChatRoom: React.FC<ChatRoomProps> = (props) => {
               style={{ border: "1px solid black" }}
             />
             <button
-              onClick={() => {
-                onReply(props.threadShow!.id);
+              onClick={async () => {
+                await onReply(props.threadShow!.id);
               }}
             >
               {">"}

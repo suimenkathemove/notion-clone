@@ -12,8 +12,8 @@ export const PageList: React.FC = () => {
   const listRootPagesResult = useListRootPagesQuery();
 
   const [addPage] = useAddPageMutation();
-  const onClickAddPage = useCallback(() => {
-    addPage({
+  const onClickAddPage = useCallback(async () => {
+    await addPage({
       variables: { parentId: null, content: { title: "", text: "" } },
     });
   }, [addPage]);
@@ -21,8 +21,8 @@ export const PageList: React.FC = () => {
   const [removePage] = useRemovePageMutation();
   const onClickRemovePageButton = useCallback(
     // TODO: value object
-    (id: string) => {
-      removePage({ variables: { id } });
+    async (id: string) => {
+      await removePage({ variables: { id } });
     },
     [removePage],
   );
