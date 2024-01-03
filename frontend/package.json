@@ -13,6 +13,7 @@
     "start": "next start",
     "tsc": "tsc --noEmit",
     "lint:es": "eslint '**/*.{js,jsx,ts,tsx}'",
+    "lint:style": "stylelint '**/*.{css,scss,ts,tsx}'",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test": "vitest"
@@ -42,11 +43,12 @@
     "@storybook/testing-library": "^0.2.2",
     "@suimenkathemove/frontend-eslint-config": "^0.1.10",
     "@suimenkathemove/prettier-config": "^0.1.4",
-    "@suimenkathemove/stylelint-config": "^0.1.2",
+    "@suimenkathemove/stylelint-config": "^0.1.3",
     "@types/babel__core": "^7.20.5",
     "@types/styled-components": "^5.1.32",
     "babel-loader": "^9.1.3",
     "storybook": "^7.6.7",
+    "stylelint": "^16.1.0",
     "typesync": "^0.11.1",
     "vitest": "^0.34.6"
   }
