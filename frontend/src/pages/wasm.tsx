@@ -3,7 +3,7 @@ import { useEffect } from "react";
 
 const Wasm: NextPage = () => {
   useEffect(() => {
-    (async () => {
+    void (async () => {
       const wasm = await import("@/wasm/pkg");
       const { add } = await wasm.default();
       // eslint-disable-next-line no-console
