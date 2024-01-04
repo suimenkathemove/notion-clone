@@ -28,10 +28,10 @@ export const ChannelPage: NextPage = () => {
     [addMessageMutation, channelId],
   );
 
-  const [threadShow, setThreadShow] =
-    useState<{ id: string; messages: { id: string; text: string }[] } | null>(
-      null,
-    );
+  const [threadShow, setThreadShow] = useState<{
+    id: string;
+    messages: { id: string; text: string }[];
+  } | null>(null);
   const [getThreadQuery] = useGetThreadLazyQuery();
   const onOpenThread = useCallback(
     async (id: string) => {

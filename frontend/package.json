@@ -15,6 +15,7 @@
     "lint:es": "eslint '**/*.{js,jsx,ts,tsx}'",
     "lint:style": "stylelint '**/*.{css,scss,ts,tsx}'",
     "lint": "pnpm lint:es; pnpm lint:style",
+    "format": "prettier --write --loglevel=warn '**/*.{js,jsx,ts,tsx,html,gql,graphql,json}'",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test": "vitest"
