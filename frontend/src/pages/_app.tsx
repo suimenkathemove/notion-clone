@@ -1,4 +1,5 @@
 import "destyle.css";
+import "@/styles/global.css";
 
 import { ApolloProvider } from "@apollo/client";
 import type { AppProps } from "next/app";
