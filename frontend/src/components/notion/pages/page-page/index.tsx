@@ -50,7 +50,6 @@ export const PagePage: NextPage = () => {
       // TODO
       throw new Error();
     default:
-      // TODO: satisfies
-      return getPageInPagePageResult.data.getPage;
+      return getPageInPagePageResult.data.getPage satisfies never;
   }
 };

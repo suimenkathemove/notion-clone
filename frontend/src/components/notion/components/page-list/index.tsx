@@ -44,7 +44,6 @@ export const PageList: React.FC = () => {
       // TODO
       throw new Error();
     default:
-      // TODO: satisfies
-      return listRootPagesResult.data.listRootPages;
+      return listRootPagesResult.data.listRootPages satisfies never;
   }
 };
