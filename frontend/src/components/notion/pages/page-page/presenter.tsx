@@ -1,8 +1,10 @@
 import { memo } from "react";
 
-import { BreadcrumbList, BreadcrumbListProps } from "../../breadcrumb-list";
-
-import { PageList } from "@/components/notion/page-list";
+import {
+  BreadcrumbList,
+  BreadcrumbListProps,
+} from "@/components/notion/components/breadcrumb-list";
+import { PageList } from "@/components/notion/components/page-list";
 
 export type PagePagePresenterProps = {
   ancestors: BreadcrumbListProps["ancestors"];
