@@ -16,7 +16,9 @@ else
   # EDIT THIS
   tmux new-window -n backend -c "./backend" 'makers serve'
   # EDIT THIS
-  tmux new-window -n frontend -c "./frontend" 'makers serve'
+  tmux new-window -n frontend-dev -c "./frontend" 'pnpm dev'
+  # EDIT THIS
+  tmux new-window -n frontend-storybook -c "./frontend" 'pnpm storybook'
   # EDIT THIS
   tmux select-window -t root
 
