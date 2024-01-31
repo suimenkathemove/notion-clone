@@ -30,7 +30,7 @@ makers serve
 
 ### frontend
 
-To run frontend server locally, and run
+Requires Node 20.x and pnpm 3+. To run frontend server locally, and run
 
 ```sh
 cd frontend
