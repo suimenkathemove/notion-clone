@@ -14,3 +14,27 @@
 - **GraphQL**: For schema and API protocol.
 - **Rust, Axum**: For backend development.
 - **TypeScript, Next.js**: For frontend development.
+
+## Setting up and running locally
+
+### backend
+
+To run backend server locally, and run
+
+```sh
+cd backend
+# execute only once
+makers init
+makers serve
+```
+
+### frontend
+
+To run frontend server locally, and run
+
+```sh
+cd frontend
+# execute only once
+pnpm install
+pnpm run dev
+```
