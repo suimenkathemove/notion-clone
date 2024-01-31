@@ -38,3 +38,7 @@ cd frontend
 pnpm install
 pnpm run dev
 ```
+
+## License
+
+This is MIT licensed.
