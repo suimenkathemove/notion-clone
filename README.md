@@ -2,7 +2,7 @@
 
 ## Overview
 
-<!-- TODO -->
+This repository is my monorepo sandbox containing backend, frontend, and infrastructure components.
 
 ## Projects
 
