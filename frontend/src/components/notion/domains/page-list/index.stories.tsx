@@ -1,23 +1,28 @@
 import { Meta, StoryObj } from "@storybook/react";
 
-import { PageListPresenter, PageListPresenterProps } from "./presenter";
+import { PageList, PageListProps } from ".";
 
 export default {
-  component: PageListPresenter,
+  component: PageList,
   excludeStories: ["defaultProps"],
-} as Meta<PageListPresenterProps>;
+} as Meta<PageListProps>;
 
-export const defaultProps: PageListPresenterProps = {
-  pages: [
-    { id: "1", title: "page1" },
-    { id: "2", title: "page2" },
-  ],
+export const defaultProps: PageListProps = {
+  result: {
+    type: "ok",
+    data: {
+      pages: [
+        { id: "1", title: "page1" },
+        { id: "2", title: "page2" },
+      ],
+    },
+  },
   onClickAddPage: () => {},
   onClickRemovePageButton: () => {},
 };
 
 export const Default: StoryObj = {
   render: () => {
-    return <PageListPresenter {...defaultProps} />;
+    return <PageList {...defaultProps} />;
   },
 };

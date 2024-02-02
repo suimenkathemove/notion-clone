@@ -1,6 +1,7 @@
 import { memo } from "react";
 
 import { PageList } from "@/components/notion/domains/page-list";
+import { Layout } from "@/components/notion/layout";
 import {
   BreadcrumbList,
   BreadcrumbListProps,
@@ -20,17 +21,21 @@ export type PagePagePresenterProps = {
 
 export const PagePagePresenter = memo((props: PagePagePresenterProps) => {
   return (
-    <div>
-      <PageList
-        result={props.pageListResult}
-        onClickAddPage={props.onClickAddPage}
-        onClickRemovePageButton={props.onClickRemovePageButton}
-      />
-      <div>
-        <BreadcrumbList ancestors={props.ancestors} />
-        <div>{props.title}</div>
-        <div>{props.text}</div>
-      </div>
-    </div>
+    <Layout
+      sidebar={
+        <PageList
+          result={props.pageListResult}
+          onClickAddPage={props.onClickAddPage}
+          onClickRemovePageButton={props.onClickRemovePageButton}
+        />
+      }
+      main={
+        <div>
+          <BreadcrumbList ancestors={props.ancestors} />
+          <div>{props.title}</div>
+          <div>{props.text}</div>
+        </div>
+      }
+    />
   );
 });
