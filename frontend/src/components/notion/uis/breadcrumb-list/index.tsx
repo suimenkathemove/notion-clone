@@ -1,3 +1,5 @@
+import { memo } from "react";
+
 import { Li, Ol } from "./styles";
 
 interface Node {
@@ -9,7 +11,7 @@ export interface BreadcrumbListProps {
   ancestors: Node[];
 }
 
-export const BreadcrumbList: React.VFC<BreadcrumbListProps> = (props) => {
+export const BreadcrumbList = memo((props: BreadcrumbListProps) => {
   return (
     <nav>
       <Ol>
@@ -22,4 +24,4 @@ export const BreadcrumbList: React.VFC<BreadcrumbListProps> = (props) => {
       </Ol>
     </nav>
   );
-};
+});
