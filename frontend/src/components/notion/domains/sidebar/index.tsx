@@ -14,12 +14,12 @@ export interface SidebarProps {
 
 export const Sidebar = memo((props: SidebarProps) => {
   return (
-    <div>
+    <aside>
       <PageList
         result={props.pageListResult}
         onClickAddPage={props.onClickAddPage}
         onClickRemovePageButton={props.onClickRemovePageButton}
       />
-    </div>
+    </aside>
   );
 });
