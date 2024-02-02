@@ -1,6 +1,6 @@
 import { memo } from "react";
 
-import { Li, Ol } from "./styles";
+import { A, Li, Ol, Slash } from "./styles";
 
 interface Node {
   id: string;
@@ -17,8 +17,8 @@ export const BreadcrumbList = memo((props: BreadcrumbListProps) => {
       <Ol>
         {props.ancestors.map((a, i) => (
           <Li key={a.id}>
-            <span>{a.name}</span>
-            {i !== props.ancestors.length - 1 && <span>&gt;</span>}
+            <A>{a.name}</A>
+            {i !== props.ancestors.length - 1 && <Slash>/</Slash>}
           </Li>
         ))}
       </Ol>

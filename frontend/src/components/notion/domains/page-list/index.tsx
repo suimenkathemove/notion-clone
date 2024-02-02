@@ -1,5 +1,7 @@
 import { memo } from "react";
 
+import { AddPageButton, Li } from "./styles";
+
 import { Page } from "@/graphql/generated";
 import { untitledPageLabel } from "@/models/notion/page";
 import { Result } from "@/types";
@@ -20,7 +22,7 @@ export const PageList = memo((props: PageListProps) => {
         <div>
           <ul>
             {props.result.data.pages.map((p) => (
-              <li key={p.id}>
+              <Li key={p.id}>
                 <span>{p.title || untitledPageLabel}</span>
                 <button
                   onClick={() => {
@@ -29,10 +31,12 @@ export const PageList = memo((props: PageListProps) => {
                 >
                   Delete
                 </button>
-              </li>
+              </Li>
             ))}
           </ul>
-          <button onClick={props.onClickAddPage}>+ Add a page</button>
+          <AddPageButton onClick={props.onClickAddPage}>
+            + Add a page
+          </AddPageButton>
         </div>
       );
     case "err":
