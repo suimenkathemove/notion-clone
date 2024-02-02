@@ -1,6 +1,6 @@
 import { memo } from "react";
 
-import { PageList } from "@/components/notion/domains/page-list";
+import { Sidebar } from "@/components/notion/domains/sidebar";
 import { Layout } from "@/components/notion/layout";
 import {
   BreadcrumbList,
@@ -23,8 +23,8 @@ export const PagePagePresenter = memo((props: PagePagePresenterProps) => {
   return (
     <Layout
       sidebar={
-        <PageList
-          result={props.pageListResult}
+        <Sidebar
+          pageListResult={props.pageListResult}
           onClickAddPage={props.onClickAddPage}
           onClickRemovePageButton={props.onClickRemovePageButton}
         />
