@@ -1,7 +1,6 @@
 import { memo } from "react";
 
-import { PageList } from "../page-list";
-
+import { PageList } from "@/components/notion/domains/page-list";
 import { Page } from "@/graphql/generated";
 import { Result } from "@/types";
 

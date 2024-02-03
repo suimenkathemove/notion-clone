@@ -1,11 +1,8 @@
 import { memo } from "react";
 
+import { Header, HeaderProps } from "@/components/notion/domains/header";
 import { Sidebar } from "@/components/notion/domains/sidebar";
 import { Layout } from "@/components/notion/layout";
-import {
-  BreadcrumbList,
-  BreadcrumbListProps,
-} from "@/components/notion/uis/breadcrumb-list";
 import { Page } from "@/graphql/generated";
 import { Result } from "@/types";
 
@@ -14,7 +11,7 @@ export type PagePagePresenterProps = {
   onClickAddPage: () => void;
   // TODO: value object
   onClickRemovePageButton: (id: string) => void;
-  ancestors: BreadcrumbListProps["ancestors"];
+  ancestors: HeaderProps["ancestors"];
   title: string;
   text: string;
 };
@@ -29,9 +26,9 @@ export const PagePagePresenter = memo((props: PagePagePresenterProps) => {
           onClickRemovePageButton={props.onClickRemovePageButton}
         />
       }
+      header={<Header ancestors={props.ancestors} />}
       main={
         <div>
-          <BreadcrumbList ancestors={props.ancestors} />
           <div>{props.title}</div>
           <div>{props.text}</div>
         </div>
