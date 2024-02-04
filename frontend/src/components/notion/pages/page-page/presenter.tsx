@@ -1,19 +1,20 @@
 import { memo } from "react";
 
 import { Header, HeaderProps } from "@/components/notion/domains/header";
-import { Sidebar } from "@/components/notion/domains/sidebar";
+import {
+  PageContent,
+  PageContentProps,
+} from "@/components/notion/domains/page-content";
+import { Sidebar, SidebarProps } from "@/components/notion/domains/sidebar";
 import { Layout } from "@/components/notion/layout";
-import { Page } from "@/graphql/generated";
-import { Result } from "@/types";
 
 export type PagePagePresenterProps = {
-  pageListResult: Result<{ pages: Pick<Page, "id" | "title">[] }>;
-  onClickAddPage: () => void;
-  // TODO: value object
-  onClickRemovePageButton: (id: string) => void;
+  pageListResult: SidebarProps["pageListResult"];
+  onClickAddPage: SidebarProps["onClickAddPage"];
+  onClickRemovePageButton: SidebarProps["onClickRemovePageButton"];
   ancestors: HeaderProps["ancestors"];
-  title: string;
-  text: string;
+  title: PageContentProps["title"];
+  text: PageContentProps["text"];
 };
 
 export const PagePagePresenter = memo((props: PagePagePresenterProps) => {
@@ -27,12 +28,7 @@ export const PagePagePresenter = memo((props: PagePagePresenterProps) => {
         />
       }
       header={<Header ancestors={props.ancestors} />}
-      main={
-        <div>
-          <div>{props.title}</div>
-          <div>{props.text}</div>
-        </div>
-      }
+      main={<PageContent title={props.title} text={props.text} />}
     />
   );
 });
