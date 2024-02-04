@@ -1,24 +1,34 @@
 import { memo } from "react";
 
-import { BreadcrumbList, BreadcrumbListProps } from "../../breadcrumb-list";
-
-import { PageList } from "@/components/notion/page-list";
+import { Header, HeaderProps } from "@/components/notion/domains/header";
+import {
+  PageContent,
+  PageContentProps,
+} from "@/components/notion/domains/page-content";
+import { Sidebar, SidebarProps } from "@/components/notion/domains/sidebar";
+import { Layout } from "@/components/notion/layout";
 
 export type PagePagePresenterProps = {
-  ancestors: BreadcrumbListProps["ancestors"];
-  title: string;
-  text: string;
+  pageListResult: SidebarProps["pageListResult"];
+  onClickAddPage: SidebarProps["onClickAddPage"];
+  onClickRemovePageButton: SidebarProps["onClickRemovePageButton"];
+  ancestors: HeaderProps["ancestors"];
+  title: PageContentProps["title"];
+  text: PageContentProps["text"];
 };
 
-export const PagePagePresenter = memo<PagePagePresenterProps>((props) => {
+export const PagePagePresenter = memo((props: PagePagePresenterProps) => {
   return (
-    <div>
-      <PageList />
-      <div>
-        <BreadcrumbList ancestors={props.ancestors} />
-        <div>{props.title}</div>
-        <div>{props.text}</div>
-      </div>
-    </div>
+    <Layout
+      sidebar={
+        <Sidebar
+          pageListResult={props.pageListResult}
+          onClickAddPage={props.onClickAddPage}
+          onClickRemovePageButton={props.onClickRemovePageButton}
+        />
+      }
+      header={<Header ancestors={props.ancestors} />}
+      main={<PageContent title={props.title} text={props.text} />}
+    />
   );
 });

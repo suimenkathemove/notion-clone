@@ -1,0 +1,11 @@
+/* stylelint-disable-next-line selector-id-pattern */
+html,
+body,
+#__next {
+  height: 100%;
+  font-family: BlinkMacSystemFont, sans-serif;
+}
+
+li {
+  list-style-type: none;
+}

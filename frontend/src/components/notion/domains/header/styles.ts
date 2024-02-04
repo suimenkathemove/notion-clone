@@ -1,10 +1,8 @@
 import styled from "styled-components";
 
-export const Ol = styled.ol`
-  display: flex;
-`;
-
-export const Li = styled.li`
+export const StyledHeader = styled.header`
   display: flex;
   align-items: center;
+  height: 100%;
+  padding: 0 12px;
 `;
