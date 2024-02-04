@@ -28,6 +28,7 @@ export const PageList = memo((props: PageListProps) => {
                   onClick={() => {
                     props.onClickRemovePageButton(p.id);
                   }}
+                  style={{ marginLeft: 8 }}
                 >
                   Delete
                 </button>
