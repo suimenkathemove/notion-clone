@@ -14,6 +14,8 @@ export const Container = styled.div`
 
 export const SidebarWrapper = styled.div`
   grid-area: ${SIDEBAR};
+  background-color: rgb(251 251 250);
+  box-shadow: rgba(0 0 0 2.4%) -1px 0 0 0 inset;
 `;
 
 export const Content = styled.div`
@@ -22,6 +24,7 @@ export const Content = styled.div`
   grid-template: "${HEADER}" "${MAIN}";
   grid-template-rows: 45px auto;
   height: 100%;
+  background-color: white;
 `;
 
 export const HeaderWrapper = styled.div`
