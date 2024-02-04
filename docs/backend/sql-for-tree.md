@@ -227,6 +227,7 @@ ORDER BY
 ## 先祖の一覧の取得
 
 例えば`1-1-1`のノードの先祖の一覧の場合、期待する結果は以下のようになる。
+今回はそのノード自身も含めることにする。
 
 | name |
 | ---- |
@@ -242,7 +243,6 @@ FROM
   nodes
   JOIN node_relationships ON nodes.id = node_relationships.ancestor
   AND node_relationships.descendant = $1
-  AND node_relationships.ancestor != $1
 ORDER BY
   node_relationships.weight DESC
 ```
