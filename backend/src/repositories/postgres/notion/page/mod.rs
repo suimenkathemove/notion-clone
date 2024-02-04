@@ -134,7 +134,6 @@ impl InternalPageRepository {
             JOIN notion.page_relationships
             ON notion.pages.id = notion.page_relationships.ancestor
             AND notion.page_relationships.descendant = $1
-            AND notion.page_relationships.ancestor != $1
             ORDER BY notion.page_relationships.weight DESC
             ",
         )

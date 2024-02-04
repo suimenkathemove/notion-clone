@@ -130,7 +130,7 @@ async fn find_ancestors_should_succeed() -> anyhow::Result<()> {
     let pages = InternalPageRepository::find_ancestors(&page_1_1_1.id, &mut tx).await?;
     assert_eq!(
         pages.into_iter().map(|p| p.id).collect::<Vec<_>>(),
-        vec![page_1.id, page_1_1.id]
+        vec![page_1.id, page_1_1.id, page_1_1_1.id]
     );
 
     teardown(tx).await?;
