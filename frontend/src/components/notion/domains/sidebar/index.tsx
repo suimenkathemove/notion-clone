@@ -1,5 +1,7 @@
 import { memo } from "react";
 
+import { Nav } from "./styles";
+
 import { PageList } from "@/components/notion/domains/page-list";
 import { Page } from "@/graphql/generated";
 import { Result } from "@/types";
@@ -13,12 +15,12 @@ export interface SidebarProps {
 
 export const Sidebar = memo((props: SidebarProps) => {
   return (
-    <aside>
+    <Nav>
       <PageList
         result={props.pageListResult}
         onClickAddPage={props.onClickAddPage}
         onClickRemovePageButton={props.onClickRemovePageButton}
       />
-    </aside>
+    </Nav>
   );
 });

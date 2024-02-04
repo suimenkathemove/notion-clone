@@ -7,7 +7,7 @@ export default {
   component: Layout,
 } satisfies Meta<LayoutProps>;
 
-const Sidebar = styled.aside`
+const Sidebar = styled.nav`
   height: 100%;
   background-color: red;
 `;
