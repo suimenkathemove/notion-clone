@@ -277,36 +277,73 @@ async fn add_should_succeed() -> anyhow::Result<()> {
     Ok(())
 }
 
-#[tokio::test]
-async fn update_should_succeed() -> anyhow::Result<()> {
-    let (
-        InsertMockResponse {
-            page_1,
-            page_2: _,
-            page_3: _,
-            page_1_1: _,
-            page_1_2: _,
-            page_1_3: _,
-            page_1_1_1: _,
-        },
-        mut tx,
-    ) = setup().await?;
+#[cfg(test)]
+mod update_tests {
+    use super::*;
 
-    let page = InternalPageRepository::update(
-        &page_1.id,
-        models::notion::page::PageContent {
-            title: "new title".to_string(),
-            text: "new text".to_string(),
-        },
-        &mut tx,
-    )
-    .await?;
-    assert_eq!("new title", page.title);
-    assert_eq!("new text", page.text);
+    #[tokio::test]
+    async fn update_should_succeed() -> anyhow::Result<()> {
+        let (
+            InsertMockResponse {
+                page_1,
+                page_2: _,
+                page_3: _,
+                page_1_1: _,
+                page_1_2: _,
+                page_1_3: _,
+                page_1_1_1: _,
+            },
+            mut tx,
+        ) = setup().await?;
 
-    teardown(tx).await?;
+        let page = InternalPageRepository::update(
+            &page_1.id,
+            models::notion::page::UpdatePage {
+                title: Some("new title".to_string()),
+                text: Some("new text".to_string()),
+            },
+            &mut tx,
+        )
+        .await?;
+        assert_eq!("new title", page.title);
+        assert_eq!("new text", page.text);
 
-    Ok(())
+        teardown(tx).await?;
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn do_not_update_when_title_and_text_are_none() -> anyhow::Result<()> {
+        let (
+            InsertMockResponse {
+                page_1,
+                page_2: _,
+                page_3: _,
+                page_1_1: _,
+                page_1_2: _,
+                page_1_3: _,
+                page_1_1_1: _,
+            },
+            mut tx,
+        ) = setup().await?;
+
+        let page = InternalPageRepository::update(
+            &page_1.id,
+            models::notion::page::UpdatePage {
+                title: None,
+                text: None,
+            },
+            &mut tx,
+        )
+        .await?;
+        assert_eq!("1", page.title);
+        assert_eq!("", page.text);
+
+        teardown(tx).await?;
+
+        Ok(())
+    }
 }
 
 #[tokio::test]
@@ -415,7 +452,8 @@ async fn remove_middle_should_succeed() -> anyhow::Result<()> {
     Ok(())
 }
 
-mod move_ {
+#[cfg(test)]
+mod move_tests {
     use super::*;
 
     #[tokio::test]

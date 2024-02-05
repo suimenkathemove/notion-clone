@@ -272,7 +272,7 @@ impl InternalPageRepository {
 
     async fn add(
         parent_id: &Option<models::notion::page::PageId>,
-        content: models::notion::page::PageContent,
+        add_page: models::notion::page::AddPage,
         acquire: impl Acquire<'_, Database = Postgres>,
     ) -> Result<models::notion::page::Page, RepositoryError> {
         let mut tx = acquire.begin().await?;
@@ -284,8 +284,8 @@ impl InternalPageRepository {
             RETURNING id, title, text, created_at, updated_at
             ",
         )
-        .bind(content.title)
-        .bind(content.text)
+        .bind(add_page.title)
+        .bind(add_page.text)
         .fetch_one(&mut *tx)
         .await?;
 
@@ -379,7 +379,7 @@ impl InternalPageRepository {
 
     async fn update(
         id: &models::notion::page::PageId,
-        content: models::notion::page::PageContent,
+        update_page: models::notion::page::UpdatePage,
         acquire: impl Acquire<'_, Database = Postgres>,
     ) -> Result<models::notion::page::Page, RepositoryError> {
         let mut acquire = acquire.acquire().await?;
@@ -387,14 +387,14 @@ impl InternalPageRepository {
         let page = query_as::<_, Page>(
             "
             UPDATE notion.pages
-            SET title = $2, text = $3, updated_at = NOW()
+            SET title = COALESCE($2, title), text = COALESCE($3, text), updated_at = NOW()
             WHERE id = $1
             RETURNING id, title, text, created_at, updated_at
             ",
         )
         .bind(id.0)
-        .bind(content.title)
-        .bind(content.text)
+        .bind(update_page.title)
+        .bind(update_page.text)
         .fetch_one(&mut *acquire)
         .await?;
 
@@ -751,9 +751,9 @@ impl IPageRepository for PageRepository {
     async fn add(
         &self,
         parent_id: &Option<models::notion::page::PageId>,
-        content: models::notion::page::PageContent,
+        add_page: models::notion::page::AddPage,
     ) -> Result<models::notion::page::Page, RepositoryError> {
-        let page = InternalPageRepository::add(parent_id, content, &*self.pool).await?;
+        let page = InternalPageRepository::add(parent_id, add_page, &*self.pool).await?;
 
         Ok(page)
     }
@@ -761,9 +761,9 @@ impl IPageRepository for PageRepository {
     async fn update(
         &self,
         id: &models::notion::page::PageId,
-        content: models::notion::page::PageContent,
+        update_page: models::notion::page::UpdatePage,
     ) -> Result<models::notion::page::Page, RepositoryError> {
-        let page = InternalPageRepository::update(id, content, &*self.pool).await?;
+        let page = InternalPageRepository::update(id, update_page, &*self.pool).await?;
 
         Ok(page)
     }
