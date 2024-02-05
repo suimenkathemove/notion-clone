@@ -18,7 +18,7 @@ pub(super) async fn insert_mock<'a>(
 
     let page_1 = InternalPageRepository::add(
         &None::<models::notion::page::PageId>,
-        models::notion::page::PageContent {
+        models::notion::page::AddPage {
             title: "1".to_string(),
             ..Default::default()
         },
@@ -28,7 +28,7 @@ pub(super) async fn insert_mock<'a>(
 
     let page_2 = InternalPageRepository::add(
         &None::<models::notion::page::PageId>,
-        models::notion::page::PageContent {
+        models::notion::page::AddPage {
             title: "2".to_string(),
             ..Default::default()
         },
@@ -38,7 +38,7 @@ pub(super) async fn insert_mock<'a>(
 
     let page_3 = InternalPageRepository::add(
         &None::<models::notion::page::PageId>,
-        models::notion::page::PageContent {
+        models::notion::page::AddPage {
             title: "3".to_string(),
             ..Default::default()
         },
@@ -48,7 +48,7 @@ pub(super) async fn insert_mock<'a>(
 
     let page_1_1 = InternalPageRepository::add(
         &Some(page_1.id),
-        models::notion::page::PageContent {
+        models::notion::page::AddPage {
             title: "1-1".to_string(),
             ..Default::default()
         },
@@ -58,7 +58,7 @@ pub(super) async fn insert_mock<'a>(
 
     let page_1_2 = InternalPageRepository::add(
         &Some(page_1.id),
-        models::notion::page::PageContent {
+        models::notion::page::AddPage {
             title: "1-2".to_string(),
             ..Default::default()
         },
@@ -68,7 +68,7 @@ pub(super) async fn insert_mock<'a>(
 
     let page_1_3 = InternalPageRepository::add(
         &Some(page_1.id),
-        models::notion::page::PageContent {
+        models::notion::page::AddPage {
             title: "1-3".to_string(),
             ..Default::default()
         },
@@ -78,7 +78,7 @@ pub(super) async fn insert_mock<'a>(
 
     let page_1_1_1 = InternalPageRepository::add(
         &Some(page_1_1.id),
-        models::notion::page::PageContent {
+        models::notion::page::AddPage {
             title: "1-1-1".to_string(),
             ..Default::default()
         },

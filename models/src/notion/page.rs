@@ -13,9 +13,15 @@ pub struct Page {
 }
 
 #[derive(Debug, Default)]
-pub struct PageContent {
+pub struct AddPage {
     pub title: String,
     pub text: String,
+}
+
+#[derive(Debug, Default)]
+pub struct UpdatePage {
+    pub title: Option<String>,
+    pub text: Option<String>,
 }
 
 #[derive(Debug, PartialEq, Eq, Hash)]

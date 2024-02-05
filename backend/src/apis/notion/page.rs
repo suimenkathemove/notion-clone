@@ -112,13 +112,13 @@ define_result!(ListDescendantPagesResult, PageTree);
 define_result!(GetPageResult, Page);
 
 #[derive(InputObject)]
-struct PageContent {
+struct AddPage {
     title: String,
     text: String,
 }
 
-impl From<PageContent> for models::notion::page::PageContent {
-    fn from(value: PageContent) -> Self {
+impl From<AddPage> for models::notion::page::AddPage {
+    fn from(value: AddPage) -> Self {
         Self {
             title: value.title,
             text: value.text,
@@ -127,6 +127,21 @@ impl From<PageContent> for models::notion::page::PageContent {
 }
 
 define_result!(AddPageResult, Page);
+
+#[derive(InputObject)]
+struct UpdatePage {
+    title: Option<String>,
+    text: Option<String>,
+}
+
+impl From<UpdatePage> for models::notion::page::UpdatePage {
+    fn from(value: UpdatePage) -> Self {
+        Self {
+            title: value.title,
+            text: value.text,
+        }
+    }
+}
 
 define_result!(UpdatePageResult, Page);
 
@@ -243,11 +258,11 @@ impl PageMutation {
         &self,
         ctx: &Context<'_>,
         parent_id: Option<PageId>,
-        content: PageContent,
+        add_page: AddPage,
     ) -> AddPageResult {
         let page_use_case = ctx.data_unchecked::<PageUseCase>();
         let result = page_use_case
-            .add(&parent_id.map(Into::into), content.into())
+            .add(&parent_id.map(Into::into), add_page.into())
             .await;
         match result {
             Ok(page) => AddPageResult::Ok(page.into()),
@@ -259,10 +274,10 @@ impl PageMutation {
         &self,
         ctx: &Context<'_>,
         id: PageId,
-        content: PageContent,
+        update_page: UpdatePage,
     ) -> UpdatePageResult {
         let page_use_case = ctx.data_unchecked::<PageUseCase>();
-        let result = page_use_case.update(&id.into(), content.into()).await;
+        let result = page_use_case.update(&id.into(), update_page.into()).await;
         match result {
             Ok(page) => UpdatePageResult::Ok(page.into()),
             Err(error) => UpdatePageResult::Err(GraphQLError { code: error.into() }),
