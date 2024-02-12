@@ -9,3 +9,7 @@ body,
 li {
   list-style-type: none;
 }
+
+[contenteditable]:focus {
+  outline: none;
+}

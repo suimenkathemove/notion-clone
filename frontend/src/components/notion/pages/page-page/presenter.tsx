@@ -14,6 +14,7 @@ export type PagePagePresenterProps = {
   onClickRemovePageButton: SidebarProps["onClickRemovePageButton"];
   ancestors: HeaderProps["ancestors"];
   title: PageContentProps["title"];
+  onChangeTitle: PageContentProps["onChangeTitle"];
   text: PageContentProps["text"];
 };
 
@@ -28,7 +29,13 @@ export const PagePagePresenter = memo((props: PagePagePresenterProps) => {
         />
       }
       header={<Header ancestors={props.ancestors} />}
-      main={<PageContent title={props.title} text={props.text} />}
+      main={
+        <PageContent
+          title={props.title}
+          onChangeTitle={props.onChangeTitle}
+          text={props.text}
+        />
+      }
     />
   );
 });

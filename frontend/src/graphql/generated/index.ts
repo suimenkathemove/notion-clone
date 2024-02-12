@@ -23,6 +23,11 @@ export type Scalars = {
   ThreadId: { input: any; output: any; }
 };
 
+export type AddPage = {
+  text: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+};
+
 export type AddPageResult = GraphQlError | Page;
 
 export type Channel = {
@@ -124,7 +129,7 @@ export type MutationRootAddMessageArgs = {
 
 
 export type MutationRootAddPageArgs = {
-  content: PageContent;
+  addPage: AddPage;
   parentId?: InputMaybe<Scalars['PageId']['input']>;
 };
 
@@ -164,8 +169,8 @@ export type MutationRootReplyArgs = {
 
 
 export type MutationRootUpdatePageArgs = {
-  content: PageContent;
   id: Scalars['PageId']['input'];
+  updatePage: UpdatePage;
 };
 
 export type Page = {
@@ -175,11 +180,6 @@ export type Page = {
   text: Scalars['String']['output'];
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTimeUtc']['output'];
-};
-
-export type PageContent = {
-  text: Scalars['String']['input'];
-  title: Scalars['String']['input'];
 };
 
 export type PageTree = {
@@ -262,6 +262,11 @@ export type Thread = {
   updatedAt: Scalars['DateTimeUtc']['output'];
 };
 
+export type UpdatePage = {
+  text?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type UpdatePageResult = GraphQlError | Page;
 
 export type HealthCheckQueryVariables = Exact<{ [key: string]: never; }>;
@@ -276,11 +281,19 @@ export type ListRootPagesQuery = { __typename?: 'QueryRoot', listRootPages: { __
 
 export type AddPageMutationVariables = Exact<{
   parentId?: InputMaybe<Scalars['PageId']['input']>;
-  content: PageContent;
+  addPage: AddPage;
 }>;
 
 
 export type AddPageMutation = { __typename?: 'MutationRoot', addPage: { __typename?: 'GraphQLError' } | { __typename?: 'Page', id: any, title: string } };
+
+export type UpdatePageMutationVariables = Exact<{
+  id: Scalars['PageId']['input'];
+  updatePage: UpdatePage;
+}>;
+
+
+export type UpdatePageMutation = { __typename?: 'MutationRoot', updatePage: { __typename?: 'GraphQLError' } | { __typename?: 'Page', id: any, title: string, text: string } };
 
 export type RemovePageMutationVariables = Exact<{
   id: Scalars['PageId']['input'];
@@ -423,8 +436,8 @@ export type ListRootPagesLazyQueryHookResult = ReturnType<typeof useListRootPage
 export type ListRootPagesSuspenseQueryHookResult = ReturnType<typeof useListRootPagesSuspenseQuery>;
 export type ListRootPagesQueryResult = Apollo.QueryResult<ListRootPagesQuery, ListRootPagesQueryVariables>;
 export const AddPageDocument = gql`
-    mutation AddPage($parentId: PageId, $content: PageContent!) {
-  addPage(parentId: $parentId, content: $content) {
+    mutation AddPage($parentId: PageId, $addPage: AddPage!) {
+  addPage(parentId: $parentId, addPage: $addPage) {
     ... on Page {
       id
       title
@@ -448,7 +461,7 @@ export type AddPageMutationFn = Apollo.MutationFunction<AddPageMutation, AddPage
  * const [addPageMutation, { data, loading, error }] = useAddPageMutation({
  *   variables: {
  *      parentId: // value for 'parentId'
- *      content: // value for 'content'
+ *      addPage: // value for 'addPage'
  *   },
  * });
  */
@@ -459,6 +472,44 @@ export function useAddPageMutation(baseOptions?: Apollo.MutationHookOptions<AddP
 export type AddPageMutationHookResult = ReturnType<typeof useAddPageMutation>;
 export type AddPageMutationResult = Apollo.MutationResult<AddPageMutation>;
 export type AddPageMutationOptions = Apollo.BaseMutationOptions<AddPageMutation, AddPageMutationVariables>;
+export const UpdatePageDocument = gql`
+    mutation UpdatePage($id: PageId!, $updatePage: UpdatePage!) {
+  updatePage(id: $id, updatePage: $updatePage) {
+    ... on Page {
+      id
+      title
+      text
+    }
+  }
+}
+    `;
+export type UpdatePageMutationFn = Apollo.MutationFunction<UpdatePageMutation, UpdatePageMutationVariables>;
+
+/**
+ * __useUpdatePageMutation__
+ *
+ * To run a mutation, you first call `useUpdatePageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePageMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePageMutation, { data, loading, error }] = useUpdatePageMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      updatePage: // value for 'updatePage'
+ *   },
+ * });
+ */
+export function useUpdatePageMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePageMutation, UpdatePageMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdatePageMutation, UpdatePageMutationVariables>(UpdatePageDocument, options);
+      }
+export type UpdatePageMutationHookResult = ReturnType<typeof useUpdatePageMutation>;
+export type UpdatePageMutationResult = Apollo.MutationResult<UpdatePageMutation>;
+export type UpdatePageMutationOptions = Apollo.BaseMutationOptions<UpdatePageMutation, UpdatePageMutationVariables>;
 export const RemovePageDocument = gql`
     mutation RemovePage($id: PageId!) {
   removePage(id: $id) {

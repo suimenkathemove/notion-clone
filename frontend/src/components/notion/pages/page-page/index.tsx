@@ -1,3 +1,4 @@
+import { invariant } from "@suimenkathemove/utils";
 import { NextPage } from "next";
 import { useCallback, useMemo } from "react";
 
@@ -9,6 +10,7 @@ import {
   useListAncestorPagesQuery,
   useListRootPagesQuery,
   useRemovePageMutation,
+  useUpdatePageMutation,
 } from "@/graphql/generated";
 import { useRouterQuery } from "@/hooks/use-router-query";
 
@@ -19,6 +21,20 @@ export const PagePage: NextPage = () => {
     routerQuery.isReady
       ? { variables: { id: routerQuery.query["page-id"] } }
       : { skip: true },
+  );
+
+  const [updatePage] = useUpdatePageMutation();
+  const updateTitle = useCallback(
+    async (title: string) => {
+      invariant(routerQuery.isReady, "routerQuery is ready");
+      updatePage({
+        variables: {
+          id: routerQuery.query["page-id"],
+          updatePage: { title },
+        },
+      });
+    },
+    [routerQuery.isReady, routerQuery.query, updatePage],
   );
 
   const listAncestorPagesResult = useListAncestorPagesQuery(
@@ -64,7 +80,7 @@ export const PagePage: NextPage = () => {
   const [addPage] = useAddPageMutation();
   const onClickAddPage = useCallback(async () => {
     await addPage({
-      variables: { parentId: null, content: { title: "", text: "" } },
+      variables: { parentId: null, addPage: { title: "", text: "" } },
     });
   }, [addPage]);
 
@@ -88,6 +104,7 @@ export const PagePage: NextPage = () => {
           onClickRemovePageButton={onClickRemovePageButton}
           ancestors={ancestors}
           title={getPageInPagePageResult.data.getPage.title}
+          onChangeTitle={updateTitle}
           text={getPageInPagePageResult.data.getPage.text}
         />
       );

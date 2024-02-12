@@ -16,11 +16,23 @@ export const ListRootPages = gql`
 `;
 
 export const AddPage = gql`
-  mutation AddPage($parentId: PageId, $content: PageContent!) {
-    addPage(parentId: $parentId, content: $content) {
+  mutation AddPage($parentId: PageId, $addPage: AddPage!) {
+    addPage(parentId: $parentId, addPage: $addPage) {
       ... on Page {
         id
         title
+      }
+    }
+  }
+`;
+
+export const UpdatePage = gql`
+  mutation UpdatePage($id: PageId!, $updatePage: UpdatePage!) {
+    updatePage(id: $id, updatePage: $updatePage) {
+      ... on Page {
+        id
+        title
+        text
       }
     }
   }

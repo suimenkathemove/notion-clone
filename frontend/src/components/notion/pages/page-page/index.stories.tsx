@@ -17,6 +17,7 @@ export const defaultProps: PagePagePresenterProps = {
     { id: "title", name: "title" },
   ],
   title: "title",
+  onChangeTitle: async () => {},
   text: "text",
 };
 
