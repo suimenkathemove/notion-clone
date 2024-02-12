@@ -23,6 +23,7 @@
   "dependencies": {
     "@apollo/client": "^3.8.7",
     "@suimenkathemove/frontend-tsconfig": "^0.1.7",
+    "@suimenkathemove/utils": "^0.1.1",
     "@types/node": "20.9.4",
     "@types/react": "18.2.38",
     "@types/react-dom": "18.2.17",
