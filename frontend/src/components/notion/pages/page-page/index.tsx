@@ -27,7 +27,7 @@ export const PagePage: NextPage = () => {
   const updateTitle = useCallback(
     async (title: string) => {
       invariant(routerQuery.isReady, "routerQuery is ready");
-      updatePage({
+      await updatePage({
         variables: {
           id: routerQuery.query["page-id"],
           updatePage: { title },
