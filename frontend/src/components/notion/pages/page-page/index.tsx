@@ -36,6 +36,18 @@ export const PagePage: NextPage = () => {
     },
     [routerQuery.isReady, routerQuery.query, updatePage],
   );
+  const updateText = useCallback(
+    async (text: string) => {
+      invariant(routerQuery.isReady, "routerQuery is ready");
+      await updatePage({
+        variables: {
+          id: routerQuery.query["page-id"],
+          updatePage: { text },
+        },
+      });
+    },
+    [routerQuery.isReady, routerQuery.query, updatePage],
+  );
 
   const listAncestorPagesResult = useListAncestorPagesQuery(
     routerQuery.isReady
@@ -106,6 +118,7 @@ export const PagePage: NextPage = () => {
           title={getPageInPagePageResult.data.getPage.title}
           onChangeTitle={updateTitle}
           text={getPageInPagePageResult.data.getPage.text}
+          onChangeText={updateText}
         />
       );
     case "GraphQLError":

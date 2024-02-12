@@ -16,6 +16,7 @@ export type PagePagePresenterProps = {
   title: PageContentProps["title"];
   onChangeTitle: PageContentProps["onChangeTitle"];
   text: PageContentProps["text"];
+  onChangeText: PageContentProps["onChangeText"];
 };
 
 export const PagePagePresenter = memo((props: PagePagePresenterProps) => {
@@ -34,6 +35,7 @@ export const PagePagePresenter = memo((props: PagePagePresenterProps) => {
           title={props.title}
           onChangeTitle={props.onChangeTitle}
           text={props.text}
+          onChangeText={props.onChangeText}
         />
       }
     />

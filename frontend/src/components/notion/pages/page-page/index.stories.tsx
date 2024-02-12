@@ -19,6 +19,7 @@ export const defaultProps: PagePagePresenterProps = {
   title: "title",
   onChangeTitle: async () => {},
   text: "text",
+  onChangeText: async () => {},
 };
 
 export const Default: StoryObj = {
