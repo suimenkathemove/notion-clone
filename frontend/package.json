@@ -1,5 +1,5 @@
 {
-  "name": "frontend",
+  "name": "monorepo-sandbox-frontend",
   "version": "0.1.0",
   "scripts": {
     "postinstall": "typesync",
