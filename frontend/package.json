@@ -1,11 +1,6 @@
 {
   "name": "frontend",
   "version": "0.1.0",
-  "private": true,
-  "engines": {
-    "node": "20.x",
-    "pnpm": ">=3"
-  },
   "scripts": {
     "postinstall": "typesync",
     "dev": "next dev",
@@ -54,5 +49,9 @@
     "stylelint": "^16.1.0",
     "typesync": "^0.11.1",
     "vitest": "^0.34.6"
+  },
+  "engines": {
+    "node": "20.x",
+    "pnpm": ">=3"
   }
 }
