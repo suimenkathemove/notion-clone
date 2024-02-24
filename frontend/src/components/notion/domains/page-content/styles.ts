@@ -1,10 +1,16 @@
 import styled from "styled-components";
 
 export const Container = styled.div`
-  display: flex;
-  flex-direction: column;
   height: 100%;
   padding: 0 96px;
+`;
+
+export const Content = styled.div`
+  display: flex;
+  flex-direction: column;
+  max-width: 708px;
+  height: 100%;
+  margin: 0 auto;
 `;
 
 export const HeaderContainer = styled.div`

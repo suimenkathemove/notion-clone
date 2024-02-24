@@ -1,6 +1,12 @@
 import { memo, useCallback, useRef } from "react";
 
-import { Container, ContentContainer, H1, HeaderContainer } from "./styles";
+import {
+  Container,
+  Content,
+  ContentContainer,
+  H1,
+  HeaderContainer,
+} from "./styles";
 
 import { Page } from "@/graphql/generated";
 
@@ -32,22 +38,24 @@ export const PageContent = memo((props: PageContentProps) => {
 
   return (
     <Container>
-      <HeaderContainer>
-        <H1
+      <Content>
+        <HeaderContainer>
+          <H1
+            contentEditable
+            suppressContentEditableWarning
+            onInput={onInputTitle}
+          >
+            {titleRef.current}
+          </H1>
+        </HeaderContainer>
+        <ContentContainer
           contentEditable
           suppressContentEditableWarning
-          onInput={onInputTitle}
+          onInput={onInputText}
         >
-          {titleRef.current}
-        </H1>
-      </HeaderContainer>
-      <ContentContainer
-        contentEditable
-        suppressContentEditableWarning
-        onInput={onInputText}
-      >
-        {textRef.current}
-      </ContentContainer>
+          {textRef.current}
+        </ContentContainer>
+      </Content>
     </Container>
   );
 });
