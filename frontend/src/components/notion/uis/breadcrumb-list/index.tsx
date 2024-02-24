@@ -2,6 +2,8 @@ import { memo } from "react";
 
 import { A, Li, Ol, Slash } from "./styles";
 
+import { untitledPageLabel } from "@/models/notion/page";
+
 interface Node {
   id: string;
   name: string;
@@ -17,7 +19,7 @@ export const BreadcrumbList = memo((props: BreadcrumbListProps) => {
       <Ol>
         {props.ancestors.map((a, i) => (
           <Li key={a.id}>
-            <A>{a.name}</A>
+            <A>{a.name || untitledPageLabel}</A>
             {i !== props.ancestors.length - 1 && <Slash>/</Slash>}
           </Li>
         ))}

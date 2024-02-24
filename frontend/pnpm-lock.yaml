@@ -38,6 +38,9 @@ dependencies:
   react-dom:
     specifier: 18.2.0
     version: 18.2.0(react@18.2.0)
+  react-notion-sortable-tree:
+    specifier: ^0.1.10
+    version: 0.1.10(react-dom@18.2.0)(react@18.2.0)
   styled-components:
     specifier: ^6.1.1
     version: 6.1.6(react-dom@18.2.0)(react@18.2.0)
@@ -3984,6 +3987,18 @@ packages:
       prettier: 3.1.1
     dev: true
 
+  /@suimenkathemove/react-library@0.1.6(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-wqbK3JVsSa8iHt6MrQGhfNMcAL3SEJMhiDLCOCHyH7UTdl1PrKVHykmKxLnsXK6SZ0POB+Wve/CiDZ3MthWdvw==}
+    engines: {node: 20.x, pnpm: '>=3'}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      styled-components: 6.1.6(react-dom@18.2.0)(react@18.2.0)
+    dev: false
+
   /@suimenkathemove/stylelint-config@0.1.4(postcss@8.4.32)(typescript@5.2.2):
     resolution: {integrity: sha512-aUtYBrqSuqoUKZk8BQutBZCA3TM+5hYh6UQOJf+jO2jVz0WLvuccojf8rDuqT2JTRwfHxqJJHeEzriiyg+Dw0g==}
     dependencies:
@@ -4012,6 +4027,11 @@ packages:
 
   /@suimenkathemove/utils@0.1.1:
     resolution: {integrity: sha512-rbE4Qr21Mnf0uwyowHr5JjfsG1trG4DIQegbAWXvY4Yk99Q3yc6De4/3HFV//9/sucIXZyqLo4BAfrVeBrb+nQ==}
+    engines: {node: 20.x, pnpm: '>=3'}
+    dev: false
+
+  /@suimenkathemove/utils@0.1.6:
+    resolution: {integrity: sha512-PHtRG5J7Qonf9b6dodxLOBnLx3sFDAMuKdn2iZ1MueVMQt13ywKCVf2AuqxWJiQbGYaGCV4E0kT2uC3+atzsCg==}
     engines: {node: 20.x, pnpm: '>=3'}
     dev: false
 
@@ -10046,6 +10066,15 @@ packages:
       react-is: 18.1.0
     dev: true
 
+  /react-feather@2.0.10(react@18.2.0):
+    resolution: {integrity: sha512-BLhukwJ+Z92Nmdcs+EMw6dy1Z/VLiJTzEQACDUEnWMClhYnFykJCGWQx+NmwP/qQHGX/5CzQ+TGi8ofg2+HzVQ==}
+    peerDependencies:
+      react: '>=16.8.6'
+    dependencies:
+      prop-types: 15.8.1
+      react: 18.2.0
+    dev: false
+
   /react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
 
@@ -10060,6 +10089,20 @@ packages:
   /react-is@18.2.0:
     resolution: {integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==}
     dev: true
+
+  /react-notion-sortable-tree@0.1.10(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-YME0iLAArhvVL0EHCaV91IkaWMTzwYlh6oBf6sqCsmUdxfirUkeEgOLd5HKy1EjIZxPOMa5eiA4dXQcKf6D3Jg==}
+    engines: {node: 20.x, pnpm: '>=3'}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+    dependencies:
+      '@suimenkathemove/react-library': 0.1.6(react-dom@18.2.0)(react@18.2.0)
+      '@suimenkathemove/utils': 0.1.6
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      react-feather: 2.0.10(react@18.2.0)
+    dev: false
 
   /react-refresh@0.14.0:
     resolution: {integrity: sha512-wViHqhAd8OHeLS/IRMJjTSDHF3U9eWi62F/MledQGPdJGDhodXJ9PBLNGr6WWL7qlH12Mt3TyTpbS+hGXMjCzQ==}
