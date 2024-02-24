@@ -277,7 +277,14 @@ export type HealthCheckQuery = { __typename?: 'QueryRoot', healthCheck: string }
 export type ListRootPagesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListRootPagesQuery = { __typename?: 'QueryRoot', listRootPages: { __typename: 'GraphQLError' } | { __typename: 'ListPages', items: Array<{ __typename?: 'Page', id: any, title: string, text: string }> } };
+export type ListRootPagesQuery = { __typename?: 'QueryRoot', listRootPages: { __typename: 'GraphQLError' } | { __typename: 'ListPages', items: Array<{ __typename?: 'Page', id: any, title: string }> } };
+
+export type ListChildrenPagesQueryVariables = Exact<{
+  id: Scalars['PageId']['input'];
+}>;
+
+
+export type ListChildrenPagesQuery = { __typename?: 'QueryRoot', listChildrenPages: { __typename: 'GraphQLError' } | { __typename: 'ListPages', items: Array<{ __typename?: 'Page', id: any, title: string }> } };
 
 export type AddPageMutationVariables = Exact<{
   parentId?: InputMaybe<Scalars['PageId']['input']>;
@@ -301,6 +308,14 @@ export type RemovePageMutationVariables = Exact<{
 
 
 export type RemovePageMutation = { __typename?: 'MutationRoot', removePage: { __typename?: 'GraphQLError' } | { __typename?: 'RemovePage', id: any } };
+
+export type MovePageMutationVariables = Exact<{
+  id: Scalars['PageId']['input'];
+  target: MoveTarget;
+}>;
+
+
+export type MovePageMutation = { __typename?: 'MutationRoot', movePage: { __typename?: 'GraphQLError' } | { __typename?: 'MovePage', id: any } };
 
 export type GetPageInPagePageQueryVariables = Exact<{
   id: Scalars['PageId']['input'];
@@ -397,7 +412,6 @@ export const ListRootPagesDocument = gql`
       items {
         id
         title
-        text
       }
     }
   }
@@ -435,6 +449,52 @@ export type ListRootPagesQueryHookResult = ReturnType<typeof useListRootPagesQue
 export type ListRootPagesLazyQueryHookResult = ReturnType<typeof useListRootPagesLazyQuery>;
 export type ListRootPagesSuspenseQueryHookResult = ReturnType<typeof useListRootPagesSuspenseQuery>;
 export type ListRootPagesQueryResult = Apollo.QueryResult<ListRootPagesQuery, ListRootPagesQueryVariables>;
+export const ListChildrenPagesDocument = gql`
+    query ListChildrenPages($id: PageId!) {
+  listChildrenPages(id: $id) {
+    __typename
+    ... on ListPages {
+      items {
+        id
+        title
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useListChildrenPagesQuery__
+ *
+ * To run a query within a React component, call `useListChildrenPagesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListChildrenPagesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListChildrenPagesQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useListChildrenPagesQuery(baseOptions: Apollo.QueryHookOptions<ListChildrenPagesQuery, ListChildrenPagesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListChildrenPagesQuery, ListChildrenPagesQueryVariables>(ListChildrenPagesDocument, options);
+      }
+export function useListChildrenPagesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListChildrenPagesQuery, ListChildrenPagesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListChildrenPagesQuery, ListChildrenPagesQueryVariables>(ListChildrenPagesDocument, options);
+        }
+export function useListChildrenPagesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListChildrenPagesQuery, ListChildrenPagesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListChildrenPagesQuery, ListChildrenPagesQueryVariables>(ListChildrenPagesDocument, options);
+        }
+export type ListChildrenPagesQueryHookResult = ReturnType<typeof useListChildrenPagesQuery>;
+export type ListChildrenPagesLazyQueryHookResult = ReturnType<typeof useListChildrenPagesLazyQuery>;
+export type ListChildrenPagesSuspenseQueryHookResult = ReturnType<typeof useListChildrenPagesSuspenseQuery>;
+export type ListChildrenPagesQueryResult = Apollo.QueryResult<ListChildrenPagesQuery, ListChildrenPagesQueryVariables>;
 export const AddPageDocument = gql`
     mutation AddPage($parentId: PageId, $addPage: AddPage!) {
   addPage(parentId: $parentId, addPage: $addPage) {
@@ -545,6 +605,42 @@ export function useRemovePageMutation(baseOptions?: Apollo.MutationHookOptions<R
 export type RemovePageMutationHookResult = ReturnType<typeof useRemovePageMutation>;
 export type RemovePageMutationResult = Apollo.MutationResult<RemovePageMutation>;
 export type RemovePageMutationOptions = Apollo.BaseMutationOptions<RemovePageMutation, RemovePageMutationVariables>;
+export const MovePageDocument = gql`
+    mutation MovePage($id: PageId!, $target: MoveTarget!) {
+  movePage(id: $id, target: $target) {
+    ... on MovePage {
+      id
+    }
+  }
+}
+    `;
+export type MovePageMutationFn = Apollo.MutationFunction<MovePageMutation, MovePageMutationVariables>;
+
+/**
+ * __useMovePageMutation__
+ *
+ * To run a mutation, you first call `useMovePageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useMovePageMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [movePageMutation, { data, loading, error }] = useMovePageMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      target: // value for 'target'
+ *   },
+ * });
+ */
+export function useMovePageMutation(baseOptions?: Apollo.MutationHookOptions<MovePageMutation, MovePageMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<MovePageMutation, MovePageMutationVariables>(MovePageDocument, options);
+      }
+export type MovePageMutationHookResult = ReturnType<typeof useMovePageMutation>;
+export type MovePageMutationResult = Apollo.MutationResult<MovePageMutation>;
+export type MovePageMutationOptions = Apollo.BaseMutationOptions<MovePageMutation, MovePageMutationVariables>;
 export const GetPageInPagePageDocument = gql`
     query GetPageInPagePage($id: PageId!) {
   getPage(id: $id) {

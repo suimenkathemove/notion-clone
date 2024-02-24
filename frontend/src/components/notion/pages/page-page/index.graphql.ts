@@ -8,7 +8,20 @@ export const ListRootPages = gql`
         items {
           id
           title
-          text
+        }
+      }
+    }
+  }
+`;
+
+export const ListChildrenPages = gql`
+  query ListChildrenPages($id: PageId!) {
+    listChildrenPages(id: $id) {
+      __typename
+      ... on ListPages {
+        items {
+          id
+          title
         }
       }
     }
@@ -42,6 +55,16 @@ export const RemovePage = gql`
   mutation RemovePage($id: PageId!) {
     removePage(id: $id) {
       ... on RemovePage {
+        id
+      }
+    }
+  }
+`;
+
+export const MovePage = gql`
+  mutation MovePage($id: PageId!, $target: MoveTarget!) {
+    movePage(id: $id, target: $target) {
+      ... on MovePage {
         id
       }
     }
