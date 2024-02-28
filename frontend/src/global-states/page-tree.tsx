@@ -1,7 +1,7 @@
 import { createContext, useContext, useState } from "react";
 import { Tree } from "react-notion-sortable-tree";
 
-type PageTree = Tree<{ title: string }>;
+export type PageTree = Tree<{ title: string }>;
 
 interface PageTreeContextValue {
   pageTree: PageTree;
