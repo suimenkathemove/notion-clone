@@ -17,12 +17,12 @@ export const HeaderContainer = styled.div`
   padding-top: 80px;
 `;
 
-export const H1 = styled.h1`
+export const Title = styled.h1`
   font-size: ${40 / 16}rem;
   font-weight: bold;
 `;
 
-export const ContentContainer = styled.div`
+export const Text = styled.div`
   flex-grow: 1;
   padding-top: 4px;
 `;

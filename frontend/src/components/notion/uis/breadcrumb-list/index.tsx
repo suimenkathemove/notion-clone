@@ -1,8 +1,10 @@
+import Link from "next/link";
 import { memo } from "react";
 
-import { A, Li, Ol, Slash } from "./styles";
+import { Li, Ol, Slash } from "./styles";
 
 import { untitledPageLabel } from "@/models/notion/page";
+import { routes } from "@/routes";
 
 interface Node {
   id: string;
@@ -19,7 +21,12 @@ export const BreadcrumbList = memo((props: BreadcrumbListProps) => {
       <Ol>
         {props.ancestors.map((a, i) => (
           <Li key={a.id}>
-            <A>{a.name || untitledPageLabel}</A>
+            <Link
+              href={routes.notion.page.show(a.id)}
+              style={{ padding: "2px 6px" }}
+            >
+              {a.name || untitledPageLabel}
+            </Link>
             {i !== props.ancestors.length - 1 && <Slash>/</Slash>}
           </Li>
         ))}
