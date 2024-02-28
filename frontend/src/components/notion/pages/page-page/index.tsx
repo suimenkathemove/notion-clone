@@ -105,26 +105,25 @@ export const PagePage: NextPage = () => {
     [removePage],
   );
 
-  if (getPageInPagePageResult.data == null) return <div>loading...</div>;
+  const title =
+    getPageInPagePageResult.data?.getPage.__typename === "Page"
+      ? getPageInPagePageResult.data.getPage.title
+      : "";
+  const text =
+    getPageInPagePageResult.data?.getPage.__typename === "Page"
+      ? getPageInPagePageResult.data.getPage.text
+      : "";
 
-  switch (getPageInPagePageResult.data.getPage.__typename) {
-    case "Page":
-      return (
-        <PagePagePresenter
-          pageListResult={pageListResult}
-          onClickAddPage={onClickAddPage}
-          onClickRemovePageButton={onClickRemovePageButton}
-          ancestors={ancestors}
-          title={getPageInPagePageResult.data.getPage.title}
-          onChangeTitle={updateTitle}
-          text={getPageInPagePageResult.data.getPage.text}
-          onChangeText={updateText}
-        />
-      );
-    case "GraphQLError":
-      // TODO
-      throw new Error();
-    default:
-      return getPageInPagePageResult.data.getPage satisfies never;
-  }
+  return (
+    <PagePagePresenter
+      pageListResult={pageListResult}
+      onClickAddPage={onClickAddPage}
+      onClickRemovePageButton={onClickRemovePageButton}
+      ancestors={ancestors}
+      title={title}
+      onChangeTitle={updateTitle}
+      text={text}
+      onChangeText={updateText}
+    />
+  );
 };

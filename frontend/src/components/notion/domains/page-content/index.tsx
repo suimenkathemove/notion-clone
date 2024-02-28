@@ -1,12 +1,6 @@
-import { memo, useCallback, useRef } from "react";
+import { memo, useCallback, useEffect, useRef } from "react";
 
-import {
-  Container,
-  Content,
-  ContentContainer,
-  H1,
-  HeaderContainer,
-} from "./styles";
+import { Container, Content, HeaderContainer, Text, Title } from "./styles";
 
 import { Page } from "@/graphql/generated";
 
@@ -18,7 +12,11 @@ export interface PageContentProps {
 }
 
 export const PageContent = memo((props: PageContentProps) => {
-  const titleRef = useRef(props.title);
+  const titleElRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (titleElRef.current == null) return;
+    titleElRef.current.textContent = props.title;
+  }, [props.title]);
   const onInputTitle: React.FormEventHandler<HTMLHeadingElement> = useCallback(
     async (event) => {
       const value = event.currentTarget.textContent ?? "";
@@ -27,7 +25,11 @@ export const PageContent = memo((props: PageContentProps) => {
     [props],
   );
 
-  const textRef = useRef(props.text);
+  const textElRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (textElRef.current == null) return;
+    textElRef.current.textContent = props.text;
+  }, [props.text]);
   const onInputText: React.FormEventHandler<HTMLDivElement> = useCallback(
     async (event) => {
       const value = event.currentTarget.textContent ?? "";
@@ -40,21 +42,19 @@ export const PageContent = memo((props: PageContentProps) => {
     <Container>
       <Content>
         <HeaderContainer>
-          <H1
+          <Title
             contentEditable
             suppressContentEditableWarning
             onInput={onInputTitle}
-          >
-            {titleRef.current}
-          </H1>
+            ref={titleElRef}
+          />
         </HeaderContainer>
-        <ContentContainer
+        <Text
           contentEditable
           suppressContentEditableWarning
           onInput={onInputText}
-        >
-          {textRef.current}
-        </ContentContainer>
+          ref={textElRef}
+        />
       </Content>
     </Container>
   );

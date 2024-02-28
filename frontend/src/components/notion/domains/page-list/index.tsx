@@ -1,14 +1,17 @@
 import { invariant } from "@suimenkathemove/utils";
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect } from "react";
 import {
-  NotionVersion,
-  NotionVersionProps,
   Tree,
   moveNode,
   removeNode,
   updateNode,
 } from "react-notion-sortable-tree";
 
+import {
+  SortableTree,
+  SortableTreeProps,
+} from "@/components/notion/domains/sortable-tree";
+import { usePageTree } from "@/global-states/page-tree";
 import {
   MoveTargetType,
   Page,
@@ -34,7 +37,7 @@ type Data = {
 };
 
 export const PageList = memo((_props: PageListProps) => {
-  const [tree, setTree] = useState<Tree<Data>>([]);
+  const { pageTree: tree, setPageTree: setTree } = usePageTree();
 
   const [listRootPages] = useListRootPagesLazyQuery();
   const [listChildrenPages] = useListChildrenPagesLazyQuery();
@@ -63,7 +66,7 @@ export const PageList = memo((_props: PageListProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onClickCollapse: NotionVersionProps["onClickCollapse"] = useCallback(
+  const onClickCollapse: SortableTreeProps["onClickCollapse"] = useCallback(
     async (item) => {
       if (item.collapsed) {
         const result = await listChildrenPages({ variables: { id: item.id } });
@@ -93,10 +96,10 @@ export const PageList = memo((_props: PageListProps) => {
         setTree(newTree);
       }
     },
-    [listChildrenPages, tree],
+    [listChildrenPages, setTree, tree],
   );
 
-  const onClickAddRoot: NotionVersionProps["onClickAddRoot"] =
+  const onClickAddRoot: SortableTreeProps["onClickAddRoot"] =
     useCallback(async () => {
       const result = await addPage({
         variables: { parentId: null, addPage: { title: "", text: "" } },
@@ -114,9 +117,9 @@ export const PageList = memo((_props: PageListProps) => {
         },
       });
       setTree(newTree);
-    }, [addPage, tree]);
+    }, [addPage, setTree, tree]);
 
-  const onClickAddChild: NotionVersionProps["onClickAddChild"] = useCallback(
+  const onClickAddChild: SortableTreeProps["onClickAddChild"] = useCallback(
     async (id) => {
       const result = await addPage({
         variables: { parentId: id, addPage: { title: "", text: "" } },
@@ -140,10 +143,10 @@ export const PageList = memo((_props: PageListProps) => {
       }));
       setTree(newTree);
     },
-    [addPage, tree],
+    [addPage, setTree, tree],
   );
 
-  const onClickRename: NotionVersionProps["onClickRename"] = useCallback(
+  const onClickRename: SortableTreeProps["onClickRename"] = useCallback(
     async (item) => {
       const value = window.prompt("", item.data.title) ?? "";
       await updatePage({
@@ -157,19 +160,19 @@ export const PageList = memo((_props: PageListProps) => {
       }));
       setTree(newTree);
     },
-    [tree, updatePage],
+    [setTree, tree, updatePage],
   );
 
-  const onClickDelete: NotionVersionProps["onClickDelete"] = useCallback(
+  const onClickDelete: SortableTreeProps["onClickDelete"] = useCallback(
     async (id) => {
       await removePage({ variables: { id } });
       const [newTree] = removeNode(tree, id);
       setTree(newTree);
     },
-    [removePage, tree],
+    [removePage, setTree, tree],
   );
 
-  const onMove: NotionVersionProps["onMove"] = useCallback(
+  const onMove: SortableTreeProps["onMove"] = useCallback(
     async (fromItem, target) => {
       const moveTarget = (() => {
         switch (target.type) {
@@ -191,11 +194,11 @@ export const PageList = memo((_props: PageListProps) => {
       const newTree = moveNode(tree, fromItem.id, target);
       setTree(newTree);
     },
-    [movePage, tree],
+    [movePage, setTree, tree],
   );
 
   return (
-    <NotionVersion
+    <SortableTree
       tree={tree}
       onClickCollapse={onClickCollapse}
       onClickAddRoot={onClickAddRoot}

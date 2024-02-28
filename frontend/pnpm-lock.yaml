@@ -11,6 +11,9 @@ dependencies:
   '@suimenkathemove/frontend-tsconfig':
     specifier: ^0.1.7
     version: 0.1.7(typescript@5.2.2)(typesync@0.11.1)
+  '@suimenkathemove/react-library':
+    specifier: ^0.1.7
+    version: 0.1.7(react-dom@18.2.0)(react@18.2.0)
   '@suimenkathemove/utils':
     specifier: ^0.1.1
     version: 0.1.1
@@ -38,6 +41,9 @@ dependencies:
   react-dom:
     specifier: 18.2.0
     version: 18.2.0(react@18.2.0)
+  react-feather:
+    specifier: ^2.0.10
+    version: 2.0.10(react@18.2.0)
   react-notion-sortable-tree:
     specifier: ^0.1.10
     version: 0.1.10(react-dom@18.2.0)(react@18.2.0)
@@ -3987,8 +3993,8 @@ packages:
       prettier: 3.1.1
     dev: true
 
-  /@suimenkathemove/react-library@0.1.6(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-wqbK3JVsSa8iHt6MrQGhfNMcAL3SEJMhiDLCOCHyH7UTdl1PrKVHykmKxLnsXK6SZ0POB+Wve/CiDZ3MthWdvw==}
+  /@suimenkathemove/react-library@0.1.7(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-bYSrTGOze+wXRC7xqsqmR/9ZNSzLkE6QJwKpCYm2MJj1NOiMdxhbmRr7pE8h3MamIqYWInBPHQAtX1PFR1UmOA==}
     engines: {node: 20.x, pnpm: '>=3'}
     peerDependencies:
       react: '>=16.8.0'
@@ -10097,7 +10103,7 @@ packages:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
     dependencies:
-      '@suimenkathemove/react-library': 0.1.6(react-dom@18.2.0)(react@18.2.0)
+      '@suimenkathemove/react-library': 0.1.7(react-dom@18.2.0)(react@18.2.0)
       '@suimenkathemove/utils': 0.1.6
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
