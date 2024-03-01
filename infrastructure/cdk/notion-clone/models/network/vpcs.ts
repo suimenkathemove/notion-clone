@@ -5,4 +5,5 @@ export const vpcEndpoints = {
     api: "notionCloneVpcEndpointEcrApi",
     dkr: "notionCloneVpcEndpointEcrDkr",
   },
+  s3: "notionCloneVpcEndpointS3",
 } as const;

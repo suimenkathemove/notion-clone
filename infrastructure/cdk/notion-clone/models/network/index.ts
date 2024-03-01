@@ -15,7 +15,14 @@ const createVpc = (scope: Construct): cdk.aws_ec2.CfnVPC => {
   });
 };
 
-const createIngressSubnet = (scope: Construct, props: { vpcId: string }) => {
+const createIngressSubnet = (
+  scope: Construct,
+  props: { vpcId: string },
+): {
+  subnetA: cdk.aws_ec2.CfnSubnet;
+  subnetC: cdk.aws_ec2.CfnSubnet;
+  routeTable: cdk.aws_ec2.CfnRouteTable;
+} => {
   const subnetA = new cdk.aws_ec2.CfnSubnet(scope, subnetIds.ingress.a, {
     vpcId: props.vpcId,
     availabilityZone: availabilityZones.a,
@@ -51,9 +58,18 @@ const createIngressSubnet = (scope: Construct, props: { vpcId: string }) => {
       routeTableId: routeTable.ref,
     },
   );
+
+  return { subnetA, subnetC, routeTable };
 };
 
-const createAppSubnet = (scope: Construct, props: { vpcId: string }) => {
+const createAppSubnet = (
+  scope: Construct,
+  props: { vpcId: string },
+): {
+  subnetA: cdk.aws_ec2.CfnSubnet;
+  subnetC: cdk.aws_ec2.CfnSubnet;
+  routeTable: cdk.aws_ec2.CfnRouteTable;
+} => {
   const subnetA = new cdk.aws_ec2.CfnSubnet(scope, subnetIds.app.a, {
     vpcId: props.vpcId,
     availabilityZone: availabilityZones.a,
@@ -85,9 +101,18 @@ const createAppSubnet = (scope: Construct, props: { vpcId: string }) => {
       routeTableId: routeTable.ref,
     },
   );
+
+  return { subnetA, subnetC, routeTable };
 };
 
-const createDbSubnet = (scope: Construct, props: { vpcId: string }) => {
+const createDbSubnet = (
+  scope: Construct,
+  props: { vpcId: string },
+): {
+  subnetA: cdk.aws_ec2.CfnSubnet;
+  subnetC: cdk.aws_ec2.CfnSubnet;
+  routeTable: cdk.aws_ec2.CfnRouteTable;
+} => {
   const subnetA = new cdk.aws_ec2.CfnSubnet(scope, subnetIds.db.a, {
     vpcId: props.vpcId,
     availabilityZone: availabilityZones.a,
@@ -119,9 +144,17 @@ const createDbSubnet = (scope: Construct, props: { vpcId: string }) => {
       routeTableId: routeTable.ref,
     },
   );
+
+  return { subnetA, subnetC, routeTable };
 };
 
-const createEgressSubnet = (scope: Construct, props: { vpcId: string }) => {
+const createEgressSubnet = (
+  scope: Construct,
+  props: { vpcId: string },
+): {
+  subnetA: cdk.aws_ec2.CfnSubnet;
+  subnetC: cdk.aws_ec2.CfnSubnet;
+} => {
   const subnetA = new cdk.aws_ec2.CfnSubnet(scope, subnetIds.egress.a, {
     vpcId: props.vpcId,
     availabilityZone: availabilityZones.a,
@@ -145,6 +178,20 @@ const createEgressSubnet = (scope: Construct, props: { vpcId: string }) => {
     vpcId: props.vpcId,
     subnetIds: [subnetA.ref, subnetC.ref],
   });
+
+  return { subnetA, subnetC };
+};
+
+const createS3VpcEndpoint = (
+  scope: Construct,
+  props: { vpcId: string; appRouteTableId: string },
+) => {
+  new cdk.aws_ec2.CfnVPCEndpoint(scope, vpcEndpoints.s3, {
+    vpcEndpointType: "Gateway",
+    serviceName: "com.amazonaws.ap-northeast-1.s3",
+    vpcId: props.vpcId,
+    routeTableIds: [props.appRouteTableId],
+  });
 };
 
 export const createNetwork = (scope: Construct) => {
@@ -152,9 +199,14 @@ export const createNetwork = (scope: Construct) => {
 
   createIngressSubnet(scope, { vpcId: vpc.ref });
 
-  createAppSubnet(scope, { vpcId: vpc.ref });
+  const appSubnet = createAppSubnet(scope, { vpcId: vpc.ref });
 
   createDbSubnet(scope, { vpcId: vpc.ref });
 
   createEgressSubnet(scope, { vpcId: vpc.ref });
+
+  createS3VpcEndpoint(scope, {
+    vpcId: vpc.ref,
+    appRouteTableId: appSubnet.routeTable.ref,
+  });
 };
