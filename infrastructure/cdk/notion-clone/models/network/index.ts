@@ -5,7 +5,7 @@ import { availabilityZones } from "./availability-zones";
 import { cidrBlocks } from "./cidr-blocks";
 import { routeTableIds, subnetRouteTableAssociationIds } from "./route-tables";
 import { subnetIds } from "./subnets";
-import { vpcId } from "./vpcs";
+import { vpcEndpoints, vpcId } from "./vpcs";
 
 const createVpc = (scope: Construct): cdk.aws_ec2.CfnVPC => {
   return new cdk.aws_ec2.CfnVPC(scope, vpcId, {
@@ -122,15 +122,28 @@ const createDbSubnet = (scope: Construct, props: { vpcId: string }) => {
 };
 
 const createEgressSubnet = (scope: Construct, props: { vpcId: string }) => {
-  new cdk.aws_ec2.CfnSubnet(scope, subnetIds.egress.a, {
+  const subnetA = new cdk.aws_ec2.CfnSubnet(scope, subnetIds.egress.a, {
     vpcId: props.vpcId,
     availabilityZone: availabilityZones.a,
     cidrBlock: cidrBlocks.notionCloneSubnetEgressA,
   });
-  new cdk.aws_ec2.CfnSubnet(scope, subnetIds.egress.c, {
+  const subnetC = new cdk.aws_ec2.CfnSubnet(scope, subnetIds.egress.c, {
     vpcId: props.vpcId,
     availabilityZone: availabilityZones.c,
     cidrBlock: cidrBlocks.notionCloneSubnetEgressC,
+  });
+
+  new cdk.aws_ec2.CfnVPCEndpoint(scope, vpcEndpoints.ecr.api, {
+    vpcEndpointType: "Interface",
+    serviceName: "com.amazonaws.ap-northeast-1.ecr.api",
+    vpcId: props.vpcId,
+    subnetIds: [subnetA.ref, subnetC.ref],
+  });
+  new cdk.aws_ec2.CfnVPCEndpoint(scope, vpcEndpoints.ecr.dkr, {
+    vpcEndpointType: "Interface",
+    serviceName: "com.amazonaws.ap-northeast-1.ecr.dkr",
+    vpcId: props.vpcId,
+    subnetIds: [subnetA.ref, subnetC.ref],
   });
 };
 
