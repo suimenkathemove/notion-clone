@@ -6,6 +6,7 @@ flowchart TB
 Client --> Internet
 Internet --> internet-gateway
 internet-gateway --> ALB
+egress-vpc-endpoint <--> ECR
 
 subgraph aws-cloud[AWS Cloud]
   subgraph vpc[VPC]
@@ -13,9 +14,12 @@ subgraph aws-cloud[AWS Cloud]
     subgraph ap-northeast-1a
       subgraph ingress["Ingress(Public subnet)"]
         ALB
-        route-table[Route table]
+      end
+      subgraph egress["Egress(Private subnet)"]
+        egress-vpc-endpoint[VPC Endpoint]
       end
     end
   end
+  ECR
 end
 ```
