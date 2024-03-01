@@ -1,7 +1,7 @@
 import { subnetIds } from "./subnets";
 import { vpcId } from "./vpcs";
 
-import { Cidr } from "@/types";
+type Cidr = `${number}.${number}.${number}.${number}/${number}`;
 
 type SubnetIds = typeof subnetIds;
 type SubnetIdValues = SubnetIds[keyof SubnetIds];

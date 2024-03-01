@@ -1,14 +1,14 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 
-import { availabilityZones } from "@/constants/availability-zones";
-import { cidrBlocks } from "@/constants/cidr-blocks";
+import { availabilityZones } from "@/models/availability-zones";
+import { cidrBlocks } from "@/models/cidr-blocks";
 import {
   routeTableIds,
   subnetRouteTableAssociationIds,
-} from "@/constants/route-tables";
-import { subnetIds } from "@/constants/subnets";
-import { vpcId } from "@/constants/vpcs";
+} from "@/models/route-tables";
+import { subnetIds } from "@/models/subnets";
+import { vpcId } from "@/models/vpcs";
 
 export class NotionCloneStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
