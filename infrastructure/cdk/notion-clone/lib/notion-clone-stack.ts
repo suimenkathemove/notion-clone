@@ -7,6 +7,6 @@ export class NotionCloneStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    createNetwork(scope);
+    createNetwork(this);
   }
 }
