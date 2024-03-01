@@ -121,6 +121,19 @@ const createDbSubnet = (scope: Construct, props: { vpcId: string }) => {
   );
 };
 
+const createEgressSubnet = (scope: Construct, props: { vpcId: string }) => {
+  new cdk.aws_ec2.CfnSubnet(scope, subnetIds.egress.a, {
+    vpcId: props.vpcId,
+    availabilityZone: availabilityZones.a,
+    cidrBlock: cidrBlocks.notionCloneSubnetEgressA,
+  });
+  new cdk.aws_ec2.CfnSubnet(scope, subnetIds.egress.c, {
+    vpcId: props.vpcId,
+    availabilityZone: availabilityZones.c,
+    cidrBlock: cidrBlocks.notionCloneSubnetEgressC,
+  });
+};
+
 export const createNetwork = (scope: Construct) => {
   const vpc = createVpc(scope);
 
@@ -129,4 +142,6 @@ export const createNetwork = (scope: Construct) => {
   createAppSubnet(scope, { vpcId: vpc.ref });
 
   createDbSubnet(scope, { vpcId: vpc.ref });
+
+  createEgressSubnet(scope, { vpcId: vpc.ref });
 };

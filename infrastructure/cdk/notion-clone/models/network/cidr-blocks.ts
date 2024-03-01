@@ -15,4 +15,6 @@ export const cidrBlocks = {
   notionCloneSubnetPrivateApp1C: "10.0.9.0/24",
   notionCloneSubnetPrivateDb1A: "10.0.16.0/24",
   notionCloneSubnetPrivateDb1C: "10.0.17.0/24",
+  notionCloneSubnetEgressA: "10.0.248.0/24",
+  notionCloneSubnetEgressC: "10.0.249.0/24",
 } as const satisfies Record<typeof vpcId | SubnetIdValueValues, Cidr>;

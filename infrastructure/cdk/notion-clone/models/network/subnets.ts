@@ -1,6 +1,6 @@
 import { AvailabilityZoneType } from "./availability-zones";
 
-export type SubnetType = "ingress" | "app" | "db";
+export type SubnetType = "ingress" | "app" | "db" | "egress";
 
 export const subnetIds = {
   ingress: {
@@ -14,5 +14,9 @@ export const subnetIds = {
   db: {
     a: "notionCloneSubnetPrivateDb1A",
     c: "notionCloneSubnetPrivateDb1C",
+  },
+  egress: {
+    a: "notionCloneSubnetEgressA",
+    c: "notionCloneSubnetEgressC",
   },
 } as const satisfies Record<SubnetType, Record<AvailabilityZoneType, string>>;
