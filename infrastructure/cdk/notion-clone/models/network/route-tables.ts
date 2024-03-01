@@ -1,11 +1,13 @@
 import { AvailabilityZoneType } from "./availability-zones";
 import { SubnetType } from "./subnets";
 
+type RouteTableSubnetType = Extract<SubnetType, "ingress" | "app" | "db">;
+
 export const routeTableIds = {
   ingress: "notionCloneRouteIngress",
   app: "notionCloneRouteApp",
   db: "notionCloneRouteDb",
-} as const satisfies Record<SubnetType, string>;
+} as const satisfies Record<RouteTableSubnetType, string>;
 
 export const subnetRouteTableAssociationIds = {
   ingress: {
@@ -20,4 +22,7 @@ export const subnetRouteTableAssociationIds = {
     a: "notionCloneRouteDbAssociation1A",
     c: "notionCloneRouteDbAssociation1C",
   },
-} as const satisfies Record<SubnetType, Record<AvailabilityZoneType, string>>;
+} as const satisfies Record<
+  RouteTableSubnetType,
+  Record<AvailabilityZoneType, string>
+>;
