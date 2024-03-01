@@ -4,15 +4,15 @@ export type SubnetType = "ingress" | "app" | "db";
 
 export const subnetIds = {
   ingress: {
-    a: "slackCloneSubnetPublicIngress1A",
-    c: "slackCloneSubnetPublicIngress1C",
+    a: "notionCloneSubnetPublicIngress1A",
+    c: "notionCloneSubnetPublicIngress1C",
   },
   app: {
-    a: "slackCloneSubnetPrivateApp1A",
-    c: "slackCloneSubnetPrivateApp1C",
+    a: "notionCloneSubnetPrivateApp1A",
+    c: "notionCloneSubnetPrivateApp1C",
   },
   db: {
-    a: "slackCloneSubnetPrivateDb1A",
-    c: "slackCloneSubnetPrivateDb1C",
+    a: "notionCloneSubnetPrivateDb1A",
+    c: "notionCloneSubnetPrivateDb1C",
   },
 } as const satisfies Record<SubnetType, Record<AvailabilityZoneType, string>>;

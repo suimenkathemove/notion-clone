@@ -1,24 +1,20 @@
 {
-  "name": "slack-clone",
+  "name": "notion-clone",
   "version": "0.1.0",
   "bin": {
-    "slack-clone": "bin/slack-clone.js"
+    "notion-clone": "bin/notion-clone.js"
   },
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "test": "jest",
     "cdk": "cdk"
   },
   "devDependencies": {
     "@suimenkathemove/eslint-config": "^0.1.4",
     "@suimenkathemove/prettier-config": "^0.1.1",
     "@suimenkathemove/tsconfig": "^0.1.12",
-    "@types/jest": "^29.2.4",
     "@types/node": "18.11.15",
     "aws-cdk": "2.58.1",
-    "jest": "^29.3.1",
-    "ts-jest": "^29.0.3",
     "ts-node": "^10.9.1"
   },
   "dependencies": {
