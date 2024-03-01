@@ -10,13 +10,13 @@ import {
 import { subnetIds } from "@/constants/subnets";
 import { vpcId } from "@/constants/vpcs";
 
-export class SlackCloneStack extends cdk.Stack {
+export class NotionCloneStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     // VPC
     new cdk.aws_ec2.CfnVPC(this, vpcId, {
-      cidrBlock: cidrBlocks.slackCloneVpc,
+      cidrBlock: cidrBlocks.notionCloneVpc,
       enableDnsHostnames: true,
       enableDnsSupport: true,
     });
@@ -28,12 +28,12 @@ export class SlackCloneStack extends cdk.Stack {
         new cdk.aws_ec2.CfnSubnet(this, subnetIds.ingress.a, {
           vpcId,
           availabilityZone: availabilityZones.a,
-          cidrBlock: cidrBlocks.slackCloneSubnetPublicIngress1A,
+          cidrBlock: cidrBlocks.notionCloneSubnetPublicIngress1A,
         });
         new cdk.aws_ec2.CfnSubnet(this, subnetIds.ingress.c, {
           vpcId,
           availabilityZone: availabilityZones.c,
-          cidrBlock: cidrBlocks.slackCloneSubnetPublicIngress1C,
+          cidrBlock: cidrBlocks.notionCloneSubnetPublicIngress1C,
         });
 
         new cdk.aws_ec2.CfnRouteTable(this, routeTableIds.ingress, { vpcId });
@@ -61,12 +61,12 @@ export class SlackCloneStack extends cdk.Stack {
         new cdk.aws_ec2.CfnSubnet(this, subnetIds.app.a, {
           vpcId,
           availabilityZone: availabilityZones.a,
-          cidrBlock: cidrBlocks.slackCloneSubnetPrivateApp1A,
+          cidrBlock: cidrBlocks.notionCloneSubnetPrivateApp1A,
         });
         new cdk.aws_ec2.CfnSubnet(this, subnetIds.app.c, {
           vpcId,
           availabilityZone: availabilityZones.c,
-          cidrBlock: cidrBlocks.slackCloneSubnetPrivateApp1C,
+          cidrBlock: cidrBlocks.notionCloneSubnetPrivateApp1C,
         });
 
         new cdk.aws_ec2.CfnRouteTable(this, routeTableIds.app, { vpcId });
@@ -94,12 +94,12 @@ export class SlackCloneStack extends cdk.Stack {
         new cdk.aws_ec2.CfnSubnet(this, subnetIds.db.a, {
           vpcId,
           availabilityZone: availabilityZones.a,
-          cidrBlock: cidrBlocks.slackCloneSubnetPrivateDb1A,
+          cidrBlock: cidrBlocks.notionCloneSubnetPrivateDb1A,
         });
         new cdk.aws_ec2.CfnSubnet(this, subnetIds.db.c, {
           vpcId,
           availabilityZone: availabilityZones.c,
-          cidrBlock: cidrBlocks.slackCloneSubnetPrivateDb1C,
+          cidrBlock: cidrBlocks.notionCloneSubnetPrivateDb1C,
         });
 
         new cdk.aws_ec2.CfnRouteTable(this, routeTableIds.db, { vpcId });

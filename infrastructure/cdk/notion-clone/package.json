@@ -1,8 +1,8 @@
 {
-  "name": "slack-clone",
+  "name": "notion-clone",
   "version": "0.1.0",
   "bin": {
-    "slack-clone": "bin/slack-clone.js"
+    "notion-clone": "bin/notion-clone.js"
   },
   "scripts": {
     "build": "tsc",
