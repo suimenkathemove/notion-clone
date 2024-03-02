@@ -3,17 +3,10 @@ import { Construct } from "constructs";
 
 import { availabilityZones } from "./availability-zones";
 import { cidrBlocks } from "./cidr-blocks";
+import { attachInternetGateway } from "./internet-gateway";
 import { routeTableIds, subnetRouteTableAssociationIds } from "./route-tables";
 import { subnetIds } from "./subnets";
-import { vpcEndpoints, vpcId } from "./vpcs";
-
-const createVpc = (scope: Construct): cdk.aws_ec2.CfnVPC => {
-  return new cdk.aws_ec2.CfnVPC(scope, vpcId, {
-    cidrBlock: cidrBlocks.notionCloneVpc,
-    enableDnsHostnames: true,
-    enableDnsSupport: true,
-  });
-};
+import { createVpc, vpcEndpoints } from "./vpcs";
 
 const createIngressSubnet = (
   scope: Construct,
@@ -202,6 +195,8 @@ const createS3VpcEndpoint = (
 
 export const createNetwork = (scope: Construct) => {
   const vpc = createVpc(scope);
+
+  attachInternetGateway(scope, { vpc });
 
   createIngressSubnet(scope, { vpcId: vpc.ref });
 
