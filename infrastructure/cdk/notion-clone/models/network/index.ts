@@ -178,6 +178,12 @@ const createEgressSubnet = (
     vpcId: props.vpcId,
     subnetIds: [subnetA.ref, subnetC.ref],
   });
+  new cdk.aws_ec2.CfnVPCEndpoint(scope, vpcEndpoints.cloudWatch, {
+    vpcEndpointType: "Interface",
+    serviceName: "com.amazonaws.ap-northeast-1.logs",
+    vpcId: props.vpcId,
+    subnetIds: [subnetA.ref, subnetC.ref],
+  });
 
   return { subnetA, subnetC };
 };
