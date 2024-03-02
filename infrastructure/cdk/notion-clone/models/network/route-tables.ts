@@ -1,28 +1,28 @@
-import { AvailabilityZoneType } from "./availability-zones";
+import * as cdk from "aws-cdk-lib";
+import { Construct } from "constructs";
+
 import { SubnetType } from "./subnets";
 
-type RouteTableSubnetType = Extract<SubnetType, "ingress" | "app" | "db">;
+export const createRouteTable = (
+  scope: Construct,
+  vpc: cdk.aws_ec2.CfnVPC,
+  subnetType: SubnetType,
+  subnets: cdk.aws_ec2.CfnSubnet[],
+): cdk.aws_ec2.CfnRouteTable => {
+  const routeTable = new cdk.aws_ec2.CfnRouteTable(scope, subnetType, {
+    vpcId: vpc.ref,
+  });
 
-export const routeTableIds = {
-  ingress: "notionCloneRouteIngress",
-  app: "notionCloneRouteApp",
-  db: "notionCloneRouteDb",
-} as const satisfies Record<RouteTableSubnetType, string>;
+  subnets.forEach((s) => {
+    new cdk.aws_ec2.CfnSubnetRouteTableAssociation(
+      scope,
+      `${s.attrSubnetId}-${routeTable.attrRouteTableId}`,
+      {
+        subnetId: s.ref,
+        routeTableId: routeTable.ref,
+      },
+    );
+  });
 
-export const subnetRouteTableAssociationIds = {
-  ingress: {
-    a: "notionCloneRouteIngressAssociation1A",
-    c: "notionCloneRouteIngressAssociation1C",
-  },
-  app: {
-    a: "notionCloneRouteAppAssociation1A",
-    c: "notionCloneRouteAppAssociation1C",
-  },
-  db: {
-    a: "notionCloneRouteDbAssociation1A",
-    c: "notionCloneRouteDbAssociation1C",
-  },
-} as const satisfies Record<
-  RouteTableSubnetType,
-  Record<AvailabilityZoneType, string>
->;
+  return routeTable;
+};

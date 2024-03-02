@@ -7,14 +7,10 @@ export const attachInternetGateway = (
 ): void => {
   const internetGateway = new cdk.aws_ec2.CfnInternetGateway(
     scope,
-    "notionCloneInternetGateway",
+    "internet-gateway",
   );
-  new cdk.aws_ec2.CfnVPCGatewayAttachment(
-    scope,
-    "notionCloneVpcGatewayAttachment",
-    {
-      vpcId: props.vpc.ref,
-      internetGatewayId: internetGateway.ref,
-    },
-  );
+  new cdk.aws_ec2.CfnVPCGatewayAttachment(scope, "vpc-gateway-attachment", {
+    vpcId: props.vpc.ref,
+    internetGatewayId: internetGateway.ref,
+  });
 };
