@@ -9,7 +9,10 @@ internet-gateway -->
 ALB -->
 backend-api -->
 Aurora
-egress-vpc-endpoint --> ECR
+egress-vpc-endpoint <--> ECR
+egress-vpc-endpoint <--> CloudWatch
+gateway-vpc-endpoint <--> S3
+ECS --> Fargate
 
 subgraph aws-cloud[AWS Cloud]
   subgraph vpc[VPC]
@@ -20,7 +23,11 @@ subgraph aws-cloud[AWS Cloud]
         ingress-route-table[Route table]
       end
       subgraph app-subnet[App subnet]
-        backend-api[Backend API]
+        subgraph Fargate
+          subgraph ecs-task[ECS Task]
+            backend-api[Backend API]
+          end
+        end
         app-route-table[Route table]
       end
       subgraph db-subnet[DB subnet]
@@ -28,11 +35,19 @@ subgraph aws-cloud[AWS Cloud]
         db-route-table[Route table]
       end
       subgraph egress-subnet[Egress subnet]
-        egress-vpc-endpoint[VPC Endpoint]
+        egress-vpc-endpoint["VPC Endpoint(Interface)"]
         egress-route-table[Route table]
       end
+      gateway-vpc-endpoint["VPC Endpoint(Gateway)"]
     end
   end
   ECR
+  CloudWatch
+  S3
+  subgraph ECS
+    subgraph Service
+      Task
+    end
+  end
 end
 ```

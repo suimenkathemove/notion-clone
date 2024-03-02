@@ -1,5 +1,11 @@
 {
   "version": "0.2",
   "language": "en",
-  "words": ["contenteditable", "stylelint", "suimenkathemove", "supertree"]
+  "words": [
+    "contenteditable",
+    "fargate",
+    "stylelint",
+    "suimenkathemove",
+    "supertree"
+  ]
 }
