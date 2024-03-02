@@ -3,34 +3,42 @@ import { Construct } from "constructs";
 
 import { attachInternetGateway } from "./internet-gateway";
 import { createRouteTable } from "./route-tables";
-import { createSubnet } from "./subnets";
+import { SubnetType, createSubnet } from "./subnets";
 import { createVpc } from "./vpc";
+
+const createSubnetsAndRouteTable = (
+  scope: Construct,
+  vpc: cdk.aws_ec2.CfnVPC,
+  subnetType: SubnetType,
+): {
+  subnetA: cdk.aws_ec2.CfnSubnet;
+  subnetC: cdk.aws_ec2.CfnSubnet;
+  routeTable: cdk.aws_ec2.CfnRouteTable;
+} => {
+  const subnetA = createSubnet(scope, vpc, subnetType, "a");
+  const subnetC = createSubnet(scope, vpc, subnetType, "c");
+  const routeTable = createRouteTable(scope, vpc, subnetType, [
+    subnetA,
+    subnetC,
+  ]);
+
+  return { subnetA, subnetC, routeTable };
+};
 
 export const createNetwork = (scope: Construct) => {
   const vpc = createVpc(scope);
 
   attachInternetGateway(scope, { vpc });
 
-  const subnetIngressA = createSubnet(scope, vpc, "ingress", "a");
-  const subnetIngressC = createSubnet(scope, vpc, "ingress", "c");
-  const _subnetIngressRouteTable = createRouteTable(scope, vpc, "ingress", [
-    subnetIngressA,
-    subnetIngressC,
-  ]);
+  createSubnetsAndRouteTable(scope, vpc, "ingress");
 
-  const subnetAppA = createSubnet(scope, vpc, "app", "a");
-  const subnetAppC = createSubnet(scope, vpc, "app", "c");
-  const subnetAppRouteTable = createRouteTable(scope, vpc, "app", [
-    subnetAppA,
-    subnetAppC,
-  ]);
+  const { routeTable: subnetAppRouteTable } = createSubnetsAndRouteTable(
+    scope,
+    vpc,
+    "app",
+  );
 
-  const subnetDbA = createSubnet(scope, vpc, "db", "a");
-  const subnetDbC = createSubnet(scope, vpc, "db", "c");
-  const _subnetDbRouteTable = createRouteTable(scope, vpc, "db", [
-    subnetDbA,
-    subnetDbC,
-  ]);
+  createSubnetsAndRouteTable(scope, vpc, "db");
 
   const subnetEgressA = createSubnet(scope, vpc, "egress", "a");
   const subnetEgressC = createSubnet(scope, vpc, "egress", "c");
