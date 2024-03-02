@@ -68,3 +68,19 @@ args = ["make", "-p", "$PROFILE", "docker-run", "sqlx migrate add ${@}"]
 [tasks.migrate-run]
 command = "cargo"
 args = ["make", "-p", "$PROFILE", "docker-run", "sqlx db setup"]
+
+[tasks.push-image]
+script = '''
+cd docker
+
+PROFILE="TODO"
+ACCOUNT_ID=$(aws sts get-caller-identity --profile $PROFILE --query "Account" --output text)
+REGION=$(aws configure get region --profile $PROFILE)
+REPOSITORY_NAME=notion-clone
+ECR_REPOSITORY_URI=$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPOSITORY_NAME
+
+APP_IMAGE_NAME=notion-clone-app
+docker image build -t $APP_IMAGE_NAME ./app
+docker image tag $APP_IMAGE_NAME $ECR_REPOSITORY_URI
+docker image push $ECR_REPOSITORY_URI
+'''
