@@ -3,6 +3,7 @@ import { SubnetConstants } from "./subnets";
 type Cidr = `${number}.${number}.${number}.${number}/${number}`;
 
 export const cidrBlocks = {
+  anywhere: "0.0.0.0/0",
   vpc: "10.0.0.0/16",
   ingress: {
     a: "10.0.0.0/24",
@@ -20,4 +21,6 @@ export const cidrBlocks = {
     a: "10.0.248.0/24",
     c: "10.0.249.0/24",
   },
-} as const satisfies Record<"vpc", Cidr> & SubnetConstants<Cidr>;
+} as const satisfies Record<"anywhere" | "vpc", Cidr> & SubnetConstants<Cidr>;
+
+export const anywhereCidrIpV6 = "::/0";

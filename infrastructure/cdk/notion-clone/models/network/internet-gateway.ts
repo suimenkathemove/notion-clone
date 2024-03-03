@@ -1,10 +1,10 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 
-export const attachInternetGateway = (
+export const createInternetGateway = (
   scope: Construct,
   props: { vpc: cdk.aws_ec2.CfnVPC },
-): void => {
+): cdk.aws_ec2.CfnInternetGateway => {
   const internetGateway = new cdk.aws_ec2.CfnInternetGateway(
     scope,
     "internet-gateway",
@@ -13,4 +13,6 @@ export const attachInternetGateway = (
     vpcId: props.vpc.ref,
     internetGatewayId: internetGateway.ref,
   });
+
+  return internetGateway;
 };

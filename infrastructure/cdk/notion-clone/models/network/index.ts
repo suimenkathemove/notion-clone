@@ -1,8 +1,13 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 
-import { attachInternetGateway } from "./internet-gateway";
+import { cidrBlocks } from "./cidr-blocks";
+import { createInternetGateway } from "./internet-gateway";
 import { createRouteTable } from "./route-tables";
+import {
+  createPrivateSubnetSecurityGroup,
+  createPublicSubnetSecurityGroup,
+} from "./security-groups";
 import { SubnetType, createSubnet } from "./subnets";
 import { createVpc } from "./vpc";
 
@@ -28,20 +33,33 @@ const createSubnetsAndRouteTable = (
 export const createNetwork = (scope: Construct) => {
   const vpc = createVpc(scope);
 
-  attachInternetGateway(scope, { vpc });
+  const internetGateway = createInternetGateway(scope, { vpc });
 
-  createSubnetsAndRouteTable(scope, vpc, "ingress");
+  const { routeTable: subnetIngressRouteTable } = createSubnetsAndRouteTable(
+    scope,
+    vpc,
+    "ingress",
+  );
+  createPublicSubnetSecurityGroup(scope, vpc, "ingress");
+  new cdk.aws_ec2.CfnRoute(scope, "gateway-ingress-route", {
+    gatewayId: internetGateway.ref,
+    routeTableId: subnetIngressRouteTable.ref,
+    destinationCidrBlock: cidrBlocks.anywhere,
+  });
 
   const { routeTable: subnetAppRouteTable } = createSubnetsAndRouteTable(
     scope,
     vpc,
     "app",
   );
+  createPrivateSubnetSecurityGroup(scope, vpc, "app");
 
   createSubnetsAndRouteTable(scope, vpc, "db");
+  createPrivateSubnetSecurityGroup(scope, vpc, "db");
 
   const subnetEgressA = createSubnet(scope, vpc, "egress", "a");
   const subnetEgressC = createSubnet(scope, vpc, "egress", "c");
+  createPrivateSubnetSecurityGroup(scope, vpc, "egress");
 
   new cdk.aws_ec2.CfnVPCEndpoint(scope, "vpc-endpoint-ecr-api", {
     vpcEndpointType: "Interface",
