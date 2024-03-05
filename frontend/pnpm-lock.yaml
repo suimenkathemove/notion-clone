@@ -33,8 +33,8 @@ dependencies:
     specifier: ^2.0.10
     version: 2.0.10(react@18.2.0)
   react-notion-sortable-tree:
-    specifier: ^0.1.10
-    version: 0.1.10(react-dom@18.2.0)(react@18.2.0)
+    specifier: ^0.1.12
+    version: 0.1.12(react-dom@18.2.0)(react@18.2.0)
   styled-components:
     specifier: ^6.1.1
     version: 6.1.6(react-dom@18.2.0)(react@18.2.0)
@@ -10226,8 +10226,8 @@ packages:
     resolution: {integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==}
     dev: true
 
-  /react-notion-sortable-tree@0.1.10(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-YME0iLAArhvVL0EHCaV91IkaWMTzwYlh6oBf6sqCsmUdxfirUkeEgOLd5HKy1EjIZxPOMa5eiA4dXQcKf6D3Jg==}
+  /react-notion-sortable-tree@0.1.12(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-hnxXdkK78hoCS+T80SZkMY2wOFcoNb9XJURQ1K9+WpSfUkazigKR1X5zCzhzS6yDu52j9pB/kzyJ0KhXM9eRAg==}
     engines: {node: 20.x, pnpm: '>=3'}
     peerDependencies:
       react: '>=16.8.0'
@@ -10237,7 +10237,6 @@ packages:
       '@suimenkathemove/utils': 0.1.6
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
-      react-feather: 2.0.10(react@18.2.0)
     dev: false
 
   /react-refresh@0.14.0:

@@ -13,6 +13,7 @@ import {
 } from "@/components/notion/domains/sortable-tree";
 import { usePageTree } from "@/global-states/page-tree";
 import {
+  MoveTarget,
   MoveTargetType,
   Page,
   useAddPageMutation,
@@ -174,7 +175,7 @@ export const PageList = memo((_props: PageListProps) => {
 
   const onMove: SortableTreeProps["onMove"] = useCallback(
     async (fromItem, target) => {
-      const moveTarget = (() => {
+      const moveTarget = ((): MoveTarget => {
         switch (target.type) {
           case "parent":
             return { type: MoveTargetType.Parent, id: target.id };
@@ -182,14 +183,10 @@ export const PageList = memo((_props: PageListProps) => {
             return { type: MoveTargetType.SiblingParent, id: target.id };
           case "siblingChild":
             return { type: MoveTargetType.SiblingChild, id: target.id };
-          default:
-            // TODO: satisfies never
-            return null;
         }
       })();
       await movePage({
-        // TODO: remove any
-        variables: { id: fromItem.id, target: moveTarget as any },
+        variables: { id: fromItem.id, target: moveTarget },
       });
       const newTree = moveNode(tree, fromItem.id, target);
       setTree(newTree);
