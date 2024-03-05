@@ -1,6 +1,16 @@
 name: Backend CI
 
-on: [push, pull_request]
+on:
+  push:
+    paths:
+      - .github/**
+      - backend/**
+      - models/**
+  pull_request:
+    paths:
+      - .github/**
+      - backend/**
+      - models/**
 
 defaults:
   run:
