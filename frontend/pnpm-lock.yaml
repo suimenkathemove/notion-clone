@@ -43,9 +43,6 @@ devDependencies:
   '@babel/core':
     specifier: ^7.23.3
     version: 7.23.7
-  '@storybook/addon-actions':
-    specifier: ^7.6.7
-    version: 7.6.7
   '@storybook/addon-essentials':
     specifier: ^7.6.7
     version: 7.6.7(@types/react-dom@18.2.0)(@types/react@18.2.0)(react-dom@18.2.0)(react@18.2.0)
