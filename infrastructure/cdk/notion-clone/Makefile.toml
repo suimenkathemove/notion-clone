@@ -1,0 +1,11 @@
+env_files = [{ path = "./.env.development", profile = "development" }]
+
+[tasks.deploy]
+script = '''
+cdk deploy --profile $AWS_PROFILE
+'''
+
+[tasks.destroy]
+script = '''
+cdk destroy --profile $AWS_PROFILE
+'''
