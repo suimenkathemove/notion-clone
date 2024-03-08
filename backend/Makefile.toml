@@ -1,6 +1,6 @@
 env_files = [
-  { path = "./.env.dev", profile = "development" },
-  { path = "./.env.test", profile = "test" },
+    { path = "./.env.dev", profile = "development" },
+    { path = "./.env.test", profile = "test" },
 ]
 
 [tasks.docker-run]
@@ -32,11 +32,11 @@ args = ["make", "-p", "$PROFILE", "docker-run", "cargo check"]
 [tasks.lint]
 command = "cargo"
 args = [
-  "make",
-  "-p",
-  "$PROFILE",
-  "docker-run",
-  "cargo clippy --all-targets --all-features -- -D warnings",
+    "make",
+    "-p",
+    "$PROFILE",
+    "docker-run",
+    "cargo clippy --all-targets --all-features -- -D warnings",
 ]
 
 [tasks.format]
