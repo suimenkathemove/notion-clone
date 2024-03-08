@@ -16,14 +16,19 @@
       "source.fixAll.markdownlint": "explicit"
     },
     "editor.defaultFormatter": "yzhang.markdown-all-in-one",
+    "editor.fontFamily": "BIZUDGothic-Regular",
     "editor.tabSize": 2
   },
   "[shellscript]": {
     "editor.defaultFormatter": "foxundermoon.shell-format",
     "editor.tabSize": 2
   },
+  "[toml]": {
+    "editor.tabSize": 4
+  },
   "[dockerfile]": {
-    "editor.defaultFormatter": "ms-azuretools.vscode-docker"
+    "editor.defaultFormatter": "ms-azuretools.vscode-docker",
+    "editor.tabSize": 2
   },
   "[javascript][javascriptreact][typescript][typescriptreact]": {
     "editor.codeActionsOnSave": {
@@ -38,7 +43,8 @@
     "editor.tabSize": 2
   },
   "[rust]": {
-    "editor.defaultFormatter": "rust-lang.rust-analyzer"
+    "editor.defaultFormatter": "rust-lang.rust-analyzer",
+    "editor.tabSize": 4
   },
   "[sql]": {
     "editor.defaultFormatter": "adpyke.vscode-sql-formatter"
