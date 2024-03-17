@@ -7,6 +7,7 @@ export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: 
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
 export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+export type PageId = string & { __type: 'PageId' }
 const defaultOptions = {} as const;
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -19,7 +20,7 @@ export type Scalars = {
   ChannelName: { input: any; output: any; }
   DateTimeUtc: { input: any; output: any; }
   MessageId: { input: any; output: any; }
-  PageId: { input: any; output: any; }
+  PageId: { input: string & { __type: 'PageId' }; output: string & { __type: 'PageId' }; }
   ThreadId: { input: any; output: any; }
 };
 
@@ -277,14 +278,14 @@ export type HealthCheckQuery = { __typename?: 'QueryRoot', healthCheck: string }
 export type ListRootPagesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListRootPagesQuery = { __typename?: 'QueryRoot', listRootPages: { __typename: 'GraphQLError' } | { __typename: 'ListPages', items: Array<{ __typename?: 'Page', id: any, title: string }> } };
+export type ListRootPagesQuery = { __typename?: 'QueryRoot', listRootPages: { __typename: 'GraphQLError' } | { __typename: 'ListPages', items: Array<{ __typename?: 'Page', id: string & { __type: 'PageId' }, title: string }> } };
 
 export type ListChildrenPagesQueryVariables = Exact<{
   id: Scalars['PageId']['input'];
 }>;
 
 
-export type ListChildrenPagesQuery = { __typename?: 'QueryRoot', listChildrenPages: { __typename: 'GraphQLError' } | { __typename: 'ListPages', items: Array<{ __typename?: 'Page', id: any, title: string }> } };
+export type ListChildrenPagesQuery = { __typename?: 'QueryRoot', listChildrenPages: { __typename: 'GraphQLError' } | { __typename: 'ListPages', items: Array<{ __typename?: 'Page', id: string & { __type: 'PageId' }, title: string }> } };
 
 export type AddPageMutationVariables = Exact<{
   parentId?: InputMaybe<Scalars['PageId']['input']>;
@@ -292,7 +293,7 @@ export type AddPageMutationVariables = Exact<{
 }>;
 
 
-export type AddPageMutation = { __typename?: 'MutationRoot', addPage: { __typename?: 'GraphQLError' } | { __typename?: 'Page', id: any, title: string } };
+export type AddPageMutation = { __typename?: 'MutationRoot', addPage: { __typename?: 'GraphQLError' } | { __typename?: 'Page', id: string & { __type: 'PageId' }, title: string } };
 
 export type UpdatePageMutationVariables = Exact<{
   id: Scalars['PageId']['input'];
@@ -300,14 +301,14 @@ export type UpdatePageMutationVariables = Exact<{
 }>;
 
 
-export type UpdatePageMutation = { __typename?: 'MutationRoot', updatePage: { __typename?: 'GraphQLError' } | { __typename?: 'Page', id: any, title: string, text: string } };
+export type UpdatePageMutation = { __typename?: 'MutationRoot', updatePage: { __typename?: 'GraphQLError' } | { __typename?: 'Page', id: string & { __type: 'PageId' }, title: string, text: string } };
 
 export type RemovePageMutationVariables = Exact<{
   id: Scalars['PageId']['input'];
 }>;
 
 
-export type RemovePageMutation = { __typename?: 'MutationRoot', removePage: { __typename?: 'GraphQLError' } | { __typename?: 'RemovePage', id: any } };
+export type RemovePageMutation = { __typename?: 'MutationRoot', removePage: { __typename?: 'GraphQLError' } | { __typename?: 'RemovePage', id: string & { __type: 'PageId' } } };
 
 export type MovePageMutationVariables = Exact<{
   id: Scalars['PageId']['input'];
@@ -315,21 +316,21 @@ export type MovePageMutationVariables = Exact<{
 }>;
 
 
-export type MovePageMutation = { __typename?: 'MutationRoot', movePage: { __typename?: 'GraphQLError' } | { __typename?: 'MovePage', id: any } };
+export type MovePageMutation = { __typename?: 'MutationRoot', movePage: { __typename?: 'GraphQLError' } | { __typename?: 'MovePage', id: string & { __type: 'PageId' } } };
 
 export type GetPageInPagePageQueryVariables = Exact<{
   id: Scalars['PageId']['input'];
 }>;
 
 
-export type GetPageInPagePageQuery = { __typename?: 'QueryRoot', getPage: { __typename: 'GraphQLError' } | { __typename: 'Page', id: any, title: string, text: string } };
+export type GetPageInPagePageQuery = { __typename?: 'QueryRoot', getPage: { __typename: 'GraphQLError' } | { __typename: 'Page', id: string & { __type: 'PageId' }, title: string, text: string } };
 
 export type ListAncestorPagesQueryVariables = Exact<{
   id: Scalars['PageId']['input'];
 }>;
 
 
-export type ListAncestorPagesQuery = { __typename?: 'QueryRoot', listAncestorPages: { __typename: 'GraphQLError' } | { __typename: 'ListPages', items: Array<{ __typename?: 'Page', id: any, title: string }> } };
+export type ListAncestorPagesQuery = { __typename?: 'QueryRoot', listAncestorPages: { __typename: 'GraphQLError' } | { __typename: 'ListPages', items: Array<{ __typename?: 'Page', id: string & { __type: 'PageId' }, title: string }> } };
 
 export type ListChannelQueryVariables = Exact<{ [key: string]: never; }>;
 
