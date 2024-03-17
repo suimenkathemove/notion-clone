@@ -5,6 +5,7 @@ import { useCallback, useMemo } from "react";
 import { PagePagePresenter, PagePagePresenterProps } from "./presenter";
 
 import {
+  PageId,
   useAddPageMutation,
   useGetPageInPagePageQuery,
   useListAncestorPagesQuery,
@@ -19,7 +20,7 @@ export const PagePage: NextPage = () => {
 
   const getPageInPagePageResult = useGetPageInPagePageQuery(
     routerQuery.isReady
-      ? { variables: { id: routerQuery.query["page-id"] } }
+      ? { variables: { id: routerQuery.query["page-id"] as PageId } }
       : { skip: true },
   );
 
@@ -29,7 +30,7 @@ export const PagePage: NextPage = () => {
       invariant(routerQuery.isReady, "routerQuery is ready");
       await updatePage({
         variables: {
-          id: routerQuery.query["page-id"],
+          id: routerQuery.query["page-id"] as PageId,
           updatePage: { title },
         },
       });
@@ -41,7 +42,7 @@ export const PagePage: NextPage = () => {
       invariant(routerQuery.isReady, "routerQuery is ready");
       await updatePage({
         variables: {
-          id: routerQuery.query["page-id"],
+          id: routerQuery.query["page-id"] as PageId,
           updatePage: { text },
         },
       });
@@ -51,7 +52,7 @@ export const PagePage: NextPage = () => {
 
   const listAncestorPagesResult = useListAncestorPagesQuery(
     routerQuery.isReady
-      ? { variables: { id: routerQuery.query["page-id"] } }
+      ? { variables: { id: routerQuery.query["page-id"] as PageId } }
       : { skip: true },
   );
   // TODO: error handling?
@@ -98,8 +99,7 @@ export const PagePage: NextPage = () => {
 
   const [removePage] = useRemovePageMutation();
   const onClickRemovePageButton = useCallback(
-    // TODO: value object
-    async (id: string) => {
+    async (id: PageId) => {
       await removePage({ variables: { id } });
     },
     [removePage],

@@ -1,5 +1,7 @@
 import type { CodegenConfig } from "@graphql-codegen/cli";
 
+import { configScalars, defineScalarType } from "../lib/scalar";
+
 const config: CodegenConfig = {
   overwrite: true,
   schema: "http://localhost:8080",
@@ -10,9 +12,11 @@ const config: CodegenConfig = {
         "typescript",
         "typescript-operations",
         "typescript-react-apollo",
+        { add: { content: defineScalarType() } },
       ],
       config: {
         withHooks: true,
+        scalars: configScalars(),
       },
     },
   },
