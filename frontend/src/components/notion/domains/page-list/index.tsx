@@ -30,8 +30,7 @@ import { Result } from "@/types";
 export interface PageListProps {
   result: Result<{ pages: Pick<Page, "id" | "title">[] }>;
   onClickAddPage: () => void;
-  // TODO: value object
-  onClickRemovePageButton: (id: string) => void;
+  onClickRemovePageButton: (id: PageId) => void;
 }
 
 type Data = {
