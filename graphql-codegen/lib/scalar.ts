@@ -1,11 +1,9 @@
+import { keys } from "@suimenkathemove/utils";
+
 type ScalarMap = Record<string, "string" | "number">;
 const scalarMap: ScalarMap = {
   PageId: "string",
 };
-
-// TODO: utils
-const keys = <T extends string>(object: Record<T, unknown>): T[] =>
-  Object.keys(object) as T[];
 
 const phantom = (k: string, v: string): string => `${v} & { __type: '${k}' }`;
 

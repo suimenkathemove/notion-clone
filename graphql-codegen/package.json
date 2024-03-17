@@ -16,6 +16,7 @@
     "@suimenkathemove/eslint-config": "^0.1.10",
     "@suimenkathemove/prettier-config": "^0.1.4",
     "@suimenkathemove/tsconfig": "^0.1.17",
+    "@suimenkathemove/utils": "^0.1.7",
     "graphql": "^16.8.1",
     "ts-node": "^10.9.2",
     "typescript": "5.2.2",

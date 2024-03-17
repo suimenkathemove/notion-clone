@@ -29,6 +29,9 @@ devDependencies:
   '@suimenkathemove/tsconfig':
     specifier: ^0.1.17
     version: 0.1.17(typescript@5.2.2)(typesync@0.12.0)
+  '@suimenkathemove/utils':
+    specifier: ^0.1.7
+    version: 0.1.7
   graphql:
     specifier: ^16.8.1
     version: 16.8.1
@@ -1806,6 +1809,11 @@ packages:
       tsconfig-paths: 4.2.0
       typescript: 5.2.2
       typesync: 0.12.0(typescript@5.2.2)
+    dev: true
+
+  /@suimenkathemove/utils@0.1.7:
+    resolution: {integrity: sha512-kr9wTbCpAd+DcGDYLBDmwOmmLH6RHX2aH7tslizkmEuliPj+kNMMl62wF+AsD6DrS6IUARWDAu8oVgT7BtTNZg==}
+    engines: {node: 20.x, pnpm: '>=3'}
     dev: true
 
   /@tsconfig/node10@1.0.9:
