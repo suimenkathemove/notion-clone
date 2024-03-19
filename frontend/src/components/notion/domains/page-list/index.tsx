@@ -13,8 +13,10 @@ import {
 } from "@/components/notion/domains/sortable-tree";
 import { usePageTree } from "@/global-states/page-tree";
 import {
+  MoveTarget,
   MoveTargetType,
   Page,
+  PageId,
   useAddPageMutation,
   useListChildrenPagesLazyQuery,
   useListRootPagesLazyQuery,
@@ -28,8 +30,7 @@ import { Result } from "@/types";
 export interface PageListProps {
   result: Result<{ pages: Pick<Page, "id" | "title">[] }>;
   onClickAddPage: () => void;
-  // TODO: value object
-  onClickRemovePageButton: (id: string) => void;
+  onClickRemovePageButton: (id: PageId) => void;
 }
 
 type Data = {
@@ -69,7 +70,9 @@ export const PageList = memo((_props: PageListProps) => {
   const onClickCollapse: SortableTreeProps["onClickCollapse"] = useCallback(
     async (item) => {
       if (item.collapsed) {
-        const result = await listChildrenPages({ variables: { id: item.id } });
+        const result = await listChildrenPages({
+          variables: { id: item.id as PageId },
+        });
         invariant(
           result.data?.listChildrenPages.__typename === "ListPages",
           "TODO: error handling",
@@ -122,7 +125,7 @@ export const PageList = memo((_props: PageListProps) => {
   const onClickAddChild: SortableTreeProps["onClickAddChild"] = useCallback(
     async (id) => {
       const result = await addPage({
-        variables: { parentId: id, addPage: { title: "", text: "" } },
+        variables: { parentId: id as PageId, addPage: { title: "", text: "" } },
       });
       invariant(
         result.data?.addPage.__typename === "Page",
@@ -150,7 +153,7 @@ export const PageList = memo((_props: PageListProps) => {
     async (item) => {
       const value = window.prompt("", item.data.title) ?? "";
       await updatePage({
-        variables: { id: item.id, updatePage: { title: value } },
+        variables: { id: item.id as PageId, updatePage: { title: value } },
       });
       const newTree = updateNode(tree, item.id, (node) => ({
         ...node,
@@ -165,7 +168,7 @@ export const PageList = memo((_props: PageListProps) => {
 
   const onClickDelete: SortableTreeProps["onClickDelete"] = useCallback(
     async (id) => {
-      await removePage({ variables: { id } });
+      await removePage({ variables: { id: id as PageId } });
       const [newTree] = removeNode(tree, id);
       setTree(newTree);
     },
@@ -174,22 +177,24 @@ export const PageList = memo((_props: PageListProps) => {
 
   const onMove: SortableTreeProps["onMove"] = useCallback(
     async (fromItem, target) => {
-      const moveTarget = (() => {
+      const moveTarget = ((): MoveTarget => {
         switch (target.type) {
           case "parent":
-            return { type: MoveTargetType.Parent, id: target.id };
+            return { type: MoveTargetType.Parent, id: target.id as PageId };
           case "siblingParent":
-            return { type: MoveTargetType.SiblingParent, id: target.id };
+            return {
+              type: MoveTargetType.SiblingParent,
+              id: target.id as PageId,
+            };
           case "siblingChild":
-            return { type: MoveTargetType.SiblingChild, id: target.id };
-          default:
-            // TODO: satisfies never
-            return null;
+            return {
+              type: MoveTargetType.SiblingChild,
+              id: target.id as PageId,
+            };
         }
       })();
       await movePage({
-        // TODO: remove any
-        variables: { id: fromItem.id, target: moveTarget as any },
+        variables: { id: fromItem.id as PageId, target: moveTarget },
       });
       const newTree = moveNode(tree, fromItem.id, target);
       setTree(newTree);

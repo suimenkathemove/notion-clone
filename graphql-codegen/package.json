@@ -5,12 +5,7 @@
   "scripts": {
     "postinstall": "typesync",
     "tsc": "tsc --noEmit",
-    "codegen": "graphql-codegen --config codegen.ts"
-  },
-  "dependencies": {
-    "@suimenkathemove/tsconfig": "^0.1.15",
-    "graphql": "^16.8.1",
-    "typescript": "^5.3.3"
+    "codegen": "graphql-codegen --config bin/codegen.ts"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "5.0.0",
@@ -18,9 +13,13 @@
     "@graphql-codegen/typescript": "^4.0.1",
     "@graphql-codegen/typescript-operations": "^4.0.1",
     "@graphql-codegen/typescript-react-apollo": "^4.1.0",
-    "@suimenkathemove/eslint-config": "^0.1.6",
-    "@suimenkathemove/prettier-config": "^0.1.3",
+    "@suimenkathemove/eslint-config": "^0.1.10",
+    "@suimenkathemove/prettier-config": "^0.1.4",
+    "@suimenkathemove/tsconfig": "^0.1.17",
+    "@suimenkathemove/utils": "^0.1.7",
+    "graphql": "^16.8.1",
     "ts-node": "^10.9.2",
+    "typescript": "5.2.2",
     "typesync": "^0.12.0"
   }
 }

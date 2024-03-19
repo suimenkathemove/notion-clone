@@ -1,9 +1,11 @@
 {
   "extends": "@suimenkathemove/tsconfig",
   "compilerOptions": {
-    "baseUrl": "./src",
+    "baseUrl": "./",
     "paths": {
       "@/*": ["*"]
     }
-  }
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules"]
 }

@@ -1,6 +1,14 @@
 name: Frontend CI
 
-on: [push, pull_request]
+on:
+  push:
+    paths:
+      - .github/**
+      - frontend/**
+  pull_request:
+    paths:
+      - .github/**
+      - frontend/**
 
 defaults:
   run:
