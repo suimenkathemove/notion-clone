@@ -1,6 +1,7 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 
+import { createEcrRepository } from "@/models/ecr";
 import { createNetwork } from "@/models/network";
 
 export class NotionCloneStack extends cdk.Stack {
@@ -8,5 +9,7 @@ export class NotionCloneStack extends cdk.Stack {
     super(scope, id, props);
 
     createNetwork(this);
+
+    createEcrRepository(this);
   }
 }

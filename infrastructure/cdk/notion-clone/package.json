@@ -5,21 +5,22 @@
     "notion-clone": "bin/notion-clone.js"
   },
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w",
-    "cdk": "cdk"
+    "tsc": "tsc --noEmit",
+    "lint": "eslint '**/*.{js,jsx,ts,tsx}'",
+    "lint:fix": "eslint --fix '**/*.{js,jsx,ts,tsx}'",
+    "format": "prettier --write --log-level=warn '**/*.{js,jsx,ts,tsx,html,gql,graphql,json}'"
   },
   "devDependencies": {
-    "@suimenkathemove/eslint-config": "^0.1.4",
-    "@suimenkathemove/prettier-config": "^0.1.1",
-    "@suimenkathemove/tsconfig": "^0.1.12",
-    "@types/node": "18.11.15",
-    "aws-cdk": "2.58.1",
-    "ts-node": "^10.9.1"
+    "@suimenkathemove/eslint-config": "^0.1.10",
+    "@suimenkathemove/prettier-config": "^0.1.4",
+    "@suimenkathemove/tsconfig": "^0.1.17",
+    "@types/node": "20.11.24",
+    "aws-cdk": "2.131.0",
+    "ts-node": "^10.9.2",
+    "typescript": "5.2.2"
   },
   "dependencies": {
-    "aws-cdk-lib": "2.58.1",
-    "constructs": "^10.0.0",
-    "source-map-support": "^0.5.21"
+    "aws-cdk-lib": "2.131.0",
+    "constructs": "^10.3.0"
   }
 }

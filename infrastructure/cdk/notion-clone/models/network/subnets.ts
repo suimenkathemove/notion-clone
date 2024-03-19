@@ -1,18 +1,33 @@
-import { AvailabilityZoneType } from "./availability-zones";
+import * as cdk from "aws-cdk-lib";
+import { Construct } from "constructs";
 
-export type SubnetType = "ingress" | "app" | "db";
+import { cidrBlocks } from "./cidr-blocks";
 
-export const subnetIds = {
-  ingress: {
-    a: "notionCloneSubnetPublicIngress1A",
-    c: "notionCloneSubnetPublicIngress1C",
-  },
-  app: {
-    a: "notionCloneSubnetPrivateApp1A",
-    c: "notionCloneSubnetPrivateApp1C",
-  },
-  db: {
-    a: "notionCloneSubnetPrivateDb1A",
-    c: "notionCloneSubnetPrivateDb1C",
-  },
-} as const satisfies Record<SubnetType, Record<AvailabilityZoneType, string>>;
+type AvailabilityZoneType = "a" | "c";
+
+const availabilityZones = {
+  a: "ap-northeast-1a",
+  c: "ap-northeast-1c",
+} as const satisfies Record<AvailabilityZoneType, string>;
+
+export type SubnetType = "ingress" | "app" | "db" | "egress";
+
+export type SubnetConstants<T> = Record<
+  SubnetType,
+  Record<AvailabilityZoneType, T>
+>;
+
+export const createSubnet = (
+  scope: Construct,
+  vpc: cdk.aws_ec2.CfnVPC,
+  subnetType: SubnetType,
+  az: AvailabilityZoneType,
+): cdk.aws_ec2.CfnSubnet => {
+  const subnet = new cdk.aws_ec2.CfnSubnet(scope, `${subnetType}-${az}`, {
+    vpcId: vpc.ref,
+    availabilityZone: availabilityZones[az],
+    cidrBlock: cidrBlocks[subnetType][az],
+  });
+
+  return subnet;
+};
