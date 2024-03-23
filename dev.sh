@@ -14,7 +14,7 @@ else
   # EDIT THIS
   tmux new-session -s "$PROJECT_NAME" -d -n root
   # EDIT THIS
-  tmux new-window -n backend -c "./backend" 'makers serve'
+  tmux new-window -n backend -c "./backend" 'makers dev'
   # EDIT THIS
   tmux new-window -n frontend-dev -c "./frontend" 'pnpm dev'
   # EDIT THIS

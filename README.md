@@ -25,7 +25,7 @@ To run backend server locally, and run
 cd backend
 # execute only once
 makers init
-makers serve
+makers dev
 ```
 
 ### frontend
