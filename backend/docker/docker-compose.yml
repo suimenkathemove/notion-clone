@@ -20,9 +20,7 @@ services:
         source: monorepo-sandbox-app-target
         target: /app/target
     working_dir: /app/backend
-    env_file:
-      - path: "${ENV_FILE}"
-        required: false
+    env_file: "${ENV_FILE:-../.env.dev}"
     command: "${COMMAND}"
     depends_on:
       - db

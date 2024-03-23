@@ -15,7 +15,7 @@ dependencies = ["migrate-run"]
 
 [tasks.dev]
 script = '''
-ENV_FILE="../.env.dev" COMMAND="cargo watch -x 'run --bin backend'" docker compose up --build
+COMMAND="cargo watch -x 'run --bin backend'" docker compose up --build
 '''
 cwd = "docker"
 
