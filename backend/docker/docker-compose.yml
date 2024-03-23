@@ -20,7 +20,8 @@ services:
         source: monorepo-sandbox-app-target
         target: /app/target
     working_dir: /app/backend
-    command: sh -c "DATABASE_URL=$DATABASE_URL cargo watch -x 'run --bin backend'"
+    env_file: "${ENV_FILE:-../.env.dev}"
+    command: "${COMMAND}"
     depends_on:
       - db
   db:

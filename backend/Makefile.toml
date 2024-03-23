@@ -13,11 +13,11 @@ docker compose run --rm app sh -c "DATABASE_URL=$DATABASE_URL ${@}"
 [tasks.init]
 dependencies = ["migrate-run"]
 
-[tasks.serve]
+[tasks.dev]
 script = '''
-cd docker
-docker compose up --build
+COMMAND="cargo watch -x 'run --bin backend'" docker compose up --build
 '''
+cwd = "docker"
 
 [tasks.down]
 script = '''

@@ -1,5 +1,14 @@
 {
-  "dockerComposeFile": "../backend/docker/docker-compose.yml",
+  "dockerComposeFile": [
+    "../backend/docker/docker-compose.yml",
+    "docker-compose.devcontainer-extend.yml"
+  ],
   "service": "app",
-  "workspaceFolder": "/app"
+  "workspaceFolder": "/app",
+  "overrideCommand": true,
+  "customizations": {
+    "vscode": {
+      "extensions": ["vadimcn.vscode-lldb"]
+    }
+  }
 }
