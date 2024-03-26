@@ -9,7 +9,10 @@ devcontainerを使うことで、Docker Containerの中のプロセスに対し�
 
 ## 手順
 
-<!-- TODO -->
+1. Backend APIを起動する
+2. Command Paletteで`Dev Containers: Reopen in Container`を実行する
+3. Debuggerで`Attach 'backend'`を選択する
+4. `/app/target/debug/backend`のprocessを選択する
 
 ## 参考
 
