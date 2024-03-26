@@ -4,7 +4,7 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug executable 'backend'",
+      "name": "Launch 'backend'",
       "cargo": {
         "args": ["build", "--bin=backend", "--package=backend"],
         "filter": {
@@ -12,7 +12,14 @@
           "kind": "bin"
         }
       },
+      "args": [],
       "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "attach",
+      "name": "Attach 'backend'",
+      "pid": "${command:pickProcess}"
     },
     {
       "name": "dev",
