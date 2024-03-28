@@ -1,6 +1,6 @@
 # BackendサーバをVSCode Debuggerでデバッグする方法
 
-devcontainerを使うことで、Docker Containerの中のプロセスに対してdebuggerでデバッグできる。
+devcontainerを使うことで、Docker Containerの中のプロセスに対してdebuggerでデバッグすることができる。
 
 ## 設定
 
