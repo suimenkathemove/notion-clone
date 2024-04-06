@@ -36,6 +36,7 @@ services:
     volumes:
       - monorepo-sandbox-pgdata:/var/lib/postgresql/data
     restart: always
+    env_file: "${ENV_FILE:-../.env.dev}"
 
 volumes:
   monorepo-sandbox-app-cargo:
