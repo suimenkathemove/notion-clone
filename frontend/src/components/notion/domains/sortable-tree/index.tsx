@@ -170,8 +170,7 @@ export const SortableTree: React.FC<SortableTreeProps> = (props) => {
                               padding: "0 4px",
                             }}
                           >
-                            {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
-                            <div
+                            <button
                               onClick={() => {
                                 props.onClickDelete(itemProps.item.id);
                               }}
@@ -179,21 +178,21 @@ export const SortableTree: React.FC<SortableTreeProps> = (props) => {
                                 display: "flex",
                                 alignItems: "center",
                                 gap: 10,
+                                width: "100%",
                                 height: 28,
                                 padding: "0 10px",
                               }}
                             >
                               <Trash2 size={ICON_SIZE} />
                               Delete
-                            </div>
+                            </button>
                           </div>
                           <div
                             style={{
                               padding: "0 4px",
                             }}
                           >
-                            {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
-                            <div
+                            <button
                               onClick={() => {
                                 props.onClickRename(itemProps.item);
                               }}
@@ -201,13 +200,14 @@ export const SortableTree: React.FC<SortableTreeProps> = (props) => {
                                 display: "flex",
                                 alignItems: "center",
                                 gap: 10,
+                                width: "100%",
                                 height: 28,
                                 padding: "0 10px",
                               }}
                             >
                               <Edit size={ICON_SIZE} />
                               Rename
-                            </div>
+                            </button>
                           </div>
                         </div>
                       ),
