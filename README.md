@@ -1,13 +1,8 @@
-# monorepo-sandbox
+# notion-clone
 
 ## Overview
 
-This repository is my monorepo sandbox containing backend, frontend, and infrastructure components.
-
-## Projects
-
-- **Notion Clone**: This is a [Notion](https://www.notion.so/) clone. (Under development)
-- **Slack Clone**: This is a [Slack](https://slack.com/) clone. (Development paused)
+This is a [Notion](https://www.notion.so/) clone.
 
 ## Technology Stacks
 
