@@ -22,10 +22,11 @@ export type SubnetConstants<T> = Record<
 const createSubnet = (
   scope: Construct,
   vpc: cdk.aws_ec2.CfnVPC,
+  subnetId: string,
   subnetType: SubnetType,
   az: AvailabilityZoneType,
 ): cdk.aws_ec2.CfnSubnet => {
-  const id = `${DOMAIN_NAME}-subnet-${subnetType}-${az}`;
+  const id = `${subnetId}-${az}`;
   const subnet = new cdk.aws_ec2.CfnSubnet(scope, id, {
     vpcId: vpc.ref,
     availabilityZone: availabilityZones[az],
@@ -34,30 +35,6 @@ const createSubnet = (
   });
 
   return subnet;
-};
-
-const createRouteTable = (
-  scope: Construct,
-  vpc: cdk.aws_ec2.CfnVPC,
-  subnetType: SubnetType,
-  subnets: cdk.aws_ec2.CfnSubnet[],
-): cdk.aws_ec2.CfnRouteTable => {
-  const routeTable = new cdk.aws_ec2.CfnRouteTable(scope, subnetType, {
-    vpcId: vpc.ref,
-  });
-
-  subnets.forEach((s) => {
-    new cdk.aws_ec2.CfnSubnetRouteTableAssociation(
-      scope,
-      `${s.attrSubnetId}-${routeTable.attrRouteTableId}`,
-      {
-        subnetId: s.ref,
-        routeTableId: routeTable.ref,
-      },
-    );
-  });
-
-  return routeTable;
 };
 
 export const createSubnets = (
@@ -69,12 +46,31 @@ export const createSubnets = (
   subnetC: cdk.aws_ec2.CfnSubnet;
   routeTable: cdk.aws_ec2.CfnRouteTable;
 } => {
-  const subnetA = createSubnet(scope, vpc, subnetType, "a");
-  const subnetC = createSubnet(scope, vpc, subnetType, "c");
-  const routeTable = createRouteTable(scope, vpc, subnetType, [
-    subnetA,
-    subnetC,
-  ]);
+  const subnetId = `${DOMAIN_NAME}-subnet-${subnetType}`;
+
+  const subnetA = createSubnet(scope, vpc, subnetId, subnetType, "a");
+  const subnetC = createSubnet(scope, vpc, subnetId, subnetType, "c");
+
+  const routeTable = ((): cdk.aws_ec2.CfnRouteTable => {
+    const id = `${subnetId}-route-table`;
+    const routeTable = new cdk.aws_ec2.CfnRouteTable(scope, id, {
+      vpcId: vpc.ref,
+      tags: tags(id),
+    });
+
+    [subnetA, subnetC].forEach((s) => {
+      new cdk.aws_ec2.CfnSubnetRouteTableAssociation(
+        scope,
+        `${s.attrSubnetId}-${routeTable.attrRouteTableId}`,
+        {
+          subnetId: s.ref,
+          routeTableId: routeTable.ref,
+        },
+      );
+    });
+
+    return routeTable;
+  })();
 
   return { subnetA, subnetC, routeTable };
 };
