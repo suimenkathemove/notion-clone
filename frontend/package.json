@@ -1,5 +1,5 @@
 {
-  "name": "monorepo-sandbox-frontend",
+  "name": "notion-clone-frontend",
   "version": "0.1.0",
   "scripts": {
     "postinstall": "typesync",

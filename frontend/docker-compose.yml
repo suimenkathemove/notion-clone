@@ -3,8 +3,8 @@ version: "3.9"
 services:
   frontend:
     build: .
-    image: monorepo-sandbox-frontend
-    container_name: monorepo-sandbox-frontend
+    image: notion-clone-frontend
+    container_name: notion-clone-frontend
     volumes:
       - ./src:/frontend/src
       - ./public:/frontend/public

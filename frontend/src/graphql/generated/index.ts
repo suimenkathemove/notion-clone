@@ -16,12 +16,8 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
-  ChannelId: { input: any; output: any; }
-  ChannelName: { input: any; output: any; }
   DateTimeUtc: { input: any; output: any; }
-  MessageId: { input: any; output: any; }
   PageId: { input: string & { __type: 'PageId' }; output: string & { __type: 'PageId' }; }
-  ThreadId: { input: any; output: any; }
 };
 
 export type AddPage = {
@@ -30,32 +26,6 @@ export type AddPage = {
 };
 
 export type AddPageResult = GraphQlError | Page;
-
-export type Channel = {
-  __typename?: 'Channel';
-  createdAt: Scalars['DateTimeUtc']['output'];
-  description: Scalars['String']['output'];
-  id: Scalars['ChannelId']['output'];
-  name: Scalars['ChannelName']['output'];
-  private: Scalars['Boolean']['output'];
-  threads: Array<Thread>;
-  updatedAt: Scalars['DateTimeUtc']['output'];
-};
-
-export type DeleteChannelOutput = {
-  __typename?: 'DeleteChannelOutput';
-  id: Scalars['ChannelId']['output'];
-};
-
-export type DeleteMessageOutput = {
-  __typename?: 'DeleteMessageOutput';
-  id: Scalars['MessageId']['output'];
-};
-
-export type DeleteThreadOutput = {
-  __typename?: 'DeleteThreadOutput';
-  id: Scalars['ThreadId']['output'];
-};
 
 export type GetPageResult = GraphQlError | Page;
 
@@ -82,14 +52,6 @@ export type ListPages = {
 
 export type ListRootPagesResult = GraphQlError | ListPages;
 
-export type Message = {
-  __typename?: 'Message';
-  createdAt: Scalars['DateTimeUtc']['output'];
-  id: Scalars['MessageId']['output'];
-  text: Scalars['String']['output'];
-  updatedAt: Scalars['DateTimeUtc']['output'];
-};
-
 export type MovePage = {
   __typename?: 'MovePage';
   id: Scalars['PageId']['output'];
@@ -111,44 +73,16 @@ export enum MoveTargetType {
 
 export type MutationRoot = {
   __typename?: 'MutationRoot';
-  addMessage: Message;
   addPage: AddPageResult;
-  createChannel: Channel;
-  deleteChannel: DeleteChannelOutput;
-  deleteMessage: DeleteMessageOutput;
   movePage: MovePageResult;
   removePage: RemovePageResult;
-  reply: Message;
   updatePage: UpdatePageResult;
-};
-
-
-export type MutationRootAddMessageArgs = {
-  channelId: Scalars['ChannelId']['input'];
-  text: Scalars['String']['input'];
 };
 
 
 export type MutationRootAddPageArgs = {
   addPage: AddPage;
   parentId?: InputMaybe<Scalars['PageId']['input']>;
-};
-
-
-export type MutationRootCreateChannelArgs = {
-  description: Scalars['String']['input'];
-  name: Scalars['ChannelName']['input'];
-  private: Scalars['Boolean']['input'];
-};
-
-
-export type MutationRootDeleteChannelArgs = {
-  id: Scalars['ChannelId']['input'];
-};
-
-
-export type MutationRootDeleteMessageArgs = {
-  id: Scalars['MessageId']['input'];
 };
 
 
@@ -160,12 +94,6 @@ export type MutationRootMovePageArgs = {
 
 export type MutationRootRemovePageArgs = {
   id: Scalars['PageId']['input'];
-};
-
-
-export type MutationRootReplyArgs = {
-  text: Scalars['String']['input'];
-  threadId: Scalars['ThreadId']['input'];
 };
 
 
@@ -195,37 +123,17 @@ export type PageTree = {
 
 export type QueryRoot = {
   __typename?: 'QueryRoot';
-  deleteThread: DeleteThreadOutput;
-  getChannel: Channel;
   getPage: GetPageResult;
-  getThread: Thread;
   healthCheck: Scalars['String']['output'];
   listAncestorPages: ListAncestorPagesResult;
-  listChannel: Array<Channel>;
   listChildrenPages: ListChildrenPagesResult;
   listDescendantPages: ListDescendantPagesResult;
   listRootPages: ListRootPagesResult;
-  listThreadByChannelId: Array<Thread>;
-};
-
-
-export type QueryRootDeleteThreadArgs = {
-  id: Scalars['ThreadId']['input'];
-};
-
-
-export type QueryRootGetChannelArgs = {
-  id: Scalars['ChannelId']['input'];
 };
 
 
 export type QueryRootGetPageArgs = {
   id: Scalars['PageId']['input'];
-};
-
-
-export type QueryRootGetThreadArgs = {
-  id: Scalars['ThreadId']['input'];
 };
 
 
@@ -243,25 +151,12 @@ export type QueryRootListDescendantPagesArgs = {
   id: Scalars['PageId']['input'];
 };
 
-
-export type QueryRootListThreadByChannelIdArgs = {
-  channelId: Scalars['ChannelId']['input'];
-};
-
 export type RemovePage = {
   __typename?: 'RemovePage';
   id: Scalars['PageId']['output'];
 };
 
 export type RemovePageResult = GraphQlError | RemovePage;
-
-export type Thread = {
-  __typename?: 'Thread';
-  createdAt: Scalars['DateTimeUtc']['output'];
-  id: Scalars['ThreadId']['output'];
-  messages: Array<Message>;
-  updatedAt: Scalars['DateTimeUtc']['output'];
-};
 
 export type UpdatePage = {
   text?: InputMaybe<Scalars['String']['input']>;
@@ -331,41 +226,6 @@ export type ListAncestorPagesQueryVariables = Exact<{
 
 
 export type ListAncestorPagesQuery = { __typename?: 'QueryRoot', listAncestorPages: { __typename: 'GraphQLError' } | { __typename: 'ListPages', items: Array<{ __typename?: 'Page', id: string & { __type: 'PageId' }, title: string }> } };
-
-export type ListChannelQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type ListChannelQuery = { __typename?: 'QueryRoot', listChannel: Array<{ __typename?: 'Channel', id: any, name: any }> };
-
-export type GetChannelQueryVariables = Exact<{
-  id: Scalars['ChannelId']['input'];
-}>;
-
-
-export type GetChannelQuery = { __typename?: 'QueryRoot', getChannel: { __typename?: 'Channel', id: any, name: any, threads: Array<{ __typename?: 'Thread', id: any, messages: Array<{ __typename?: 'Message', id: any, text: string }> }> } };
-
-export type AddMessageMutationVariables = Exact<{
-  channelId: Scalars['ChannelId']['input'];
-  text: Scalars['String']['input'];
-}>;
-
-
-export type AddMessageMutation = { __typename?: 'MutationRoot', addMessage: { __typename?: 'Message', id: any, text: string } };
-
-export type GetThreadQueryVariables = Exact<{
-  id: Scalars['ThreadId']['input'];
-}>;
-
-
-export type GetThreadQuery = { __typename?: 'QueryRoot', getThread: { __typename?: 'Thread', id: any, messages: Array<{ __typename?: 'Message', id: any, text: string }> } };
-
-export type ReplyMutationVariables = Exact<{
-  threadId: Scalars['ThreadId']['input'];
-  text: Scalars['String']['input'];
-}>;
-
-
-export type ReplyMutation = { __typename?: 'MutationRoot', reply: { __typename?: 'Message', id: any, text: string } };
 
 
 export const HealthCheckDocument = gql`
@@ -733,205 +593,3 @@ export type ListAncestorPagesQueryHookResult = ReturnType<typeof useListAncestor
 export type ListAncestorPagesLazyQueryHookResult = ReturnType<typeof useListAncestorPagesLazyQuery>;
 export type ListAncestorPagesSuspenseQueryHookResult = ReturnType<typeof useListAncestorPagesSuspenseQuery>;
 export type ListAncestorPagesQueryResult = Apollo.QueryResult<ListAncestorPagesQuery, ListAncestorPagesQueryVariables>;
-export const ListChannelDocument = gql`
-    query listChannel {
-  listChannel {
-    id
-    name
-  }
-}
-    `;
-
-/**
- * __useListChannelQuery__
- *
- * To run a query within a React component, call `useListChannelQuery` and pass it any options that fit your needs.
- * When your component renders, `useListChannelQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useListChannelQuery({
- *   variables: {
- *   },
- * });
- */
-export function useListChannelQuery(baseOptions?: Apollo.QueryHookOptions<ListChannelQuery, ListChannelQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<ListChannelQuery, ListChannelQueryVariables>(ListChannelDocument, options);
-      }
-export function useListChannelLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListChannelQuery, ListChannelQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<ListChannelQuery, ListChannelQueryVariables>(ListChannelDocument, options);
-        }
-export function useListChannelSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListChannelQuery, ListChannelQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<ListChannelQuery, ListChannelQueryVariables>(ListChannelDocument, options);
-        }
-export type ListChannelQueryHookResult = ReturnType<typeof useListChannelQuery>;
-export type ListChannelLazyQueryHookResult = ReturnType<typeof useListChannelLazyQuery>;
-export type ListChannelSuspenseQueryHookResult = ReturnType<typeof useListChannelSuspenseQuery>;
-export type ListChannelQueryResult = Apollo.QueryResult<ListChannelQuery, ListChannelQueryVariables>;
-export const GetChannelDocument = gql`
-    query getChannel($id: ChannelId!) {
-  getChannel(id: $id) {
-    id
-    name
-    threads {
-      id
-      messages {
-        id
-        text
-      }
-    }
-  }
-}
-    `;
-
-/**
- * __useGetChannelQuery__
- *
- * To run a query within a React component, call `useGetChannelQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetChannelQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetChannelQuery({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useGetChannelQuery(baseOptions: Apollo.QueryHookOptions<GetChannelQuery, GetChannelQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetChannelQuery, GetChannelQueryVariables>(GetChannelDocument, options);
-      }
-export function useGetChannelLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetChannelQuery, GetChannelQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetChannelQuery, GetChannelQueryVariables>(GetChannelDocument, options);
-        }
-export function useGetChannelSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetChannelQuery, GetChannelQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetChannelQuery, GetChannelQueryVariables>(GetChannelDocument, options);
-        }
-export type GetChannelQueryHookResult = ReturnType<typeof useGetChannelQuery>;
-export type GetChannelLazyQueryHookResult = ReturnType<typeof useGetChannelLazyQuery>;
-export type GetChannelSuspenseQueryHookResult = ReturnType<typeof useGetChannelSuspenseQuery>;
-export type GetChannelQueryResult = Apollo.QueryResult<GetChannelQuery, GetChannelQueryVariables>;
-export const AddMessageDocument = gql`
-    mutation addMessage($channelId: ChannelId!, $text: String!) {
-  addMessage(channelId: $channelId, text: $text) {
-    id
-    text
-  }
-}
-    `;
-export type AddMessageMutationFn = Apollo.MutationFunction<AddMessageMutation, AddMessageMutationVariables>;
-
-/**
- * __useAddMessageMutation__
- *
- * To run a mutation, you first call `useAddMessageMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAddMessageMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [addMessageMutation, { data, loading, error }] = useAddMessageMutation({
- *   variables: {
- *      channelId: // value for 'channelId'
- *      text: // value for 'text'
- *   },
- * });
- */
-export function useAddMessageMutation(baseOptions?: Apollo.MutationHookOptions<AddMessageMutation, AddMessageMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<AddMessageMutation, AddMessageMutationVariables>(AddMessageDocument, options);
-      }
-export type AddMessageMutationHookResult = ReturnType<typeof useAddMessageMutation>;
-export type AddMessageMutationResult = Apollo.MutationResult<AddMessageMutation>;
-export type AddMessageMutationOptions = Apollo.BaseMutationOptions<AddMessageMutation, AddMessageMutationVariables>;
-export const GetThreadDocument = gql`
-    query getThread($id: ThreadId!) {
-  getThread(id: $id) {
-    id
-    messages {
-      id
-      text
-    }
-  }
-}
-    `;
-
-/**
- * __useGetThreadQuery__
- *
- * To run a query within a React component, call `useGetThreadQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetThreadQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetThreadQuery({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useGetThreadQuery(baseOptions: Apollo.QueryHookOptions<GetThreadQuery, GetThreadQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetThreadQuery, GetThreadQueryVariables>(GetThreadDocument, options);
-      }
-export function useGetThreadLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetThreadQuery, GetThreadQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetThreadQuery, GetThreadQueryVariables>(GetThreadDocument, options);
-        }
-export function useGetThreadSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetThreadQuery, GetThreadQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetThreadQuery, GetThreadQueryVariables>(GetThreadDocument, options);
-        }
-export type GetThreadQueryHookResult = ReturnType<typeof useGetThreadQuery>;
-export type GetThreadLazyQueryHookResult = ReturnType<typeof useGetThreadLazyQuery>;
-export type GetThreadSuspenseQueryHookResult = ReturnType<typeof useGetThreadSuspenseQuery>;
-export type GetThreadQueryResult = Apollo.QueryResult<GetThreadQuery, GetThreadQueryVariables>;
-export const ReplyDocument = gql`
-    mutation reply($threadId: ThreadId!, $text: String!) {
-  reply(threadId: $threadId, text: $text) {
-    id
-    text
-  }
-}
-    `;
-export type ReplyMutationFn = Apollo.MutationFunction<ReplyMutation, ReplyMutationVariables>;
-
-/**
- * __useReplyMutation__
- *
- * To run a mutation, you first call `useReplyMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useReplyMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [replyMutation, { data, loading, error }] = useReplyMutation({
- *   variables: {
- *      threadId: // value for 'threadId'
- *      text: // value for 'text'
- *   },
- * });
- */
-export function useReplyMutation(baseOptions?: Apollo.MutationHookOptions<ReplyMutation, ReplyMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<ReplyMutation, ReplyMutationVariables>(ReplyDocument, options);
-      }
-export type ReplyMutationHookResult = ReturnType<typeof useReplyMutation>;
-export type ReplyMutationResult = Apollo.MutationResult<ReplyMutation>;
-export type ReplyMutationOptions = Apollo.BaseMutationOptions<ReplyMutation, ReplyMutationVariables>;

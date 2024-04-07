@@ -54,7 +54,7 @@ args = ["make", "-p", "$PROFILE", "docker-run", "cargo run --bin seed_mock"]
 [tasks.db-enter]
 script = '''
 cd docker
-docker exec -it monorepo-sandbox-db psql -U postgres
+docker exec -it notion-clone-db psql -U postgres
 '''
 
 [tasks.db-drop]

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # EDIT THIS
-PROJECT_NAME="monorepo-sandbox"
+PROJECT_NAME="notion-clone"
 
 # EDIT THIS
 DEV_DIR_PATH="${HOME}/development/suimenkathemove"
