@@ -3,7 +3,6 @@ mod macros;
 
 mod common;
 pub mod notion;
-pub mod slack;
 
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 

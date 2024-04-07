@@ -19,6 +19,7 @@ macro_rules! define_id {
     };
 }
 
+#[allow(unused)]
 macro_rules! define_name {
     ($struct_name:ident, $name:path) => {
         #[derive(Clone, serde::Serialize, serde::Deserialize)]

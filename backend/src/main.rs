@@ -8,24 +8,10 @@ use crate::{
         MutationRoot, QueryRoot,
     },
     repositories::{
-        interfaces::{
-            notion::page::IPageRepository,
-            slack::{
-                channel::IChannelRepository, message::IMessageRepository, thread::IThreadRepository,
-            },
-        },
-        postgres::{
-            create_pool,
-            notion::page::PageRepository,
-            slack::{
-                channel::ChannelRepository, message::MessageRepository, thread::ThreadRepository,
-            },
-        },
+        interfaces::notion::page::IPageRepository,
+        postgres::{create_pool, notion::page::PageRepository},
     },
-    use_cases::{
-        notion::page::PageUseCase,
-        slack::{channel::ChannelUseCase, message::MessageUseCase, thread::ThreadUseCase},
-    },
+    use_cases::notion::page::PageUseCase,
 };
 use async_graphql::{EmptySubscription, Schema};
 use axum::{
@@ -49,20 +35,6 @@ async fn main() {
     let pool = create_pool().await;
     let pool = Arc::new(pool);
 
-    let channel_repository: Arc<dyn IChannelRepository> =
-        Arc::new(ChannelRepository::new(Arc::clone(&pool)));
-    let thread_repository: Arc<dyn IThreadRepository> =
-        Arc::new(ThreadRepository::new(Arc::clone(&pool)));
-    let message_repository: Arc<dyn IMessageRepository> =
-        Arc::new(MessageRepository::new(Arc::clone(&pool)));
-
-    let channel_use_case = ChannelUseCase::new(Arc::clone(&channel_repository));
-    let thread_use_case = ThreadUseCase::new(Arc::clone(&thread_repository));
-    let message_use_case = MessageUseCase::new(
-        Arc::clone(&thread_repository),
-        Arc::clone(&message_repository),
-    );
-
     let page_repository: Arc<dyn IPageRepository> =
         Arc::new(PageRepository::new(Arc::clone(&pool)));
 
@@ -73,9 +45,6 @@ async fn main() {
         MutationRoot::default(),
         EmptySubscription,
     )
-    .data(channel_use_case)
-    .data(thread_use_case)
-    .data(message_use_case)
     .data(page_use_case)
     .finish();
 
