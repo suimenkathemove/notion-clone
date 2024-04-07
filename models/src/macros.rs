@@ -12,6 +12,7 @@ macro_rules! define_id {
     };
 }
 
+#[allow(unused)]
 macro_rules! define_name {
     ($name:ident) => {
         pub struct $name(pub String);
