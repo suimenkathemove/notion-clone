@@ -2,7 +2,7 @@ import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 
 import { cidrBlocks } from "./cidr-blocks";
-import { createInternetGateway } from "./internet-gateway";
+import { createIgw } from "./igw";
 import { createRouteTable } from "./route-tables";
 import {
   createPrivateSubnetSecurityGroup,
@@ -33,7 +33,7 @@ const createSubnetsAndRouteTable = (
 export const createNetwork = (scope: Construct) => {
   const vpc = createVpc(scope);
 
-  const internetGateway = createInternetGateway(scope, { vpc });
+  const igw = createIgw(scope, { vpc });
 
   const { routeTable: subnetIngressRouteTable } = createSubnetsAndRouteTable(
     scope,
@@ -42,7 +42,7 @@ export const createNetwork = (scope: Construct) => {
   );
   createPublicSubnetSecurityGroup(scope, vpc, "ingress");
   new cdk.aws_ec2.CfnRoute(scope, "gateway-ingress-route", {
-    gatewayId: internetGateway.ref,
+    gatewayId: igw.ref,
     routeTableId: subnetIngressRouteTable.ref,
     destinationCidrBlock: cidrBlocks.anywhere,
   });
