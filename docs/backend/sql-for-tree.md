@@ -1114,7 +1114,7 @@ WHERE
 ## 最後に
 
 この方法で、Notionアプリのページ機能の一部を実装した。
-<https://github.com/suimenkathemove/monorepo-sandbox/blob/0547ef3fb0a99ad38953a1709e50849b7a91cbd1/backend/src/repositories/postgres/notion/page/mod.rs>
+<https://github.com/suimenkathemove/notion-clone/blob/0547ef3fb0a99ad38953a1709e50849b7a91cbd1/backend/src/repositories/postgres/notion/page/mod.rs>
 
 ## 参考
 

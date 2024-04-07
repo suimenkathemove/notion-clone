@@ -4,8 +4,8 @@ devcontainerを使うことで、Docker Containerの中のプロセスに対し�
 
 ## 設定
 
-- [.devcontainer/devcontainer.json](https://github.com/suimenkathemove/monorepo-sandbox/blob/main/.devcontainer/devcontainer.json)
-- [.vscode/launch.json](https://github.com/suimenkathemove/monorepo-sandbox/blob/main/.vscode/launch.json)
+- [.devcontainer/devcontainer.json](https://github.com/suimenkathemove/notion-clone/blob/main/.devcontainer/devcontainer.json)
+- [.vscode/launch.json](https://github.com/suimenkathemove/notion-clone/blob/main/.vscode/launch.json)
 
 ## 手順
 

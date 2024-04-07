@@ -5,8 +5,8 @@ services:
     build:
       context: ..
       dockerfile: docker/app/Dockerfile
-    image: monorepo-sandbox-app
-    container_name: monorepo-sandbox-app
+    image: notion-clone-app
+    container_name: notion-clone-app
     ports:
       - 8080:8080
     volumes:
@@ -14,10 +14,10 @@ services:
         source: ../..
         target: /app
       - type: volume
-        source: monorepo-sandbox-app-cargo
+        source: notion-clone-app-cargo
         target: /usr/local/cargo/registry
       - type: volume
-        source: monorepo-sandbox-app-target
+        source: notion-clone-app-target
         target: /app/target
     working_dir: /app/backend
     env_file: "${ENV_FILE:-../.env.dev}"
@@ -29,16 +29,16 @@ services:
       context: ..
       dockerfile: docker/db/Dockerfile
       target: database
-    image: monorepo-sandbox-db
-    container_name: monorepo-sandbox-db
+    image: notion-clone-db
+    container_name: notion-clone-db
     ports:
       - 5432:5432
     volumes:
-      - monorepo-sandbox-pgdata:/var/lib/postgresql/data
+      - notion-clone-pgdata:/var/lib/postgresql/data
     restart: always
     env_file: "${ENV_FILE:-../.env.dev}"
 
 volumes:
-  monorepo-sandbox-app-cargo:
-  monorepo-sandbox-app-target:
-  monorepo-sandbox-pgdata:
+  notion-clone-app-cargo:
+  notion-clone-app-target:
+  notion-clone-pgdata:
