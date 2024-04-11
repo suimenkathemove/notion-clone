@@ -10,6 +10,8 @@ import {
 import { createSubnets } from "./subnets";
 import { createVpc } from "./vpc";
 
+import { DOMAIN_NAME } from "@/models/domain";
+
 export const createNetwork = (scope: Construct) => {
   const vpc = createVpc(scope);
 
@@ -32,28 +34,40 @@ export const createNetwork = (scope: Construct) => {
   const egressSubnets = createSubnets(scope, vpc, "egress");
   createPrivateSubnetSecurityGroup(scope, vpc, "egress");
 
-  new cdk.aws_ec2.CfnVPCEndpoint(scope, "vpc-endpoint-ecr-api", {
-    vpcEndpointType: "Interface",
-    serviceName: "com.amazonaws.ap-northeast-1.ecr.api",
-    vpcId: vpc.ref,
-    subnetIds: [egressSubnets.subnetA.ref, egressSubnets.subnetC.ref],
-  });
-  new cdk.aws_ec2.CfnVPCEndpoint(scope, "vpc-endpoint-ecr-dkr", {
-    vpcEndpointType: "Interface",
-    serviceName: "com.amazonaws.ap-northeast-1.ecr.dkr",
-    vpcId: vpc.ref,
-    subnetIds: [egressSubnets.subnetA.ref, egressSubnets.subnetC.ref],
-  });
-  new cdk.aws_ec2.CfnVPCEndpoint(scope, "vpc-endpoint-logs", {
-    vpcEndpointType: "Interface",
-    serviceName: "com.amazonaws.ap-northeast-1.logs",
-    vpcId: vpc.ref,
-    subnetIds: [egressSubnets.subnetA.ref, egressSubnets.subnetC.ref],
-  });
-  new cdk.aws_ec2.CfnVPCEndpoint(scope, "vpc-endpoint-s3", {
-    vpcEndpointType: "Gateway",
-    serviceName: "com.amazonaws.ap-northeast-1.s3",
-    vpcId: vpc.ref,
-    routeTableIds: [appSubnets.routeTable.ref],
-  });
+  (() => {
+    const id = `${DOMAIN_NAME}-vpc-endpoint-ecr-api`;
+    new cdk.aws_ec2.CfnVPCEndpoint(scope, id, {
+      vpcEndpointType: "Interface",
+      serviceName: "com.amazonaws.ap-northeast-1.ecr.api",
+      vpcId: vpc.ref,
+      subnetIds: [egressSubnets.subnetA.ref, egressSubnets.subnetC.ref],
+    });
+  })();
+  (() => {
+    const id = `${DOMAIN_NAME}-vpc-endpoint-ecr-dkr`;
+    new cdk.aws_ec2.CfnVPCEndpoint(scope, id, {
+      vpcEndpointType: "Interface",
+      serviceName: "com.amazonaws.ap-northeast-1.ecr.dkr",
+      vpcId: vpc.ref,
+      subnetIds: [egressSubnets.subnetA.ref, egressSubnets.subnetC.ref],
+    });
+  })();
+  (() => {
+    const id = `${DOMAIN_NAME}-vpc-endpoint-logs`;
+    new cdk.aws_ec2.CfnVPCEndpoint(scope, id, {
+      vpcEndpointType: "Interface",
+      serviceName: "com.amazonaws.ap-northeast-1.logs",
+      vpcId: vpc.ref,
+      subnetIds: [egressSubnets.subnetA.ref, egressSubnets.subnetC.ref],
+    });
+  })();
+  (() => {
+    const id = `${DOMAIN_NAME}-vpc-endpoint-s3`;
+    new cdk.aws_ec2.CfnVPCEndpoint(scope, id, {
+      vpcEndpointType: "Gateway",
+      serviceName: "com.amazonaws.ap-northeast-1.s3",
+      vpcId: vpc.ref,
+      routeTableIds: [appSubnets.routeTable.ref],
+    });
+  })();
 };
