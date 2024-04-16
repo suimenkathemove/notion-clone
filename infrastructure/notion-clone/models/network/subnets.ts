@@ -25,7 +25,7 @@ const createSubnet = (
   subnetId: string,
   subnetType: SubnetType,
   az: AvailabilityZoneType,
-): cdk.aws_ec2.CfnSubnet => {
+): { id: string; subnet: cdk.aws_ec2.CfnSubnet } => {
   const id = `${subnetId}-${az}`;
   const subnet = new cdk.aws_ec2.CfnSubnet(scope, id, {
     vpcId: vpc.ref,
@@ -34,7 +34,7 @@ const createSubnet = (
     tags: tags(id),
   });
 
-  return subnet;
+  return { id, subnet };
 };
 
 export const createSubnets = (
@@ -61,9 +61,9 @@ export const createSubnets = (
     [subnetA, subnetC].forEach((s) => {
       new cdk.aws_ec2.CfnSubnetRouteTableAssociation(
         scope,
-        `${s.attrSubnetId}-${routeTable.attrRouteTableId}`,
+        `${s.id}-${id}-association`,
         {
-          subnetId: s.ref,
+          subnetId: s.subnet.ref,
           routeTableId: routeTable.ref,
         },
       );
@@ -72,5 +72,5 @@ export const createSubnets = (
     return routeTable;
   })();
 
-  return { subnetA, subnetC, routeTable };
+  return { subnetA: subnetA.subnet, subnetC: subnetC.subnet, routeTable };
 };
