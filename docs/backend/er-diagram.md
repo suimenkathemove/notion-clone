@@ -3,26 +3,51 @@
 ```mermaid
 erDiagram
   workspaces {
-    uuid id PK
+    id UUID PK
   }
-
   accounts {
-    uuid id PK
+    id UUID PK
   }
-
+  roles {
+    role VARCHAR(20) PK
+  }
   pages {
-    uuid id PK
-    uuid workspace_id FK
-    uuid created_by FK
+    id UUID PK
+    workspace_id UUID FK
+    created_by UUID FK
   }
-
+  page_relationships {
+    ancestor UUID PK,FK
+    descendant UUID PK,FK
+  }
+  page_sibling_relationships {
+    ancestor UUID PK,FK
+    descendant UUID PK,FK
+  }
   workspace_accounts {
-    uuid workspace_id PK,FK
-    uuid account_id PK,FK
+    workspace_id UUID PK,FK
+    account_id UUID PK,FK
+    role VARCHAR(20) FK
+  }
+  page_assignees {
+    page_id UUID PK,FK
+    account_id UUID PK,FK
   }
 
-  page_assignees {
-    uuid page_id PK,FK
-    uuid account_id PK,FK
-  }
+  workspaces ||--o{ workspace_accounts : ""
+  accounts ||--|{ workspace_accounts : ""
+  roles ||--o{ workspace_accounts : ""
+
+  workspaces ||--o{ pages : ""
+
+  accounts |o--o{ pages : "created_by"
+
+  accounts ||--o{ page_assignees : ""
+  pages ||--o{ page_assignees : ""
+
+  pages ||--|{ page_relationships : ""
+  page_relationships }|--|| pages : ""
+
+  pages ||--|{ page_sibling_relationships : ""
+  page_sibling_relationships }|--|| pages : ""
 ```
