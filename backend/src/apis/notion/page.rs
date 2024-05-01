@@ -2,7 +2,7 @@ use super::super::{common::DateTimeUtc, error::GraphQLError};
 use crate::use_cases::notion::page::PageUseCase;
 use async_graphql::{Context, Enum, InputObject, Object, SimpleObject};
 
-define_id!(PageId, models::notion::page::PageId);
+define_id!(PageId, models::page::PageId);
 
 struct Page {
     id: PageId,
@@ -12,8 +12,8 @@ struct Page {
     updated_at: DateTimeUtc,
 }
 
-impl From<models::notion::page::Page> for Page {
-    fn from(page: models::notion::page::Page) -> Self {
+impl From<models::page::Page> for Page {
+    fn from(page: models::page::Page) -> Self {
         Self {
             id: page.id.into(),
             title: page.title,
@@ -56,8 +56,8 @@ struct PageTree {
     children: Vec<PageTree>,
 }
 
-impl From<models::notion::page::PageTree> for PageTree {
-    fn from(value: models::notion::page::PageTree) -> Self {
+impl From<models::page::PageTree> for PageTree {
+    fn from(value: models::page::PageTree) -> Self {
         Self {
             id: value.id.into(),
             title: value.title,
@@ -117,7 +117,7 @@ struct AddPage {
     text: String,
 }
 
-impl From<AddPage> for models::notion::page::AddPage {
+impl From<AddPage> for models::page::AddPage {
     fn from(value: AddPage) -> Self {
         Self {
             title: value.title,
@@ -134,7 +134,7 @@ struct UpdatePage {
     text: Option<String>,
 }
 
-impl From<UpdatePage> for models::notion::page::UpdatePage {
+impl From<UpdatePage> for models::page::UpdatePage {
     fn from(value: UpdatePage) -> Self {
         Self {
             title: value.title,
@@ -166,17 +166,15 @@ struct MoveTarget {
     id: PageId,
 }
 
-impl From<MoveTarget> for models::notion::page::MoveTarget {
+impl From<MoveTarget> for models::page::MoveTarget {
     fn from(value: MoveTarget) -> Self {
         match value.type_ {
-            MoveTargetType::Root => models::notion::page::MoveTarget::Root,
-            MoveTargetType::Parent => models::notion::page::MoveTarget::Parent(value.id.into()),
+            MoveTargetType::Root => models::page::MoveTarget::Root,
+            MoveTargetType::Parent => models::page::MoveTarget::Parent(value.id.into()),
             MoveTargetType::SiblingParent => {
-                models::notion::page::MoveTarget::SiblingParent(value.id.into())
+                models::page::MoveTarget::SiblingParent(value.id.into())
             }
-            MoveTargetType::SiblingChild => {
-                models::notion::page::MoveTarget::SiblingChild(value.id.into())
-            }
+            MoveTargetType::SiblingChild => models::page::MoveTarget::SiblingChild(value.id.into()),
         }
     }
 }
