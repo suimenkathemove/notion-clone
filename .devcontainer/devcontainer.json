@@ -8,7 +8,7 @@
   "overrideCommand": true,
   "customizations": {
     "vscode": {
-      "extensions": ["vadimcn.vscode-lldb"]
+      "extensions": ["rust-lang.rust-analyzer", "vadimcn.vscode-lldb"]
     }
   }
 }
