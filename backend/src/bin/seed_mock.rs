@@ -1,8 +1,8 @@
-use backend::repositories::postgres::notion;
+use backend::repositories::postgres::page;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    notion::page::mock::seed_mock().await?;
+    page::mock::seed_mock().await?;
 
     Ok(())
 }

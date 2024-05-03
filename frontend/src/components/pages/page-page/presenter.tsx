@@ -1,12 +1,12 @@
 import { memo } from "react";
 
-import { Header, HeaderProps } from "@/components/notion/domains/header";
+import { Header, HeaderProps } from "@/components/domains/header";
 import {
   PageContent,
   PageContentProps,
-} from "@/components/notion/domains/page-content";
-import { Sidebar, SidebarProps } from "@/components/notion/domains/sidebar";
-import { Layout } from "@/components/notion/layout";
+} from "@/components/domains/page-content";
+import { Sidebar, SidebarProps } from "@/components/domains/sidebar";
+import { Layout } from "@/components/layout";
 
 export type PagePagePresenterProps = {
   pageListResult: SidebarProps["pageListResult"];

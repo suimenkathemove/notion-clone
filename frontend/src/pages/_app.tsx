@@ -4,7 +4,7 @@ import "@/styles/global.css";
 import { ApolloProvider } from "@apollo/client";
 import type { AppProps } from "next/app";
 
-import { EnsurePageExists } from "@/components/notion/middlewares/ensure-page-exists";
+import { EnsurePageExists } from "@/components/middlewares/ensure-page-exists";
 import { PageTreeContextProvider } from "@/global-states/page-tree";
 import { client } from "@/graphql";
 

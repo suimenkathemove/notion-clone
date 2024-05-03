@@ -2,7 +2,7 @@ import { Meta, StoryObj } from "@storybook/react";
 
 import { PagePagePresenter, PagePagePresenterProps } from "./presenter";
 
-import { defaultProps as pageListDefaultProps } from "@/components/notion/domains/page-list/index.stories";
+import { defaultProps as pageListDefaultProps } from "@/components/domains/page-list/index.stories";
 
 export default {
   component: PagePagePresenter,

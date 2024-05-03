@@ -5,7 +5,7 @@ import { StyledHeader } from "./styles";
 import {
   BreadcrumbList,
   BreadcrumbListProps,
-} from "@/components/notion/uis/breadcrumb-list";
+} from "@/components/uis/breadcrumb-list";
 
 export interface HeaderProps {
   ancestors: BreadcrumbListProps["ancestors"];

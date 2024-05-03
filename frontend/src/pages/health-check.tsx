@@ -1,3 +1,3 @@
-import { HealthCheck } from "@/components/health-check/pages";
+import { HealthCheck } from "@/components/pages/health-check";
 
 export default HealthCheck;

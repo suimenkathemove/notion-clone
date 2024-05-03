@@ -5,18 +5,16 @@ mod common;
 mod error;
 pub mod handlers;
 mod health_check;
-mod notion;
+mod page;
 
-use self::{
-    health_check::HealthCheckQuery,
-    notion::{NotionMutationRoot, NotionQueryRoot},
-};
 use async_graphql::{EmptySubscription, MergedObject, Schema};
+use health_check::HealthCheckQuery;
+use page::{PageMutation, PageQuery};
 
 pub type MySchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 
 #[derive(Default, MergedObject)]
-pub struct QueryRoot(HealthCheckQuery, NotionQueryRoot);
+pub struct QueryRoot(HealthCheckQuery, PageQuery);
 
 #[derive(Default, MergedObject)]
-pub struct MutationRoot(NotionMutationRoot);
+pub struct MutationRoot(PageMutation);

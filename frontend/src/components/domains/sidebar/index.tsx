@@ -2,7 +2,7 @@ import { memo } from "react";
 
 import { Nav } from "./styles";
 
-import { PageList } from "@/components/notion/domains/page-list";
+import { PageList } from "@/components/domains/page-list";
 import { Page, PageId } from "@/graphql/generated";
 import { Result } from "@/types";
 

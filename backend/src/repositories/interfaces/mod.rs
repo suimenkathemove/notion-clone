@@ -1,1 +1,1 @@
-pub mod notion;
+pub mod page;
