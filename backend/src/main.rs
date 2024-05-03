@@ -8,7 +8,7 @@ use crate::{
         MutationRoot, QueryRoot,
     },
     repositories::{
-        interfaces::notion::page::IPageRepository,
+        interfaces::page::IPageRepository,
         postgres::{create_pool, notion::page::PageRepository},
     },
     use_cases::page::PageUseCase,

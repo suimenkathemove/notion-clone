@@ -1,4 +1,4 @@
-use super::super::super::error::RepositoryError;
+use super::super::error::RepositoryError;
 use async_trait::async_trait;
 
 #[async_trait]

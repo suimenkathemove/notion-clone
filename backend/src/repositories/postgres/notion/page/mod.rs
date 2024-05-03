@@ -2,7 +2,7 @@ pub mod mock;
 mod tests;
 
 use super::super::{
-    super::{error::RepositoryError, interfaces::notion::page::IPageRepository},
+    super::{error::RepositoryError, interfaces::page::IPageRepository},
     common::DateTimeUtc,
 };
 use async_trait::async_trait;

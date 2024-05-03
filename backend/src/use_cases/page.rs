@@ -1,5 +1,5 @@
 use super::error::UseCaseError;
-use crate::repositories::interfaces::notion::page::IPageRepository;
+use crate::repositories::interfaces::page::IPageRepository;
 use std::sync::Arc;
 
 pub struct PageUseCase {
