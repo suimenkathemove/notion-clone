@@ -10,7 +10,7 @@ import {
 import {
   SortableTree,
   SortableTreeProps,
-} from "@/components/notion/domains/sortable-tree";
+} from "@/components/domains/sortable-tree";
 import { usePageTree } from "@/global-states/page-tree";
 import {
   MoveTarget,

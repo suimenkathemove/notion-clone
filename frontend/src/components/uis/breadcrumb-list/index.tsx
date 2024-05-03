@@ -3,7 +3,7 @@ import { memo } from "react";
 
 import { Li, Ol, Slash } from "./styles";
 
-import { untitledPageLabel } from "@/models/notion/page";
+import { untitledPageLabel } from "@/models/page";
 import { routes } from "@/routes";
 
 interface Node {
