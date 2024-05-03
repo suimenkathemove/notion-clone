@@ -1,7 +1,7 @@
 pub mod mock;
 mod tests;
 
-use super::super::{
+use super::{
     super::{error::RepositoryError, interfaces::page::IPageRepository},
     common::DateTimeUtc,
 };

@@ -2,7 +2,7 @@
 mod macros;
 
 mod common;
-pub mod notion;
+pub mod page;
 
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 

@@ -9,7 +9,7 @@ use crate::{
     },
     repositories::{
         interfaces::page::IPageRepository,
-        postgres::{create_pool, notion::page::PageRepository},
+        postgres::{create_pool, page::PageRepository},
     },
     use_cases::page::PageUseCase,
 };
