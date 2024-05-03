@@ -11,7 +11,7 @@ use crate::{
         interfaces::notion::page::IPageRepository,
         postgres::{create_pool, notion::page::PageRepository},
     },
-    use_cases::notion::page::PageUseCase,
+    use_cases::page::PageUseCase,
 };
 use async_graphql::{EmptySubscription, Schema};
 use axum::{

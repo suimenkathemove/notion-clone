@@ -1,4 +1,4 @@
-use super::super::error::UseCaseError;
+use super::error::UseCaseError;
 use crate::repositories::interfaces::notion::page::IPageRepository;
 use std::sync::Arc;
 

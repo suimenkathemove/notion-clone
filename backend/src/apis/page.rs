@@ -1,5 +1,5 @@
 use super::{common::DateTimeUtc, error::GraphQLError};
-use crate::use_cases::notion::page::PageUseCase;
+use crate::use_cases::page::PageUseCase;
 use async_graphql::{Context, Enum, InputObject, Object, SimpleObject};
 
 define_id!(PageId, models::page::PageId);
