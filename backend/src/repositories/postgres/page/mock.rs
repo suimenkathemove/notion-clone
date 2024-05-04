@@ -1,5 +1,5 @@
+use super::super::create_pool;
 use super::InternalPageRepository;
-use crate::repositories::postgres::create_pool;
 use sqlx::{Postgres, Transaction};
 
 pub struct InsertMockResponse {
