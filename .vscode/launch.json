@@ -19,7 +19,8 @@
       "type": "lldb",
       "request": "attach",
       "name": "Attach 'backend'",
-      "pid": "${command:pickProcess}"
+      // "pid": "${command:pickProcess}"
+      "program": "/app/target/debug/backend"
     },
     {
       "name": "dev",

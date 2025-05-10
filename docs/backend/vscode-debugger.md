@@ -17,3 +17,29 @@ devcontainerを使うことで、Docker Containerの中のプロセスに対し�
 ## 参考
 
 - <https://daveceddia.com/debug-electron-native-rust-with-vscode/>
+
+## ヒープデータの値が表示されない問題
+
+ヒープデータの値が表示されず、変数のアドレスが表示されてしまう場合の対処法。
+
+### 原因
+
+launch.jsonがない場合に生成できる設定の、
+
+```json
+"cargo": {
+  "args": ["build", "--bin=backend", "--package=backend"],
+  "filter": {
+    "name": "backend",
+    "kind": "bin"
+  }
+},
+```
+
+が必要のよう。
+
+1. monorepoを採用している場合、`"cwd": "${workspaceFolder}"`がうまく機能しないようなので、devcontainer.jsonに`"workspaceFolder": "/app/backend"`を設定する
+2. コンテナは起動しておくが、サーバは落としておく
+3. `Dev Containers: Reopen in Container`を実行する
+4. `Cargo.toml has been detected in this workspace.Would you like to generate launch configurations for its targets?`の、生成を実行する
+5. デバッグの実行
