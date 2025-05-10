@@ -19,7 +19,7 @@ CREATE TABLE notion.accounts (
 CREATE TABLE notion.roles (role VARCHAR(20) PRIMARY KEY);
 
 INSERT INTO
-    notion.roles (id)
+    notion.roles (role)
 VALUES
     ('OWNER'),
     ('MEMBER'),

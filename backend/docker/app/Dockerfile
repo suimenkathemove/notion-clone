@@ -6,7 +6,7 @@ RUN set -x \
   && rustup component add \
   clippy \
   rustfmt \
-  && cargo install \
+  && cargo install --locked \
   cargo-watch@8.4.1 \
   sqlx-cli@0.7.1 \
   cargo-nextest@0.9.63
