@@ -4,7 +4,8 @@
     "docker-compose.devcontainer-extend.yml"
   ],
   "service": "app",
-  "workspaceFolder": "/app",
+  // "workspaceFolder": "/app",
+  "workspaceFolder": "/app/backend",
   "overrideCommand": true,
   "customizations": {
     "vscode": {
